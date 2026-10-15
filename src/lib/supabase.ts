@@ -1,19 +1,24 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
+import { readSupabaseConfig } from './supabase-config'
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
+const config = readSupabaseConfig(import.meta.env as Record<string, string | undefined>)
 
-export const isConfigured = Boolean(url && anonKey)
+export const isConfigured = config.problem === null
+export const configProblem = config.problem
 
-export const supabase = createClient<Database>(url ?? 'http://localhost:54321', anonKey ?? 'missing-key', {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce',
+export const supabase = createClient<Database>(
+  config.url ?? 'http://localhost:54321',
+  config.key ?? 'missing-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce',
+    },
   },
-})
+)
 
 export const BUCKET = 'brand-files'
 

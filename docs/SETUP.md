@@ -102,7 +102,7 @@ Wie du den Kurs damit organisierst, steht in [LEHRE.md](LEHRE.md).
 
 | Problem | Lösung |
 | ------- | ------ |
-| Die App zeigt „Fast geschafft: Backend verbinden“ | Die Umgebungsvariablen fehlen in Vercel. Eintragen und **Redeploy**. |
+| Die App zeigt „Fast geschafft: Backend verbinden“ | Die Umgebungsvariablen fehlen oder sind ungültig; das konkrete Problem steht im gelben Kasten. In Vercel korrigieren und danach **Redeploy** (die Werte werden nur beim Build gelesen). |
 | Registrierung meldet „Bitte bestätige zuerst deine E-Mail“ | „Confirm email“ ausschalten oder SMTP einrichten. |
 | Nach dem Klick auf einen E-Mail-Link landet man auf `localhost` | Site URL und Redirect URLs in Supabase korrigieren (Schritt 3). |
 | Upload bricht ab | Dateien dürfen max. 50 MB groß sein (Grenze des kostenlosen Supabase-Tarifs). |
