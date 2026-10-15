@@ -45,7 +45,7 @@ export function genericEmbed(input: string): EmbedInfo | null {
     if (url.pathname.startsWith('/embed')) return { provider: 'Figma', src: url.toString() }
     return {
       provider: 'Figma',
-      src: `https://www.figma.com/embed?embed_host=markenkompass&url=${encodeURIComponent(url.toString())}`,
+      src: `https://www.figma.com/embed?embed_host=brandbench&url=${encodeURIComponent(url.toString())}`,
     }
   }
   if (host.endsWith('canva.com')) {

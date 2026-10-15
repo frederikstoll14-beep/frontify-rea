@@ -1,9 +1,9 @@
 {
-  "name": "markenkompass",
+  "name": "brandbench",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Markenkompass – Brand-Identity-Portal (funktionaler Frontify-Nachbau) für Lehre und Teams",
+  "description": "Brandbench – die Werkbank für deine Marke. Brand-Identity-Portal (funktionaler Frontify-Nachbau) für Lehre und Teams",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

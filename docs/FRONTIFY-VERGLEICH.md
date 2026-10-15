@@ -1,12 +1,12 @@
-# Frontify → Markenkompass: Funktionsabgleich
+# Frontify → Brandbench: Funktionsabgleich
 
-Grundlage ist die Analyse in [REVERSE-ENGINEERING-FRONTIFY.md](REVERSE-ENGINEERING-FRONTIFY.md). Sie wurde aus öffentlichen Quellen erstellt: Help-Center, SDK-Typen, Produktseiten. Markenkompass übernimmt die **Bedienlogik** von Frontify, also Portal, Guidelines mit Bausteinen, Essentials und Libraries. Gestaltung, Code und Namen sind eigenständig. Für die Lehre ergänzt der Nachbau einiges, was Frontify nicht oder nur im Enterprise-Tarif bietet.
+Grundlage ist die Analyse in [REVERSE-ENGINEERING-FRONTIFY.md](REVERSE-ENGINEERING-FRONTIFY.md). Sie wurde aus öffentlichen Quellen erstellt: Help-Center, SDK-Typen, Produktseiten. Brandbench übernimmt die **Bedienlogik** von Frontify, also Portal, Guidelines mit Bausteinen, Essentials und Libraries. Gestaltung, Code und Namen sind eigenständig. Für die Lehre ergänzt der Nachbau einiges, was Frontify nicht oder nur im Enterprise-Tarif bietet.
 
 Legende: ✅ umgesetzt · 🟡 vereinfacht · ➕ geht über Frontify hinaus · ⏳ nicht umgesetzt
 
 ## Informationsarchitektur
 
-| Frontify | Markenkompass | Status |
+| Frontify | Brandbench | Status |
 | --- | --- | --- |
 | Account / Instanz | Workspace (z. B. Kurs) | ✅ |
 | Brand (mehrere pro Account) | Marke (beliebig viele pro Workspace) | ✅ |
@@ -21,7 +21,7 @@ Legende: ✅ umgesetzt · 🟡 vereinfacht · ➕ geht über Frontify hinaus · 
 
 ## Guideline-Bausteine
 
-| Frontify-Block | Markenkompass-Baustein | Status |
+| Frontify-Block | Brandbench-Baustein | Status |
 | --- | --- | --- |
 | Text, Heading | Text (Rich Text, 1–2 Spalten), Überschrift (mit Dachzeile) | ✅ |
 | Callout | Hinweis (Info, Tipp, Achtung, Verbot) | ✅ |
@@ -48,7 +48,7 @@ Legende: ✅ umgesetzt · 🟡 vereinfacht · ➕ geht über Frontify hinaus · 
 
 ## Essentials / Markenbasis
 
-| Frontify | Markenkompass | Status |
+| Frontify | Brandbench | Status |
 | --- | --- | --- |
 | Paletten mit Name/Beschreibung | ✅ | ✅ |
 | HEX, RGB, CMYK, Pantone, RAL, NCS, HKS | alle, plus HSL und automatische CMYK-Näherung | ✅ |
@@ -60,7 +60,7 @@ Legende: ✅ umgesetzt · 🟡 vereinfacht · ➕ geht über Frontify hinaus · 
 
 ## Asset Management
 
-| Frontify | Markenkompass | Status |
+| Frontify | Brandbench | Status |
 | --- | --- | --- |
 | Media/Logo/Icon/Document/Template Library | Bibliotheken: Bilder & Medien, Logos, Icons, Dokumente, Vorlagen, Audio & Video | ✅ |
 | Upload, Vorschau | Mehrfach-Upload per Drag & Drop, automatische Vorschaubilder (Bild, SVG, Video) | ✅ |
@@ -76,7 +76,7 @@ Legende: ✅ umgesetzt · 🟡 vereinfacht · ➕ geht über Frontify hinaus · 
 
 ## Nutzer, Rechte, Teilen
 
-| Frontify | Markenkompass | Status |
+| Frontify | Brandbench | Status |
 | --- | --- | --- |
 | Rollen Owner/Editor/Viewer | Workspace: Owner/Admin/Mitglied · Marke: Admin/Bearbeiten/Ansehen | ✅ |
 | Einladung per E-Mail | E-Mail-Einladung (wird bei Registrierung automatisch eingelöst) | ✅ |
@@ -87,7 +87,7 @@ Legende: ✅ umgesetzt · 🟡 vereinfacht · ➕ geht über Frontify hinaus · 
 
 ## Zusammenarbeit
 
-| Frontify | Markenkompass | Status |
+| Frontify | Brandbench | Status |
 | --- | --- | --- |
 | Kommentare (Seite/Block), Threads, Resolve | Seiten- und Asset-Kommentare, Antworten, „Erledigt“, Sammelansicht „Feedback“ | ✅ |
 | Änderungsprotokoll (Enterprise, nur Hinzufügen) | Aktivitätsverlauf: Anlegen, Ändern, Löschen, neue Versionen, Mitglieder | ✅ ➕ |
@@ -97,7 +97,7 @@ Legende: ✅ umgesetzt · 🟡 vereinfacht · ➕ geht über Frontify hinaus · 
 
 ## Weitere Funktionen
 
-| Frontify | Markenkompass | Status |
+| Frontify | Brandbench | Status |
 | --- | --- | --- |
 | Guideline-Suche | Suche über Seiten, Inhalte, Dateien, Farben (Strg/⌘ + K) | ✅ |
 | PDF-Export über Druckdialog | Druckansicht eines ganzen Handbuchs mit Deckblatt und Inhaltsverzeichnis | ✅ |

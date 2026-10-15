@@ -1,4 +1,4 @@
-# Markenkompass in der Lehre
+# Brandbench in der Lehre
 
 Leitfaden für den Einsatz in Lehrveranstaltungen wie „Brand Identity“, z. B. im Master Crossmedia Publishing & Management mit Schwerpunkt Sportkommunikation.
 
@@ -6,7 +6,7 @@ Leitfaden für den Einsatz in Lehrveranstaltungen wie „Brand Identity“, z. B
 
 Jede Projektgruppe baut die **komplette Brand Identity** einer Organisation auf. Das kann ein Verein, ein Verband, ein Unternehmen, eine Sportmarke, ein Event oder eine Athletin bzw. ein Athlet sein. Alles liegt **an einem Ort**:
 
-| Bereich in Markenkompass | Inhalt in der Brand Identity |
+| Bereich in Brandbench | Inhalt in der Brand Identity |
 | --- | --- |
 | **Markenhandbuch** (Kapitel → Seiten → Bausteine) | Markenkern, Positionierung, Zielgruppen, Gestaltungsregeln, Anwendungen |
 | **Markenbasis** | Farbpaletten (HEX, RGB, CMYK, Pantone, HKS, RAL, NCS), Schriften, Textstile |

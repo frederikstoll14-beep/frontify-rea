@@ -1,4 +1,4 @@
-# Einrichtung: Markenkompass online stellen
+# Einrichtung: Brandbench online stellen
 
 Dauer: ca. 20 Minuten. Kosten: 0 € (kostenlose Tarife von Supabase und Vercel reichen für einen Kurs).
 
@@ -17,7 +17,7 @@ Browser ──► Vercel (statische Web-App) ──► Supabase (Postgres + Auth
 ## 1. Supabase-Projekt anlegen
 
 1. Auf [supabase.com/dashboard](https://supabase.com/dashboard) → **New project**.
-2. Name, z. B. `markenkompass`, ein sicheres Datenbank-Passwort (gut aufheben).
+2. Name, z. B. `brandbench`, ein sicheres Datenbank-Passwort (gut aufheben).
 3. **Region: Central EU (Frankfurt)**. Das ist wichtig für den Datenschutz (DSGVO).
 4. Warten, bis das Projekt bereit ist (ca. 2 Minuten).
 
@@ -49,8 +49,8 @@ npx supabase db push
 Im Dashboard unter **Authentication**:
 
 1. **URL Configuration**
-   - **Site URL**: die spätere Vercel-Adresse, z. B. `https://markenkompass-xyz.vercel.app`. Du kannst sie nach Schritt 5 nachtragen.
-   - **Redirect URLs**: dieselbe Adresse plus `/**`, also `https://markenkompass-xyz.vercel.app/**`.
+   - **Site URL**: die spätere Vercel-Adresse, z. B. `https://brandbench-xyz.vercel.app`. Du kannst sie nach Schritt 5 nachtragen.
+   - **Redirect URLs**: dieselbe Adresse plus `/**`, also `https://brandbench-xyz.vercel.app/**`.
 2. **Sign In / Providers → Email**
    - **Confirm email**: Hier gibt es zwei Wege.
      - **Aus (empfohlen für den Kursstart):** Alle können sich sofort registrieren und loslegen.
@@ -80,7 +80,7 @@ Den **service_role / secret key** brauchst du **nicht**. Gib ihn niemals weiter.
    | ------------------------ | ----------------------------- |
    | `VITE_SUPABASE_URL`      | Project URL aus Schritt 4     |
    | `VITE_SUPABASE_ANON_KEY` | anon/publishable key          |
-   | `VITE_APP_NAME`          | optional, z. B. `Markenkompass` |
+   | `VITE_APP_NAME`          | optional, Standard ist `Brandbench` |
 
    Hast du Supabase über die **Supabase-Integration von Vercel** verbunden, legt sie die Variablen als `NEXT_PUBLIC_SUPABASE_URL` und `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (bzw. `…_ANON_KEY`) an. Die App liest diese Namen ebenfalls, du musst nichts umbenennen. Achte darauf, dass die Variablen für **Production** (und für Vorschauen auch **Preview**) gelten.
 

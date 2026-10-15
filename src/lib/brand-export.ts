@@ -9,11 +9,13 @@ import type {
   TemplatePage,
 } from '@/lib/templates/types'
 
-export const EXPORT_FORMAT = 'markenkompass-brand'
+export const EXPORT_FORMAT = 'brandbench-brand'
+/** Exporte aus der Zeit, als die App noch „Markenkompass“ hieß. */
+const LEGACY_EXPORT_FORMATS: readonly string[] = ['markenkompass-brand']
 export const EXPORT_VERSION = 1
 
 export interface BrandExportFile {
-  format: typeof EXPORT_FORMAT
+  format: string
   version: number
   exportedAt: string
   source: { brandId: string; name: string; slug: string }
@@ -176,8 +178,9 @@ export function parseBrandExport(text: string): BrandExportFile {
   }
   if (!parsed || typeof parsed !== 'object') throw new Error('Unbekanntes Dateiformat.')
   const file = parsed as Partial<BrandExportFile>
-  if (file.format !== EXPORT_FORMAT || !file.data || typeof file.data !== 'object') {
-    throw new Error('Das ist keine Markenkompass-Exportdatei.')
+  const knownFormat = file.format === EXPORT_FORMAT || LEGACY_EXPORT_FORMATS.includes(file.format ?? '')
+  if (!knownFormat || !file.data || typeof file.data !== 'object') {
+    throw new Error('Das ist keine Brandbench-Exportdatei.')
   }
   if ((file.version ?? 0) > EXPORT_VERSION) throw new Error('Die Datei stammt aus einer neueren Version.')
   return file as BrandExportFile
