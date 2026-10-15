@@ -1,29 +1,23 @@
 import { ArrowRight, ArrowUpRight, BookOpen, Clock, FolderOpen, PencilLine, Plus } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { usePalettes } from '@/api/basics'
 import { useBrandPages, useCreateGuideline, useGuidelines } from '@/api/guidelines'
-import { LIBRARY_KINDS, useLibraries } from '@/api/libraries'
+import { LIBRARY_KINDS, useLibraries, useLibraryMutations, type LibraryKind } from '@/api/libraries'
 import { StorageImage } from '@/components/media/storage-image'
-import { RichText } from '@/components/rich-text'
+import { RichText } from '@/components/rich-text-view'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/dialog'
-import { Field, Input } from '@/components/ui/input'
+import { Field, Input, Select } from '@/components/ui/input'
 import { Badge } from '@/components/ui/misc'
 import { readableTextColor } from '@/lib/color'
 import { ORG_TYPES, type OrgType } from '@/lib/templates/types'
 import { cn, errorMessage, timeAgo } from '@/lib/utils'
+import { resolveQuickLink } from '@/lib/links'
 import { useBrandContext } from './brand-context'
 import { BrandMark } from './brand-layout'
 import { brandColors } from './brand-theme'
-
-export function resolveQuickLink(url: string, basePath: string): { to: string; external: boolean } {
-  if (url.startsWith('library:')) return { to: `${basePath}/bibliothek/${url.slice(8)}`, external: false }
-  if (url.startsWith('page:')) return { to: `${basePath}/g/${url.slice(5)}`, external: false }
-  if (url.startsWith('/')) return { to: url, external: false }
-  return { to: url, external: true }
-}
 
 export function PortalHome() {
   const { brand, basePath, canEdit, canAdmin, isMember, editMode } = useBrandContext()
@@ -34,12 +28,21 @@ export function PortalHome() {
   const createGuideline = useCreateGuideline(brand.id)
   const [newOpen, setNewOpen] = useState(false)
   const [newTitle, setNewTitle] = useState('')
+  const [libraryOpen, setLibraryOpen] = useState(false)
+  const [libraryName, setLibraryName] = useState('')
+  const [libraryKind, setLibraryKind] = useState<LibraryKind>('media')
+  const libraryMutations = useLibraryMutations(brand.id)
+  const navigate = useNavigate()
 
   const colors = brandColors(brand)
   const heroStyle = brand.theme.heroStyle ?? 'brand'
-  const heroBg =
-    heroStyle === 'dark' ? '#15171F' : heroStyle === 'light' ? 'var(--surface)' : colors.primary
-  const heroInk = heroStyle === 'light' ? 'var(--ink)' : heroStyle === 'dark' ? '#FFFFFF' : readableTextColor(colors.primary)
+  const heroBg = heroStyle === 'dark' ? '#15171F' : heroStyle === 'light' ? 'var(--surface)' : colors.primary
+  const heroInk =
+    heroStyle === 'light'
+      ? 'var(--ink)'
+      : heroStyle === 'dark'
+        ? '#FFFFFF'
+        : readableTextColor(colors.primary)
   const allColors = palettes.flatMap((p) => p.colors)
   const firstGuideline = guidelines[0]
   const recent = pages.filter((p) => p.kind === 'page').slice(0, 6)
@@ -53,7 +56,12 @@ export function PortalHome() {
       >
         {brand.cover_path && (
           <>
-            <StorageImage path={brand.cover_path} alt="" className="absolute inset-0 -z-10 h-full w-full" loading="eager" />
+            <StorageImage
+              path={brand.cover_path}
+              alt=""
+              className="absolute inset-0 -z-10 h-full w-full"
+              loading="eager"
+            />
             <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/70 via-black/35 to-black/10" />
           </>
         )}
@@ -62,20 +70,18 @@ export function PortalHome() {
           style={brand.cover_path ? { color: '#FFFFFF' } : undefined}
         >
           <div className="flex items-center gap-3">
-            <BrandMark
-              brand={brand}
-              className={cn(
-                'size-14 rounded-2xl shadow-sm sm:size-16',
-                brand.logo_path ? 'bg-white/90 p-1.5' : 'bg-white/15 text-lg text-current ring-1 ring-current/25',
-              )}
-            />
+            <BrandMark brand={brand} onColor className="size-14 rounded-2xl text-lg shadow-sm sm:size-16" />
             <Badge className="bg-white/15 text-current backdrop-blur">
               {ORG_TYPES[brand.org_type as OrgType] ?? brand.org_type}
             </Badge>
           </div>
           <div className="max-w-3xl">
-            <h1 className="font-brand-heading text-4xl leading-[1.05] font-bold text-balance sm:text-6xl">{brand.name}</h1>
-            {brand.tagline && <p className="mt-4 text-lg text-pretty opacity-85 sm:text-xl">{brand.tagline}</p>}
+            <h1 className="font-brand-heading text-4xl leading-[1.05] font-bold text-balance sm:text-6xl">
+              {brand.name}
+            </h1>
+            {brand.tagline && (
+              <p className="mt-4 text-lg text-pretty opacity-85 sm:text-xl">{brand.tagline}</p>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             {firstGuideline && (
@@ -100,7 +106,12 @@ export function PortalHome() {
         {(brand.home.showColors ?? true) && allColors.length > 0 && (
           <div className="flex h-3">
             {allColors.map((c) => (
-              <span key={c.id} className="flex-1" style={{ backgroundColor: c.hex }} title={`${c.name} ${c.hex}`} />
+              <span
+                key={c.id}
+                className="flex-1"
+                style={{ backgroundColor: c.hex }}
+                title={`${c.name} ${c.hex}`}
+              />
             ))}
           </div>
         )}
@@ -111,7 +122,12 @@ export function PortalHome() {
           <section className="grid gap-6 lg:grid-cols-[1fr_320px]">
             <div>
               {brand.home.welcome ? (
-                <RichText html={brand.home.welcome.includes('<') ? brand.home.welcome : `<p>${brand.home.welcome}</p>`} className="text-lg" />
+                <RichText
+                  html={
+                    brand.home.welcome.includes('<') ? brand.home.welcome : `<p>${brand.home.welcome}</p>`
+                  }
+                  className="text-lg"
+                />
               ) : (
                 <p className="text-muted">Noch kein Begrüßungstext.</p>
               )}
@@ -126,10 +142,13 @@ export function PortalHome() {
             </div>
             {(brand.home.quickLinks?.length ?? 0) > 0 && (
               <aside className="rounded-2xl border border-border bg-surface p-4">
-                <p className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">Schnellzugriff</p>
+                <p className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">
+                  Schnellzugriff
+                </p>
                 <ul className="space-y-1">
                   {brand.home.quickLinks!.map((link, i) => {
                     const target = resolveQuickLink(link.url, basePath)
+                    if (!target) return null
                     const className =
                       'flex items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-sm font-medium text-ink hover:bg-surface-2'
                     return (
@@ -185,9 +204,16 @@ export function PortalHome() {
           </div>
         </section>
 
-        {libraries.length > 0 && (
+        {(libraries.length > 0 || canEdit) && (
           <section>
-            <h2 className="mb-4 font-brand-heading text-2xl font-semibold text-ink">Bibliotheken</h2>
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <h2 className="font-brand-heading text-2xl font-semibold text-ink">Bibliotheken</h2>
+              {canEdit && (
+                <Button size="sm" variant="outline" onClick={() => setLibraryOpen(true)}>
+                  <Plus /> Neue Bibliothek
+                </Button>
+              )}
+            </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {libraries.map((l) => (
                 <Link
@@ -201,7 +227,8 @@ export function PortalHome() {
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold text-ink">{l.name}</span>
                     <span className="block truncate text-[13px] text-muted">
-                      {l.asset_count} {l.asset_count === 1 ? 'Datei' : 'Dateien'} · {LIBRARY_KINDS[l.kind].label}
+                      {l.asset_count} {l.asset_count === 1 ? 'Datei' : 'Dateien'} ·{' '}
+                      {LIBRARY_KINDS[l.kind].label}
                     </span>
                   </span>
                   <ArrowRight className="size-4 text-muted" />
@@ -267,8 +294,66 @@ export function PortalHome() {
         }
       >
         <Field label="Titel">
-          <Input autoFocus value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="z. B. Social-Media-Guide" />
+          <Input
+            autoFocus
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="z. B. Social-Media-Guide"
+          />
         </Field>
+      </Dialog>
+      <Dialog
+        open={libraryOpen}
+        onOpenChange={setLibraryOpen}
+        title="Neue Bibliothek"
+        description="Z. B. für Sponsorenlogos, Pressefotos, Trikot-Entwürfe oder Social-Media-Vorlagen."
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setLibraryOpen(false)}>
+              Abbrechen
+            </Button>
+            <Button
+              disabled={!libraryName.trim()}
+              loading={libraryMutations.createLibrary.isPending}
+              onClick={() =>
+                libraryMutations.createLibrary.mutate(
+                  { name: libraryName.trim(), kind: libraryKind, existing: libraries },
+                  {
+                    onSuccess: (library) => {
+                      setLibraryOpen(false)
+                      setLibraryName('')
+                      navigate(`${basePath}/bibliothek/${library.slug}`)
+                    },
+                    onError: (e) => toast.error(errorMessage(e)),
+                  },
+                )
+              }
+            >
+              Anlegen
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <Field label="Name">
+            <Input
+              autoFocus
+              value={libraryName}
+              onChange={(e) => setLibraryName(e.target.value)}
+              maxLength={120}
+            />
+          </Field>
+          <Field label="Art" hint="Bestimmt die erlaubten Dateitypen beim Upload">
+            <Select value={libraryKind} onChange={(e) => setLibraryKind(e.target.value as LibraryKind)}>
+              {(Object.keys(LIBRARY_KINDS) as LibraryKind[]).map((kind) => (
+                <option key={kind} value={kind}>
+                  {LIBRARY_KINDS[kind].label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
       </Dialog>
     </div>
   )

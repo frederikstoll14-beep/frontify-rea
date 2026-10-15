@@ -34,9 +34,10 @@ export function BlockFrame({
   onInsertAfter: () => void
   children: ReactNode
 }) {
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
-    id: block.id,
-  })
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
+    useSortable({
+      id: block.id,
+    })
   const Icon = BLOCKS[block.type].icon
   return (
     <div
@@ -57,7 +58,9 @@ export function BlockFrame({
         <div
           className={cn(
             'absolute top-1.5 right-1.5 left-1.5 flex items-center justify-between gap-2 transition-opacity',
-            selected ? 'opacity-100' : 'opacity-0 group-focus-within/block:opacity-100 group-hover/block:opacity-100',
+            selected
+              ? 'opacity-100'
+              : 'opacity-0 group-focus-within/block:opacity-100 group-hover/block:opacity-100',
           )}
         >
           <div className="flex min-w-0 items-center gap-1">
@@ -77,10 +80,21 @@ export function BlockFrame({
             </span>
           </div>
           <div className="flex items-center gap-0.5">
-            <Button size="icon-sm" variant="ghost" aria-label="Baustein darunter einfügen" onClick={onInsertAfter}>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Baustein darunter einfügen"
+              onClick={onInsertAfter}
+            >
               <Plus />
             </Button>
-            <Button size="icon-sm" variant="ghost" aria-label="Nach oben" disabled={index === 0} onClick={() => onMove(index, index - 1)}>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Nach oben"
+              disabled={index === 0}
+              onClick={() => onMove(index, index - 1)}
+            >
               <ArrowUp />
             </Button>
             <Button

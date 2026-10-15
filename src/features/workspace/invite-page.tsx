@@ -96,7 +96,9 @@ export function InvitePage() {
           </p>
         )}
         {preview.email_bound && (
-          <p className="mt-3 text-xs text-muted">Diese Einladung gilt nur für die eingeladene E-Mail-Adresse.</p>
+          <p className="mt-3 text-xs text-muted">
+            Diese Einladung gilt nur für die eingeladene E-Mail-Adresse.
+          </p>
         )}
         <div className="mt-6 flex flex-col gap-2">
           <Button asChild size="lg">

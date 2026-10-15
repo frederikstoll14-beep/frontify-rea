@@ -125,7 +125,10 @@ export function GuidelineNav({
       </MenuTrigger>
       <MenuContent align="start">
         {page.kind === 'chapter' && (
-          <MenuItem icon={<FilePlus2 />} onSelect={() => openDialog({ mode: 'create', kind: 'page', parentId: page.id })}>
+          <MenuItem
+            icon={<FilePlus2 />}
+            onSelect={() => openDialog({ mode: 'create', kind: 'page', parentId: page.id })}
+          >
             Seite in diesem Kapitel
           </MenuItem>
         )}
@@ -190,7 +193,9 @@ export function GuidelineNav({
           cn(
             'flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2.5 py-1.5 text-[14px] transition-colors',
             nested && 'pl-5',
-            isActive ? 'bg-surface font-semibold text-ink shadow-sm' : 'text-ink-2 hover:bg-surface/70 hover:text-ink',
+            isActive
+              ? 'bg-surface font-semibold text-ink shadow-sm'
+              : 'text-ink-2 hover:bg-surface/70 hover:text-ink',
             !page.is_published && 'italic',
           )
         }
@@ -220,7 +225,9 @@ export function GuidelineNav({
               <button
                 type="button"
                 onClick={() =>
-                  setCollapsed((prev) => (isCollapsed ? prev.filter((id) => id !== chapter.id) : [...prev, chapter.id]))
+                  setCollapsed((prev) =>
+                    isCollapsed ? prev.filter((id) => id !== chapter.id) : [...prev, chapter.id],
+                  )
                 }
                 className={cn(
                   'flex min-w-0 flex-1 items-center gap-1.5 rounded-lg px-2.5 py-1 text-left text-[11px] font-semibold tracking-[0.08em] text-muted uppercase hover:text-ink',
@@ -228,7 +235,9 @@ export function GuidelineNav({
                 )}
                 aria-expanded={!isCollapsed}
               >
-                <ChevronRight className={cn('size-3.5 shrink-0 transition-transform', !isCollapsed && 'rotate-90')} />
+                <ChevronRight
+                  className={cn('size-3.5 shrink-0 transition-transform', !isCollapsed && 'rotate-90')}
+                />
                 <span className="truncate">{chapter.title}</span>
                 {!chapter.is_published && <EyeOff className="size-3 shrink-0" aria-label="Entwurf" />}
               </button>
@@ -237,7 +246,9 @@ export function GuidelineNav({
             {!isCollapsed && (
               <ul className="mt-0.5 space-y-0.5">
                 {group.pages.map((p) => pageLink(p, true))}
-                {group.pages.length === 0 && <li className="px-5 py-1 text-xs text-muted">Noch keine Seiten</li>}
+                {group.pages.length === 0 && (
+                  <li className="px-5 py-1 text-xs text-muted">Noch keine Seiten</li>
+                )}
               </ul>
             )}
           </div>
@@ -246,10 +257,18 @@ export function GuidelineNav({
 
       {editMode && (
         <div className="flex flex-wrap gap-1.5 border-t border-border pt-3">
-          <Button size="sm" variant="outline" onClick={() => openDialog({ mode: 'create', kind: 'page', parentId: null })}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => openDialog({ mode: 'create', kind: 'page', parentId: null })}
+          >
             <FilePlus2 /> Seite
           </Button>
-          <Button size="sm" variant="outline" onClick={() => openDialog({ mode: 'create', kind: 'chapter', parentId: null })}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => openDialog({ mode: 'create', kind: 'chapter', parentId: null })}
+          >
             <FolderPlus /> Kapitel
           </Button>
         </div>
@@ -271,7 +290,11 @@ export function GuidelineNav({
             <Button variant="ghost" onClick={() => setDialog(null)}>
               Abbrechen
             </Button>
-            <Button onClick={submitDialog} loading={createPage.isPending || updatePage.isPending} disabled={!name.trim()}>
+            <Button
+              onClick={submitDialog}
+              loading={createPage.isPending || updatePage.isPending}
+              disabled={!name.trim()}
+            >
               {dialog?.mode === 'rename' ? 'Speichern' : 'Anlegen'}
             </Button>
           </>
@@ -283,7 +306,13 @@ export function GuidelineNav({
             submitDialog()
           }}
         >
-          <Input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="Titel" maxLength={160} />
+          <Input
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Titel"
+            maxLength={160}
+          />
         </form>
       </Dialog>
     </nav>

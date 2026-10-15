@@ -11,10 +11,15 @@ export function BasicsPage() {
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-6">
-        <p className="text-xs font-semibold tracking-[0.12em] text-brand-accent-text uppercase">Markenbasis</p>
-        <h1 className="mt-1 font-brand-heading text-3xl font-bold text-ink sm:text-4xl">Farben & Typografie</h1>
+        <p className="text-xs font-semibold tracking-[0.12em] text-brand-accent-text uppercase">
+          Markenbasis
+        </p>
+        <h1 className="mt-1 font-brand-heading text-3xl font-bold text-ink sm:text-4xl">
+          Farben & Typografie
+        </h1>
         <p className="mt-2 max-w-2xl text-ink-2">
-          Die zentrale Quelle für alle Gestaltungsgrundlagen. Änderungen erscheinen automatisch in allen Markenhandbüchern.
+          Die zentrale Quelle für alle Gestaltungsgrundlagen. Änderungen erscheinen automatisch in allen
+          Markenhandbüchern.
         </p>
       </header>
       <Tabs

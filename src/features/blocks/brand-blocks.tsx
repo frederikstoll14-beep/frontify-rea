@@ -1,8 +1,27 @@
-import { Check, CircleCheck, CircleX, Copy, Download, ExternalLink, Palette as PaletteIcon, Plus, Type, X } from 'lucide-react'
+import {
+  Check,
+  CircleCheck,
+  CircleX,
+  Copy,
+  Download,
+  ExternalLink,
+  Palette as PaletteIcon,
+  Plus,
+  Type,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
-import { fontFiles, useFonts, usePalettes, useTextStyles, type Color, type Font, type TextStyle } from '@/api/basics'
+import {
+  fontFiles,
+  useFonts,
+  usePalettes,
+  useTextStyles,
+  type Color,
+  type Font,
+  type TextStyle,
+} from '@/api/basics'
 import { useAssetsByIds, type Asset } from '@/api/libraries'
 import { getSignedUrl } from '@/api/storage'
 import { AssetPickerDialog } from '@/components/media/asset-picker'
@@ -29,7 +48,15 @@ import { fontStack } from '@/lib/fonts'
 import { buildTokenFile, TOKEN_FORMATS, type TokenFormat } from '@/lib/tokens'
 import { cn, downloadBlob, slugify, uniqueId } from '@/lib/utils'
 import { useBrandContext, useCanDownload } from '@/features/brand/brand-context'
-import { AddItemButton, CheckboxList, InlineInput, ItemControls, listOps, SettingsPanel, SettingsRow } from './editor-kit'
+import {
+  AddItemButton,
+  CheckboxList,
+  InlineInput,
+  ItemControls,
+  listOps,
+  SettingsPanel,
+  SettingsRow,
+} from './editor-kit'
 import type { BlockEditorProps, BlockViewProps } from './types'
 
 function copy(value: string, label: string) {
@@ -107,7 +134,9 @@ function ColorCard({ color, content }: { color: Color; content: BlockViewProps<'
               className="flex w-full justify-between gap-3 rounded px-1 -mx-1 py-0.5 text-left hover:bg-surface-2"
             >
               <dt className="text-muted">{v.label}</dt>
-              <dd className="text-right font-mono text-[12px] break-all text-ink-2 tabular-nums">{v.value}</dd>
+              <dd className="text-right font-mono text-[12px] break-all text-ink-2 tabular-nums">
+                {v.value}
+              </dd>
             </button>
           ))}
         </dl>
@@ -144,7 +173,8 @@ function ColorRow({ color, content }: { color: Color; content: BlockViewProps<'c
       />
       <div className="min-w-0 flex-1">
         <p className="font-semibold text-ink">
-          {color.name} {color.usage && <span className="ml-1 text-xs font-normal text-muted">{color.usage}</span>}
+          {color.name}{' '}
+          {color.usage && <span className="ml-1 text-xs font-normal text-muted">{color.usage}</span>}
         </p>
         <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[13px]">
           {colorValues(color, content.values).map((v) => (
@@ -154,7 +184,8 @@ function ColorRow({ color, content }: { color: Color; content: BlockViewProps<'c
               onClick={() => copy(v.value, `${color.name} ${v.label}`)}
               className="hover:text-ink"
             >
-              <span className="text-muted">{v.label}</span> <span className="font-mono text-ink-2">{v.value}</span>
+              <span className="text-muted">{v.label}</span>{' '}
+              <span className="font-mono text-ink-2">{v.value}</span>
             </button>
           ))}
         </div>
@@ -167,7 +198,8 @@ function ColorRow({ color, content }: { color: Color; content: BlockViewProps<'c
 export function ColorsView({ content }: BlockViewProps<'colors'>) {
   const { brand, basePath, canEdit } = useBrandContext()
   const { data: palettes = [], isLoading } = usePalettes(brand.id)
-  const shown = content.paletteIds.length > 0 ? palettes.filter((p) => content.paletteIds.includes(p.id)) : palettes
+  const shown =
+    content.paletteIds.length > 0 ? palettes.filter((p) => content.paletteIds.includes(p.id)) : palettes
   if (isLoading) return <div className="h-40 animate-pulse rounded-2xl bg-surface-2" />
   if (shown.every((p) => p.colors.length === 0)) {
     return (
@@ -284,7 +316,9 @@ export function ColorsEditor(props: BlockEditorProps<'colors'>) {
                     onClick={() => onChange({ values: { ...content.values, [key]: !content.values[key] } })}
                     className={cn(
                       'rounded-full border px-2.5 py-1 text-xs font-medium',
-                      content.values[key] ? 'border-ink bg-ink text-bg' : 'border-border bg-surface text-ink-2',
+                      content.values[key]
+                        ? 'border-ink bg-ink text-bg'
+                        : 'border-border bg-surface text-ink-2',
                     )}
                   >
                     {VALUE_LABELS[key]}
@@ -306,7 +340,10 @@ export function ColorsEditor(props: BlockEditorProps<'colors'>) {
             />
           </>
         )}
-        <Link to={`${basePath}/basis?tab=farben`} className="inline-flex items-center gap-1.5 text-sm font-medium text-accent">
+        <Link
+          to={`${basePath}/basis?tab=farben`}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-accent"
+        >
           <PaletteIcon className="size-4" /> Farben in der Markenbasis bearbeiten
         </Link>
       </SettingsPanel>
@@ -336,7 +373,13 @@ function FontCard({ font, sample }: { font: Font; sample: string }) {
         </span>
         <div className="text-right">
           {font.role && <Badge>{font.role}</Badge>}
-          <p className="mt-2 text-xs text-muted">{font.source === 'google' ? 'Web-Font' : font.source === 'upload' ? 'Eigene Datei' : 'Systemschrift'}</p>
+          <p className="mt-2 text-xs text-muted">
+            {font.source === 'google'
+              ? 'Web-Font'
+              : font.source === 'upload'
+                ? 'Eigene Datei'
+                : 'Systemschrift'}
+          </p>
         </div>
       </div>
       <div className="space-y-3 p-5">
@@ -350,15 +393,17 @@ function FontCard({ font, sample }: { font: Font; sample: string }) {
           {sample}
         </p>
         <div className="flex flex-wrap gap-1.5">
-          {[...font.weights].sort((a, b) => a - b).map((w) => (
-            <span
-              key={w}
-              className="rounded-md border border-border px-2 py-1 text-sm text-ink"
-              style={{ fontFamily: family, fontWeight: w }}
-            >
-              {w}
-            </span>
-          ))}
+          {[...font.weights]
+            .sort((a, b) => a - b)
+            .map((w) => (
+              <span
+                key={w}
+                className="rounded-md border border-border px-2 py-1 text-sm text-ink"
+                style={{ fontFamily: family, fontWeight: w }}
+              >
+                {w}
+              </span>
+            ))}
         </div>
         <p className="text-[13px] break-all text-muted" style={{ fontFamily: family }}>
           ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ÄÖÜ äöüß 0123456789 !?&€@
@@ -428,7 +473,8 @@ export function TypographyView({ content }: BlockViewProps<'typography'>) {
   const { data: styles = [], isLoading: loadingStyles } = useTextStyles(brand.id)
   if (loadingFonts || loadingStyles) return <div className="h-40 animate-pulse rounded-2xl bg-surface-2" />
   const shownFonts = content.fontIds.length > 0 ? fonts.filter((f) => content.fontIds.includes(f.id)) : fonts
-  const shownStyles = content.styleIds.length > 0 ? styles.filter((s) => content.styleIds.includes(s.id)) : styles
+  const shownStyles =
+    content.styleIds.length > 0 ? styles.filter((s) => content.styleIds.includes(s.id)) : styles
   const showFonts = content.mode !== 'styles'
   const showStyles = content.mode !== 'fonts'
   if ((!showFonts || shownFonts.length === 0) && (!showStyles || shownStyles.length === 0)) {
@@ -530,16 +576,34 @@ const BACKGROUNDS: Array<{ value: PreviewBackground; label: string }> = [
   { value: 'checker', label: 'Transparent' },
 ]
 
-const GRID_COLS = { 1: 'grid-cols-1', 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-2 lg:grid-cols-3', 4: 'grid-cols-2 lg:grid-cols-4' }
+const GRID_COLS = {
+  1: 'grid-cols-1',
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-2 lg:grid-cols-4',
+}
 
-function LogoTile({ item, asset, allowDownload }: { item: LogoItem; asset: Asset | undefined; allowDownload: boolean }) {
+function LogoTile({
+  item,
+  asset,
+  allowDownload,
+}: {
+  item: LogoItem
+  asset: Asset | undefined
+  allowDownload: boolean
+}) {
   const canDownload = useCanDownload(asset)
   return (
     <figure className="avoid-break overflow-hidden rounded-2xl border border-border bg-surface">
       {asset ? (
         <AssetPreview asset={asset} background={item.background} className="aspect-[4/3]" preferOriginal />
       ) : item.image ? (
-        <div className={cn('flex aspect-[4/3] items-center justify-center p-[8%]', backgroundClass(item.background))}>
+        <div
+          className={cn(
+            'flex aspect-[4/3] items-center justify-center p-[8%]',
+            backgroundClass(item.background),
+          )}
+        >
           <StorageImage path={item.image.path} alt={item.label} fit="contain" className="h-full w-full" />
         </div>
       ) : (
@@ -563,7 +627,9 @@ export function LogosView({ content }: BlockViewProps<'logos'>) {
   const { data: assets = [] } = useAssetsByIds(ids)
   const byId = new Map(assets.map((a) => [a.id, a]))
   if (content.items.length === 0) {
-    return <EmptyState title="Noch keine Logos" description="Füge im Bearbeitungsmodus Logo-Varianten hinzu." />
+    return (
+      <EmptyState title="Noch keine Logos" description="Füge im Bearbeitungsmodus Logo-Varianten hinzu." />
+    )
   }
   return (
     <div className={cn('grid gap-4', GRID_COLS[content.columns])}>
@@ -591,9 +657,17 @@ export function LogosEditor({ content, onChange }: BlockEditorProps<'logos'>) {
       {content.items.map((item, i) => {
         const asset = item.assetId ? byId.get(item.assetId) : undefined
         return (
-          <div key={item.id} className="grid gap-3 rounded-2xl border border-border bg-surface p-3 sm:grid-cols-[180px_1fr]">
+          <div
+            key={item.id}
+            className="grid gap-3 rounded-2xl border border-border bg-surface p-3 sm:grid-cols-[180px_1fr]"
+          >
             {asset ? (
-              <AssetPreview asset={asset} background={item.background} className="aspect-[4/3] rounded-xl" preferOriginal />
+              <AssetPreview
+                asset={asset}
+                background={item.background}
+                className="aspect-[4/3] rounded-xl"
+                preferOriginal
+              />
             ) : (
               <ImageField
                 brandId={brand.id}
@@ -609,7 +683,12 @@ export function LogosEditor({ content, onChange }: BlockEditorProps<'logos'>) {
                   onChange={(e) => ops.update(i, { label: e.target.value })}
                   placeholder="Bezeichnung, z. B. Hauptlogo farbig"
                 />
-                <ItemControls index={i} count={content.items.length} onMove={ops.move} onRemove={() => ops.remove(i)} />
+                <ItemControls
+                  index={i}
+                  count={content.items.length}
+                  onMove={ops.move}
+                  onRemove={() => ops.remove(i)}
+                />
               </div>
               <Textarea
                 value={item.description}
@@ -633,7 +712,14 @@ export function LogosEditor({ content, onChange }: BlockEditorProps<'logos'>) {
         </Button>
         <AddItemButton
           onClick={() =>
-            ops.add({ id: uniqueId(), assetId: null, image: null, label: '', description: '', background: 'light' })
+            ops.add({
+              id: uniqueId(),
+              assetId: null,
+              image: null,
+              label: '',
+              description: '',
+              background: 'light',
+            })
           }
         >
           Eigenes Bild
@@ -699,10 +785,27 @@ export function DosDontsView({ content }: BlockViewProps<'dos_donts'>) {
           >
             {item.image && (
               <div className="relative aspect-[4/3] bg-surface-2">
-                <StorageImage path={item.image.path} alt={item.title} fit="contain" className="h-full w-full" />
+                <StorageImage
+                  path={item.image.path}
+                  alt={item.title}
+                  fit="contain"
+                  className="h-full w-full"
+                />
                 {!isDo && (
-                  <svg className="pointer-events-none absolute inset-0 h-full w-full" preserveAspectRatio="none" aria-hidden>
-                    <line x1="0" y1="100%" x2="100%" y2="0" stroke="var(--danger)" strokeWidth="3" opacity="0.7" />
+                  <svg
+                    className="pointer-events-none absolute inset-0 h-full w-full"
+                    preserveAspectRatio="none"
+                    aria-hidden
+                  >
+                    <line
+                      x1="0"
+                      y1="100%"
+                      x2="100%"
+                      y2="0"
+                      stroke="var(--danger)"
+                      strokeWidth="3"
+                      opacity="0.7"
+                    />
                   </svg>
                 )}
               </div>
@@ -715,7 +818,9 @@ export function DosDontsView({ content }: BlockViewProps<'dos_donts'>) {
               )}
               <div className="min-w-0">
                 {item.title && <p className="font-semibold text-ink">{item.title}</p>}
-                {item.text && <p className="mt-0.5 text-[15px] whitespace-pre-line text-ink-2">{item.text}</p>}
+                {item.text && (
+                  <p className="mt-0.5 text-[15px] whitespace-pre-line text-ink-2">{item.text}</p>
+                )}
               </div>
             </div>
           </div>
@@ -745,14 +850,44 @@ export function DosDontsEditor({ content, onChange }: BlockEditorProps<'dos_dont
                 value={item.kind}
                 onChange={(kind) => ops.update(i, { kind })}
                 options={[
-                  { value: 'do', label: <><Check /> Do</> },
-                  { value: 'dont', label: <><X /> Don’t</> },
+                  {
+                    value: 'do',
+                    label: (
+                      <>
+                        <Check /> Do
+                      </>
+                    ),
+                  },
+                  {
+                    value: 'dont',
+                    label: (
+                      <>
+                        <X /> Don’t
+                      </>
+                    ),
+                  },
                 ]}
               />
-              <ItemControls index={i} count={content.items.length} onMove={ops.move} onRemove={() => ops.remove(i)} />
+              <ItemControls
+                index={i}
+                count={content.items.length}
+                onMove={ops.move}
+                onRemove={() => ops.remove(i)}
+              />
             </div>
-            <ImageField brandId={brand.id} value={item.image} onChange={(image) => ops.update(i, { image })} aspect="aspect-[4/3]" emptyHint="Bild optional" />
-            <InlineInput value={item.title} onChange={(title) => ops.update(i, { title })} placeholder="Titel" className="font-semibold" />
+            <ImageField
+              brandId={brand.id}
+              value={item.image}
+              onChange={(image) => ops.update(i, { image })}
+              aspect="aspect-[4/3]"
+              emptyHint="Bild optional"
+            />
+            <InlineInput
+              value={item.title}
+              onChange={(title) => ops.update(i, { title })}
+              placeholder="Titel"
+              className="font-semibold"
+            />
             <InlineInput
               multiline
               value={item.text}
@@ -764,8 +899,14 @@ export function DosDontsEditor({ content, onChange }: BlockEditorProps<'dos_dont
         ))}
       </div>
       <div className="flex flex-wrap gap-2">
-        <AddItemButton onClick={() => ops.add({ id: uniqueId(), kind: 'do', title: '', text: '', image: null })}>Do</AddItemButton>
-        <AddItemButton onClick={() => ops.add({ id: uniqueId(), kind: 'dont', title: '', text: '', image: null })}>
+        <AddItemButton
+          onClick={() => ops.add({ id: uniqueId(), kind: 'do', title: '', text: '', image: null })}
+        >
+          Do
+        </AddItemButton>
+        <AddItemButton
+          onClick={() => ops.add({ id: uniqueId(), kind: 'dont', title: '', text: '', image: null })}
+        >
           Don’t
         </AddItemButton>
       </div>
@@ -785,7 +926,11 @@ export function DosDontsEditor({ content, onChange }: BlockEditorProps<'dos_dont
 
 /* ---------- Karten ---------- */
 
-const CARD_COLS = { 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-2 lg:grid-cols-3', 4: 'sm:grid-cols-2 lg:grid-cols-4' }
+const CARD_COLS = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+}
 const CARD_RATIO = { square: 'aspect-square', landscape: 'aspect-[16/10]', portrait: 'aspect-[3/4]' }
 const CARD_STYLE = {
   plain: 'bg-transparent',
@@ -793,12 +938,25 @@ const CARD_STYLE = {
   outline: 'border-2 border-brand bg-surface',
 }
 
-function CardLink({ link, children, className }: { link: string; children: React.ReactNode; className: string }) {
+function CardLink({
+  link,
+  children,
+  className,
+}: {
+  link: string
+  children: React.ReactNode
+  className: string
+}) {
   const { basePath } = useBrandContext()
   if (!link) return <div className={className}>{children}</div>
   if (/^https?:\/\//.test(link)) {
     return (
-      <a href={link} target="_blank" rel="noopener noreferrer" className={cn(className, 'transition-shadow hover:shadow-card')}>
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(className, 'transition-shadow hover:shadow-card')}
+      >
         {children}
       </a>
     )
@@ -815,13 +973,23 @@ export function CardsView({ content }: BlockViewProps<'cards'>) {
   return (
     <div className={cn('grid gap-4', CARD_COLS[content.columns])}>
       {content.items.map((item) => (
-        <CardLink key={item.id} link={item.link} className={cn('avoid-break block overflow-hidden rounded-2xl', CARD_STYLE[content.style])}>
+        <CardLink
+          key={item.id}
+          link={item.link}
+          className={cn('avoid-break block overflow-hidden rounded-2xl', CARD_STYLE[content.style])}
+        >
           {item.image && (
-            <StorageImage path={item.image.path} alt={item.title} className={cn('w-full', CARD_RATIO[content.imageRatio])} />
+            <StorageImage
+              path={item.image.path}
+              alt={item.title}
+              className={cn('w-full', CARD_RATIO[content.imageRatio])}
+            />
           )}
           <div className={cn(content.style === 'plain' ? 'pt-3' : 'p-4 sm:p-5')}>
             {item.title && <p className="font-brand-heading text-lg font-semibold text-ink">{item.title}</p>}
-            {item.text && <p className="mt-1 text-[15px] leading-relaxed whitespace-pre-line text-ink-2">{item.text}</p>}
+            {item.text && (
+              <p className="mt-1 text-[15px] leading-relaxed whitespace-pre-line text-ink-2">{item.text}</p>
+            )}
           </div>
         </CardLink>
       ))}
@@ -837,12 +1005,28 @@ export function CardsEditor({ content, onChange }: BlockEditorProps<'cards'>) {
     <div className="space-y-3">
       <div className={cn('grid gap-3', CARD_COLS[content.columns])}>
         {content.items.map((item, i) => (
-          <div key={item.id} className={cn('space-y-2 rounded-2xl p-3', CARD_STYLE[content.style === 'plain' ? 'filled' : content.style])}>
+          <div
+            key={item.id}
+            className={cn(
+              'space-y-2 rounded-2xl p-3',
+              CARD_STYLE[content.style === 'plain' ? 'filled' : content.style],
+            )}
+          >
             <div className="flex justify-end">
-              <ItemControls index={i} count={content.items.length} onMove={ops.move} onRemove={() => ops.remove(i)} />
+              <ItemControls
+                index={i}
+                count={content.items.length}
+                onMove={ops.move}
+                onRemove={() => ops.remove(i)}
+              />
             </div>
             {showImages && (
-              <ImageField brandId={brand.id} value={item.image} onChange={(image) => ops.update(i, { image })} aspect={CARD_RATIO[content.imageRatio]} />
+              <ImageField
+                brandId={brand.id}
+                value={item.image}
+                onChange={(image) => ops.update(i, { image })}
+                aspect={CARD_RATIO[content.imageRatio]}
+              />
             )}
             <InlineInput
               value={item.title}
@@ -866,7 +1050,9 @@ export function CardsEditor({ content, onChange }: BlockEditorProps<'cards'>) {
           </div>
         ))}
       </div>
-      <AddItemButton onClick={() => ops.add({ id: uniqueId(), title: '', text: '', image: null, link: '' })}>Karte hinzufügen</AddItemButton>
+      <AddItemButton onClick={() => ops.add({ id: uniqueId(), title: '', text: '', image: null, link: '' })}>
+        Karte hinzufügen
+      </AddItemButton>
       <SettingsPanel>
         <SettingsRow label="Spalten">
           <Segmented
@@ -968,7 +1154,12 @@ export function DownloadKitEditor(props: BlockEditorProps<'download_kit'>) {
   return (
     <div>
       <div className="space-y-2 rounded-2xl border border-border bg-surface p-4">
-        <InlineInput value={content.title} onChange={(title) => onChange({ title })} placeholder="Titel" className="font-semibold" />
+        <InlineInput
+          value={content.title}
+          onChange={(title) => onChange({ title })}
+          placeholder="Titel"
+          className="font-semibold"
+        />
         <InlineInput
           value={content.description}
           onChange={(description) => onChange({ description })}
@@ -979,17 +1170,23 @@ export function DownloadKitEditor(props: BlockEditorProps<'download_kit'>) {
       <SettingsPanel>
         <SettingsRow label="Formate">
           <CheckboxList
-            items={(Object.keys(TOKEN_FORMATS) as TokenFormat[]).map((f) => ({ id: f, label: TOKEN_FORMATS[f].label }))}
+            items={(Object.keys(TOKEN_FORMATS) as TokenFormat[]).map((f) => ({
+              id: f,
+              label: TOKEN_FORMATS[f].label,
+            }))}
             selected={content.formats}
             onChange={(formats) =>
-              onChange({ formats: (formats.length === 0 ? Object.keys(TOKEN_FORMATS) : formats) as TokenFormat[] })
+              onChange({
+                formats: (formats.length === 0 ? Object.keys(TOKEN_FORMATS) : formats) as TokenFormat[],
+              })
             }
             emptyLabel="Alle"
           />
         </SettingsRow>
-        <p className="text-xs text-muted">Die Dateien werden live aus Farben, Schriften und Textstilen der Markenbasis erzeugt.</p>
+        <p className="text-xs text-muted">
+          Die Dateien werden live aus Farben, Schriften und Textstilen der Markenbasis erzeugt.
+        </p>
       </SettingsPanel>
     </div>
   )
 }
-

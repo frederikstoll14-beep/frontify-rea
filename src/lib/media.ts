@@ -55,7 +55,11 @@ export async function readImageSize(file: Blob): Promise<{ width: number; height
 
 function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Export fehlgeschlagen'))), type, quality)
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error('Export fehlgeschlagen'))),
+      type,
+      quality,
+    )
   })
 }
 

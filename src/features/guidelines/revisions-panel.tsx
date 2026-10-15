@@ -2,7 +2,14 @@ import { History, RotateCcw, Save } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { displayName } from '@/api/auth'
-import { restoreRevision, useCreateRevision, useRevisions, type Block, type GuidelinePage, type RevisionSnapshot } from '@/api/guidelines'
+import {
+  restoreRevision,
+  useCreateRevision,
+  useRevisions,
+  type Block,
+  type GuidelinePage,
+  type RevisionSnapshot,
+} from '@/api/guidelines'
 import { Button } from '@/components/ui/button'
 import { useConfirm } from '@/components/ui/confirm'
 import { Input } from '@/components/ui/input'
@@ -46,7 +53,11 @@ export function RevisionsPanel({
         }}
       >
         <p className="text-sm font-medium text-ink">Aktuellen Stand sichern</p>
-        <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="z. B. Abgabe Zwischenpräsentation" />
+        <Input
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="z. B. Abgabe Zwischenpräsentation"
+        />
         <Button type="submit" size="sm" loading={create.isPending}>
           <Save /> Version speichern
         </Button>
@@ -54,17 +65,26 @@ export function RevisionsPanel({
       {isLoading ? (
         <p className="text-sm text-muted">Lädt …</p>
       ) : revisions.length === 0 ? (
-        <EmptyState icon={<History />} title="Noch keine Versionen" description="Sichere wichtige Stände, z. B. vor einer Abgabe." className="py-8" />
+        <EmptyState
+          icon={<History />}
+          title="Noch keine Versionen"
+          description="Sichere wichtige Stände, z. B. vor einer Abgabe."
+          className="py-8"
+        />
       ) : (
         <ul className="space-y-2">
           {revisions.map((revision) => {
             const snapshot = revision.snapshot as unknown as RevisionSnapshot
             return (
-              <li key={revision.id} className="flex items-start justify-between gap-3 rounded-xl border border-border p-3">
+              <li
+                key={revision.id}
+                className="flex items-start justify-between gap-3 rounded-xl border border-border p-3"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-ink">{revision.label || 'Version'}</p>
                   <p className="text-xs text-muted">
-                    {formatDateTime(revision.created_at)} · {displayName(revision.author)} · {snapshot.blocks?.length ?? 0} Bausteine
+                    {formatDateTime(revision.created_at)} · {displayName(revision.author)} ·{' '}
+                    {snapshot.blocks?.length ?? 0} Bausteine
                   </p>
                 </div>
                 <Button

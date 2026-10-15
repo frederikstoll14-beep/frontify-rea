@@ -1,33 +1,23 @@
 import Placeholder from '@tiptap/extension-placeholder'
 import { EditorContent, useEditor, useEditorState, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import DOMPurify from 'dompurify'
-import { Bold, Heading2, Heading3, Italic, Link2, List, ListOrdered, Quote, Underline, Unlink } from 'lucide-react'
-import { useEffect, useMemo, useRef } from 'react'
+import {
+  Bold,
+  Heading2,
+  Heading3,
+  Italic,
+  Link2,
+  List,
+  ListOrdered,
+  Quote,
+  Underline,
+  Unlink,
+} from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
+import { sanitizeHtml } from './rich-text-view'
 
-const ALLOWED_TAGS = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'a', 'ul', 'ol', 'li', 'h2', 'h3', 'h4', 'blockquote', 'code', 'pre', 'hr']
-
-export function sanitizeHtml(html: string): string {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR: ['href', 'target', 'rel'],
-    ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|tel:|\/|#)/i,
-  })
-}
-
-DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-  if (node.tagName === 'A') {
-    node.setAttribute('target', '_blank')
-    node.setAttribute('rel', 'noopener noreferrer')
-  }
-})
-
-export function RichText({ html, className }: { html: string; className?: string }) {
-  const clean = useMemo(() => sanitizeHtml(html), [html])
-  if (!clean.trim()) return null
-  return <div className={cn('prose-brand', className)} dangerouslySetInnerHTML={{ __html: clean }} />
-}
+export { RichText, sanitizeHtml } from './rich-text-view'
 
 function ToolbarButton({
   active,
@@ -86,11 +76,23 @@ function Toolbar({ editor, headings }: { editor: Editor; headings: boolean }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 border-b border-border px-1.5 py-1" role="toolbar" aria-label="Formatierung">
-      <ToolbarButton label="Fett" active={state.bold} onClick={() => editor.chain().focus().toggleBold().run()}>
+    <div
+      className="flex flex-wrap items-center gap-0.5 border-b border-border px-1.5 py-1"
+      role="toolbar"
+      aria-label="Formatierung"
+    >
+      <ToolbarButton
+        label="Fett"
+        active={state.bold}
+        onClick={() => editor.chain().focus().toggleBold().run()}
+      >
         <Bold />
       </ToolbarButton>
-      <ToolbarButton label="Kursiv" active={state.italic} onClick={() => editor.chain().focus().toggleItalic().run()}>
+      <ToolbarButton
+        label="Kursiv"
+        active={state.italic}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+      >
         <Italic />
       </ToolbarButton>
       <ToolbarButton
@@ -120,7 +122,11 @@ function Toolbar({ editor, headings }: { editor: Editor; headings: boolean }) {
         </>
       )}
       <span className="mx-1 h-5 w-px bg-border" />
-      <ToolbarButton label="Liste" active={state.bullet} onClick={() => editor.chain().focus().toggleBulletList().run()}>
+      <ToolbarButton
+        label="Liste"
+        active={state.bullet}
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+      >
         <List />
       </ToolbarButton>
       <ToolbarButton
@@ -130,7 +136,11 @@ function Toolbar({ editor, headings }: { editor: Editor; headings: boolean }) {
       >
         <ListOrdered />
       </ToolbarButton>
-      <ToolbarButton label="Zitat" active={state.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
+      <ToolbarButton
+        label="Zitat"
+        active={state.quote}
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+      >
         <Quote />
       </ToolbarButton>
       <span className="mx-1 h-5 w-px bg-border" />
@@ -171,7 +181,11 @@ export function RichTextEditor({
       StarterKit.configure({
         heading: { levels: [2, 3, 4] },
         codeBlock: false,
-        link: { openOnClick: false, autolink: true, HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' } },
+        link: {
+          openOnClick: false,
+          autolink: true,
+          HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
+        },
       }),
       Placeholder.configure({ placeholder }),
     ],
@@ -186,7 +200,12 @@ export function RichTextEditor({
 
   if (!editor) return null
   return (
-    <div className={cn('overflow-hidden rounded-xl border border-border bg-surface focus-within:border-ring', className)}>
+    <div
+      className={cn(
+        'overflow-hidden rounded-xl border border-border bg-surface focus-within:border-ring',
+        className,
+      )}
+    >
       <Toolbar editor={editor} headings={headings} />
       <EditorContent editor={editor} className="prose-brand" />
     </div>

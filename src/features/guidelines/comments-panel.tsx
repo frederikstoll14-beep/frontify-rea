@@ -36,7 +36,11 @@ function CommentItem({
           <span className="shrink-0 text-[11px] text-muted">{timeAgo(c.created_at)}</span>
         </div>
         {c.pos_x !== null && c.pos_y !== null && !isReply && (
-          <button type="button" onClick={() => onPinClick?.(c)} className="mt-0.5 text-[11px] font-medium text-accent">
+          <button
+            type="button"
+            onClick={() => onPinClick?.(c)}
+            className="mt-0.5 text-[11px] font-medium text-accent"
+          >
             Markierung im Bild
           </button>
         )}
@@ -63,7 +67,11 @@ function CommentItem({
           <CornerDownRight /> Antworten
         </Button>
         {(canEdit || comment.author_id === user?.id) && (
-          <Button size="sm" variant="ghost" onClick={() => m.resolve.mutate({ id: comment.id, resolved: !comment.resolved })}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => m.resolve.mutate({ id: comment.id, resolved: !comment.resolved })}
+          >
             {comment.resolved ? <RotateCcw /> : <Check />} {comment.resolved ? 'Wieder öffnen' : 'Erledigt'}
           </Button>
         )}
@@ -86,7 +94,13 @@ function CommentItem({
             )
           }}
         >
-          <Textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={2} placeholder="Antwort …" autoFocus />
+          <Textarea
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+            rows={2}
+            placeholder="Antwort …"
+            autoFocus
+          />
           <Button type="submit" size="sm" loading={m.add.isPending}>
             Senden
           </Button>
@@ -150,7 +164,12 @@ export function CommentsPanel({
               </button>
             </p>
           )}
-          <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={3} placeholder="Feedback oder Frage …" />
+          <Textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            rows={3}
+            placeholder="Feedback oder Frage …"
+          />
           <div className="flex items-center justify-between gap-2">
             <Segmented
               size="sm"
@@ -179,7 +198,13 @@ export function CommentsPanel({
           />
         ) : (
           roots.map((c) => (
-            <CommentItem key={c.id} comment={c} replies={repliesOf(c.id)} target={target} onPinClick={onPinClick} />
+            <CommentItem
+              key={c.id}
+              comment={c}
+              replies={repliesOf(c.id)}
+              target={target}
+              onPinClick={onPinClick}
+            />
           ))
         )}
       </div>

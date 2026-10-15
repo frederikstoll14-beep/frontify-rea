@@ -1,5 +1,18 @@
 import JSZip from 'jszip'
-import { AlertTriangle, Copy, Download, ExternalLink, FileJson, FolderArchive, Globe, Lock, Plus, Trash2, Upload, Users } from 'lucide-react'
+import {
+  AlertTriangle,
+  Copy,
+  Download,
+  ExternalLink,
+  FileJson,
+  FolderArchive,
+  Globe,
+  Lock,
+  Plus,
+  Trash2,
+  Upload,
+  Users,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
@@ -67,11 +80,19 @@ function GeneralTab() {
             </Select>
           </Field>
           <Field label="Kurz-URL" hint={`${window.location.origin}/b/${slugify(slug)}`}>
-            <Input value={slug} onChange={(e) => setSlug(e.target.value)} onBlur={() => setSlug(slugify(slug))} />
+            <Input
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              onBlur={() => setSlug(slugify(slug))}
+            />
           </Field>
         </div>
         <Field label="Claim / Tagline">
-          <Input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="z. B. Gemeinsam am Rhein." />
+          <Input
+            value={tagline}
+            onChange={(e) => setTagline(e.target.value)}
+            placeholder="z. B. Gemeinsam am Rhein."
+          />
         </Field>
         <Field label="Kurzbeschreibung">
           <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
@@ -137,7 +158,11 @@ function ThemeTab() {
           onChange={(e) => set({ [key]: e.target.value.toUpperCase() })}
           className="h-10 w-12 shrink-0 cursor-pointer rounded-lg border border-border bg-surface p-1"
         />
-        <Input value={theme[key] ?? ''} onChange={(e) => set({ [key]: e.target.value })} className="font-mono" />
+        <Input
+          value={theme[key] ?? ''}
+          onChange={(e) => set({ [key]: e.target.value })}
+          className="font-mono"
+        />
       </div>
       {colors.length > 0 && (
         <div className="mt-1 flex flex-wrap gap-1.5">
@@ -159,7 +184,8 @@ function ThemeTab() {
   return (
     <div className="max-w-2xl space-y-5">
       <p className="text-sm text-ink-2">
-        Das Portal übernimmt die Gestaltung deiner Marke: Farben aus der Markenbasis und Hausschriften für Überschriften und Text.
+        Das Portal übernimmt die Gestaltung deiner Marke: Farben aus der Markenbasis und Hausschriften für
+        Überschriften und Text.
       </p>
       <div className="grid gap-4 sm:grid-cols-2">
         {colorField('primary', 'Primärfarbe (Flächen, Kopfbereich)')}
@@ -167,10 +193,18 @@ function ThemeTab() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Schrift für Überschriften" hint="Aus der Markenbasis oder ein Google-Font-Name">
-          <Input list="brand-fonts" value={theme.headingFont ?? ''} onChange={(e) => set({ headingFont: e.target.value })} />
+          <Input
+            list="brand-fonts"
+            value={theme.headingFont ?? ''}
+            onChange={(e) => set({ headingFont: e.target.value })}
+          />
         </Field>
         <Field label="Schrift für Fließtext">
-          <Input list="brand-fonts" value={theme.bodyFont ?? ''} onChange={(e) => set({ bodyFont: e.target.value })} />
+          <Input
+            list="brand-fonts"
+            value={theme.bodyFont ?? ''}
+            onChange={(e) => set({ bodyFont: e.target.value })}
+          />
         </Field>
         <datalist id="brand-fonts">
           {fonts.map((f) => (
@@ -193,8 +227,14 @@ function ThemeTab() {
         className="overflow-hidden rounded-2xl border border-border"
         style={{ fontFamily: theme.bodyFont ? `'${theme.bodyFont}', sans-serif` : undefined }}
       >
-        <div className="p-6" style={{ backgroundColor: normalizeHex(theme.primary ?? '') ?? '#15171F', color: '#fff' }}>
-          <p className="text-3xl font-bold" style={{ fontFamily: theme.headingFont ? `'${theme.headingFont}', sans-serif` : undefined }}>
+        <div
+          className="p-6"
+          style={{ backgroundColor: normalizeHex(theme.primary ?? '') ?? '#15171F', color: '#fff' }}
+        >
+          <p
+            className="text-3xl font-bold"
+            style={{ fontFamily: theme.headingFont ? `'${theme.headingFont}', sans-serif` : undefined }}
+          >
             {brand.name}
           </p>
           <span
@@ -219,7 +259,10 @@ function HomeTab() {
   return (
     <div className="max-w-2xl space-y-5">
       <Field label="Begrüßungstext">
-        <RichTextEditor value={home.welcome ?? ''} onChange={(welcome) => setHome((h) => ({ ...h, welcome }))} />
+        <RichTextEditor
+          value={home.welcome ?? ''}
+          onChange={(welcome) => setHome((h) => ({ ...h, welcome }))}
+        />
       </Field>
       <div className="space-y-2">
         <p className="text-[13px] font-medium text-ink-2">Schnellzugriff</p>
@@ -227,7 +270,9 @@ function HomeTab() {
           <div key={i} className="flex gap-2">
             <Input
               value={link.label}
-              onChange={(e) => setLinks(links.map((l, li) => (li === i ? { ...l, label: e.target.value } : l)))}
+              onChange={(e) =>
+                setLinks(links.map((l, li) => (li === i ? { ...l, label: e.target.value } : l)))
+              }
               placeholder="Beschriftung"
             />
             <Input
@@ -235,7 +280,12 @@ function HomeTab() {
               onChange={(e) => setLinks(links.map((l, li) => (li === i ? { ...l, url: e.target.value } : l)))}
               placeholder="https://… oder library:logos"
             />
-            <Button size="icon" variant="ghost" aria-label="Entfernen" onClick={() => setLinks(links.filter((_, li) => li !== i))}>
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="Entfernen"
+              onClick={() => setLinks(links.filter((_, li) => li !== i))}
+            >
               <Trash2 />
             </Button>
           </div>
@@ -244,7 +294,8 @@ function HomeTab() {
           <Plus /> Link
         </Button>
         <p className="text-xs text-muted">
-          Interne Ziele: <code>library:SLUG</code> für eine Bibliothek, <code>page:HANDBUCH/SEITE</code> für eine Seite.
+          Interne Ziele: <code>library:SLUG</code> für eine Bibliothek, <code>page:HANDBUCH/SEITE</code> für
+          eine Seite.
         </p>
       </div>
       <Switch
@@ -252,7 +303,9 @@ function HomeTab() {
         onCheckedChange={(showColors) => setHome((h) => ({ ...h, showColors }))}
         label="Farbleiste unter dem Kopfbereich zeigen"
       />
-      <Button onClick={() => void save({ home: { ...home, quickLinks: links.filter((l) => l.label && l.url) } })}>
+      <Button
+        onClick={() => void save({ home: { ...home, quickLinks: links.filter((l) => l.label && l.url) } })}
+      >
         Startseite speichern
       </Button>
     </div>
@@ -274,8 +327,22 @@ function ShareTab() {
           value={brand.visibility}
           onChange={(visibility) => void save({ visibility })}
           options={[
-            { value: 'workspace', label: <><Users /> Alle im Workspace</> },
-            { value: 'private', label: <><Lock /> Nur Mitglieder der Marke</> },
+            {
+              value: 'workspace',
+              label: (
+                <>
+                  <Users /> Alle im Workspace
+                </>
+              ),
+            },
+            {
+              value: 'private',
+              label: (
+                <>
+                  <Lock /> Nur Mitglieder der Marke
+                </>
+              ),
+            },
           ]}
         />
         <p className="mt-2 text-sm text-muted">
@@ -292,16 +359,26 @@ function ShareTab() {
               <Globe className="size-5" /> Öffentlicher Freigabelink
             </h3>
             <p className="mt-1 text-sm text-muted">
-              Jede Person mit dem Link kann das Portal ohne Konto ansehen – ideal für Präsentation, Jury oder Auftraggeber.
-              Kommentare, Mitglieder und Verlauf bleiben privat.
+              Jede Person mit dem Link kann das Portal ohne Konto ansehen – ideal für Präsentation, Jury oder
+              Auftraggeber. Kommentare, Mitglieder und Verlauf bleiben privat.
             </p>
           </div>
-          <Switch checked={brand.is_public} onCheckedChange={(is_public) => void save({ is_public }, is_public ? 'Freigabe aktiv' : 'Freigabe beendet')} />
+          <Switch
+            checked={brand.is_public}
+            onCheckedChange={(is_public) =>
+              void save({ is_public }, is_public ? 'Freigabe aktiv' : 'Freigabe beendet')
+            }
+          />
         </div>
         {brand.is_public && (
           <div className="mt-4 space-y-4">
             <div className="flex gap-2">
-              <Input readOnly value={publicUrl} onFocus={(e) => e.target.select()} className="font-mono text-xs" />
+              <Input
+                readOnly
+                value={publicUrl}
+                onFocus={(e) => e.target.select()}
+                className="font-mono text-xs"
+              />
               <Button
                 variant="outline"
                 onClick={() => {
@@ -325,10 +402,17 @@ function ShareTab() {
             />
             <Field label="Freigabe automatisch beenden am" hint="Leer lassen für unbegrenzt">
               <div className="flex gap-2">
-                <Input type="date" value={until} onChange={(e) => setUntil(e.target.value)} className="w-48" />
+                <Input
+                  type="date"
+                  value={until}
+                  onChange={(e) => setUntil(e.target.value)}
+                  className="w-48"
+                />
                 <Button
                   variant="outline"
-                  onClick={() => void save({ public_until: until ? new Date(`${until}T23:59:59`).toISOString() : null })}
+                  onClick={() =>
+                    void save({ public_until: until ? new Date(`${until}T23:59:59`).toISOString() : null })
+                  }
                 >
                   Übernehmen
                 </Button>
@@ -355,8 +439,8 @@ function MembersTab() {
   return (
     <div className="max-w-3xl">
       <p className="mb-5 text-sm text-ink-2">
-        Workspace-Admins (z. B. Dozierende) haben automatisch Admin-Rechte auf alle Marken. Hier lädst du weitere Personen
-        gezielt zu dieser Marke ein – sie sehen dann nur diese Marke.
+        Workspace-Admins (z. B. Dozierende) haben automatisch Admin-Rechte auf alle Marken. Hier lädst du
+        weitere Personen gezielt zu dieser Marke ein – sie sehen dann nur diese Marke.
       </p>
       <MembersPanel
         workspaceId={brand.workspace.id}
@@ -394,7 +478,10 @@ function DataTab() {
     setBusy('json')
     try {
       const guidelineIds = guidelines.map((g) => g.id)
-      const { data: pages, error } = await supabase.from('guideline_pages').select('*').in('guideline_id', guidelineIds)
+      const { data: pages, error } = await supabase
+        .from('guideline_pages')
+        .select('*')
+        .in('guideline_id', guidelineIds)
       if (error) throw error
       const pageIds = (pages ?? []).map((p) => p.id)
       const { data: blocks, error: blockError } = pageIds.length
@@ -405,13 +492,22 @@ function DataTab() {
         brand,
         palettes,
         fonts,
-        textStyles: styles.map((s) => ({ ...s, font_size: Number(s.font_size), line_height: Number(s.line_height), letter_spacing: Number(s.letter_spacing) })),
+        textStyles: styles.map((s) => ({
+          ...s,
+          font_size: Number(s.font_size),
+          line_height: Number(s.line_height),
+          letter_spacing: Number(s.letter_spacing),
+        })),
         libraries,
         guidelines,
         pages: pages ?? [],
         blocks: blocks ?? [],
       })
-      downloadText(JSON.stringify(file, null, 2), `${brand.slug}-markenkompass-${new Date().toISOString().slice(0, 10)}.json`, 'application/json')
+      downloadText(
+        JSON.stringify(file, null, 2),
+        `${brand.slug}-markenkompass-${new Date().toISOString().slice(0, 10)}.json`,
+        'application/json',
+      )
     } catch (e) {
       toast.error(errorMessage(e))
     } finally {
@@ -452,7 +548,8 @@ function DataTab() {
       })
       if (!ok) return
       setBusy('import')
-      const data = parsed.source.brandId === brand.id ? parsed.data : stripForeignReferences(parsed.data, brand.id)
+      const data =
+        parsed.source.brandId === brand.id ? parsed.data : stripForeignReferences(parsed.data, brand.id)
       await apply.mutateAsync({ ...data, theme: undefined, home: undefined })
       toast.success('Import abgeschlossen')
     } catch (e) {
@@ -468,7 +565,8 @@ function DataTab() {
         <FileJson className="mb-3 size-6 text-muted" />
         <h3 className="font-semibold text-ink">Struktur & Inhalte exportieren</h3>
         <p className="mt-1 mb-4 text-sm text-muted">
-          JSON-Datei mit Handbüchern, Bausteinen, Farben und Schriften. Als Backup oder Vorlage für andere Marken.
+          JSON-Datei mit Handbüchern, Bausteinen, Farben und Schriften. Als Backup oder Vorlage für andere
+          Marken.
         </p>
         <Button variant="outline" loading={busy === 'json'} onClick={() => void exportJson()}>
           <Download /> JSON exportieren
@@ -477,7 +575,9 @@ function DataTab() {
       <Card className="p-5">
         <FolderArchive className="mb-3 size-6 text-muted" />
         <h3 className="font-semibold text-ink">Alle Dateien herunterladen</h3>
-        <p className="mt-1 mb-4 text-sm text-muted">{assets.length} Dateien aus allen Bibliotheken als ZIP, nach Bibliothek sortiert.</p>
+        <p className="mt-1 mb-4 text-sm text-muted">
+          {assets.length} Dateien aus allen Bibliotheken als ZIP, nach Bibliothek sortiert.
+        </p>
         <Button variant="outline" loading={busy === 'zip'} onClick={() => void exportZip()}>
           <Download /> ZIP erstellen
         </Button>
@@ -486,7 +586,8 @@ function DataTab() {
         <Upload className="mb-3 size-6 text-muted" />
         <h3 className="font-semibold text-ink">Aus Datei importieren</h3>
         <p className="mt-1 mb-4 text-sm text-muted">
-          Spielt eine exportierte JSON-Datei in diese Marke ein – z. B. eine Vorlage der Dozierenden oder ein Backup.
+          Spielt eine exportierte JSON-Datei in diese Marke ein – z. B. eine Vorlage der Dozierenden oder ein
+          Backup.
         </p>
         <Button variant="outline" loading={busy === 'import'} onClick={() => importInput.current?.click()}>
           <Upload /> JSON importieren
@@ -517,7 +618,8 @@ function DangerTab() {
     <Card className="max-w-2xl border-danger/40 p-5">
       <h3 className="text-lg font-semibold text-danger">Marke löschen</h3>
       <p className="mt-1 text-sm text-ink-2">
-        Löscht die Marke mit allen Handbüchern, Dateien, Kommentaren und Versionen endgültig. Exportiere vorher ein Backup.
+        Löscht die Marke mit allen Handbüchern, Dateien, Kommentaren und Versionen endgültig. Exportiere
+        vorher ein Backup.
       </p>
       <Field label={`Zur Bestätigung „${brand.name}“ eingeben`} className="mt-4">
         <Input value={typed} onChange={(e) => setTyped(e.target.value)} />
@@ -528,7 +630,11 @@ function DangerTab() {
         disabled={typed !== brand.name}
         loading={remove.isPending}
         onClick={async () => {
-          const ok = await confirm({ title: 'Wirklich endgültig löschen?', confirmLabel: 'Endgültig löschen', danger: true })
+          const ok = await confirm({
+            title: 'Wirklich endgültig löschen?',
+            confirmLabel: 'Endgültig löschen',
+            danger: true,
+          })
           if (!ok) return
           remove.mutate(brand, {
             onSuccess: () => {
@@ -562,13 +668,19 @@ export function BrandSettingsPage() {
   if (!isAdmin) {
     return (
       <div className="mx-auto max-w-lg px-4 py-20">
-        <EmptyState icon={<Lock />} title="Nur für Admins" description="Einstellungen können nur Admins dieser Marke ändern." />
+        <EmptyState
+          icon={<Lock />}
+          title="Nur für Admins"
+          description="Einstellungen können nur Admins dieser Marke ändern."
+        />
       </div>
     )
   }
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 lg:px-8">
-      <p className="text-xs font-semibold tracking-[0.12em] text-brand-accent-text uppercase">Einstellungen</p>
+      <p className="text-xs font-semibold tracking-[0.12em] text-brand-accent-text uppercase">
+        Einstellungen
+      </p>
       <h1 className="mt-1 mb-6 font-brand-heading text-3xl font-bold text-ink">{brand.name}</h1>
       <Tabs value={tab} onValueChange={(value) => setParams({ tab: value })} items={TABS} className="mb-6" />
       {tab === 'allgemein' && <GeneralTab key={brand.updated_at} />}

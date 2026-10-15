@@ -17,7 +17,14 @@ import {
 import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
-import { LIBRARY_KINDS, useAssets, useCollections, useLibraries, useLibraryMutations, type Asset } from '@/api/libraries'
+import {
+  LIBRARY_KINDS,
+  useAssets,
+  useCollections,
+  useLibraries,
+  useLibraryMutations,
+  type Asset,
+} from '@/api/libraries'
 import { downloadAssetsZip } from '@/components/media/download-menu'
 import { AssetPreview } from '@/components/media/storage-image'
 import { Button } from '@/components/ui/button'
@@ -98,7 +105,9 @@ export function LibraryPage() {
   const [collectionId, setCollectionId] = useState<string | null>(null)
   const [sort, setSort] = useState<'new' | 'name'>('new')
   const [view, setView] = useState<'grid' | 'list'>('grid')
-  const [background, setBackground] = useState<PreviewBackground>(library?.kind === 'logos' ? 'checker' : 'light')
+  const [background, setBackground] = useState<PreviewBackground>(
+    library?.kind === 'logos' ? 'checker' : 'light',
+  )
   const [selected, setSelected] = useState<string[]>([])
   const [progress, setProgress] = useState<UploadProgress | null>(null)
   const [dragOver, setDragOver] = useState(false)
@@ -123,7 +132,9 @@ export function LibraryPage() {
       if (tag && !a.tags.includes(tag)) return false
       if (!matchesType(a, type)) return false
       if (!q) return true
-      return [a.title, a.description, a.file_name, a.copyright, ...a.tags].some((s) => s.toLowerCase().includes(q))
+      return [a.title, a.description, a.file_name, a.copyright, ...a.tags].some((s) =>
+        s.toLowerCase().includes(q),
+      )
     })
     return sort === 'name' ? [...list].sort((a, b) => a.title.localeCompare(b.title, 'de')) : list
   }, [assets, collections, collectionId, tag, type, query, sort])
@@ -182,16 +193,26 @@ export function LibraryPage() {
     if (!value) return
     try {
       if (dialog === 'collection') {
-        const collection = await m.createCollection.mutateAsync({ libraryId: library.id, name: value, sort: collections.length })
+        const collection = await m.createCollection.mutateAsync({
+          libraryId: library.id,
+          name: value,
+          sort: collections.length,
+        })
         if (selected.length > 0) {
-          await m.toggleInCollection.mutateAsync({ collection: { ...collection, asset_ids: [] }, assetIds: selected, add: true })
+          await m.toggleInCollection.mutateAsync({
+            collection: { ...collection, asset_ids: [] },
+            assetIds: selected,
+            add: true,
+          })
         }
         toast.success('Sammlung angelegt')
       } else if (dialog === 'tag') {
         const t = normalizeTag(value)
         await Promise.all(
           selectedAssets.map((a) =>
-            a.tags.includes(t) ? null : m.updateAsset.mutateAsync({ id: a.id, patch: { tags: [...a.tags, t] } }),
+            a.tags.includes(t)
+              ? null
+              : m.updateAsset.mutateAsync({ id: a.id, patch: { tags: [...a.tags, t] } }),
           ),
         )
         toast.success(`Tag „${t}“ vergeben`)
@@ -303,7 +324,9 @@ export function LibraryPage() {
           <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
             <div
               className="h-full bg-accent transition-all"
-              style={{ width: `${progress.total ? ((progress.done + progress.failed) / progress.total) * 100 : 0}%` }}
+              style={{
+                width: `${progress.total ? ((progress.done + progress.failed) / progress.total) * 100 : 0}%`,
+              }}
             />
           </div>
         </div>
@@ -365,7 +388,9 @@ export function LibraryPage() {
                   onClick={() => setCollectionId(collectionId === c.id ? null : c.id)}
                   className={cn(
                     'rounded-full border px-3 py-1 text-xs font-medium',
-                    collectionId === c.id ? 'border-ink bg-ink text-bg' : 'border-border bg-surface text-ink-2 hover:border-border-strong',
+                    collectionId === c.id
+                      ? 'border-ink bg-ink text-bg'
+                      : 'border-border bg-surface text-ink-2 hover:border-border-strong',
                   )}
                 >
                   {c.name} <span className="opacity-60">{c.asset_ids.length}</span>
@@ -467,7 +492,8 @@ export function LibraryPage() {
                       <MenuItem
                         onSelect={() => {
                           const c = collections.find((x) => x.id === collectionId)
-                          if (c) m.toggleInCollection.mutate({ collection: c, assetIds: selected, add: false })
+                          if (c)
+                            m.toggleInCollection.mutate({ collection: c, assetIds: selected, add: false })
                         }}
                       >
                         Aus aktueller Sammlung entfernen
@@ -487,7 +513,9 @@ export function LibraryPage() {
                                 key={l.id}
                                 onSelect={async () => {
                                   await Promise.all(
-                                    selected.map((id) => m.updateAsset.mutateAsync({ id, patch: { library_id: l.id } })),
+                                    selected.map((id) =>
+                                      m.updateAsset.mutateAsync({ id, patch: { library_id: l.id } }),
+                                    ),
                                   )
                                   setSelected([])
                                   toast.success(`Nach „${l.name}“ verschoben`)
@@ -529,7 +557,12 @@ export function LibraryPage() {
             <Button size="sm" variant="ghost" onClick={() => setSelected(visible.map((a) => a.id))}>
               <CheckSquare /> Alle
             </Button>
-            <Button size="icon-sm" variant="ghost" aria-label="Auswahl aufheben" onClick={() => setSelected([])}>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Auswahl aufheben"
+              onClick={() => setSelected([])}
+            >
               <X />
             </Button>
           </div>
@@ -542,7 +575,11 @@ export function LibraryPage() {
         <EmptyState
           icon={<Upload />}
           title="Noch keine Dateien"
-          description={canEdit ? 'Ziehe Dateien hierher oder klicke auf „Hochladen“. Bis 50 MB pro Datei.' : 'Hier liegen bald Dateien.'}
+          description={
+            canEdit
+              ? 'Ziehe Dateien hierher oder klicke auf „Hochladen“. Bis 50 MB pro Datei.'
+              : 'Hier liegen bald Dateien.'
+          }
           action={
             canEdit ? (
               <Button onClick={() => fileInput.current?.click()}>
@@ -572,7 +609,11 @@ export function LibraryPage() {
                   isSelected ? 'border-ink ring-2 ring-ink' : 'border-border',
                 )}
               >
-                <button type="button" className="block w-full text-left" onClick={() => setParams({ asset: asset.id })}>
+                <button
+                  type="button"
+                  className="block w-full text-left"
+                  onClick={() => setParams({ asset: asset.id })}
+                >
                   <AssetPreview asset={asset} background={background} className="aspect-square" />
                   <div className="border-t border-border px-3 py-2.5">
                     <p className="truncate text-[13px] font-medium text-ink">{asset.title}</p>
@@ -582,7 +623,11 @@ export function LibraryPage() {
                     </p>
                   </div>
                 </button>
-                {expired && <Badge tone="danger" className="absolute bottom-14 left-2">Abgelaufen</Badge>}
+                {expired && (
+                  <Badge tone="danger" className="absolute bottom-14 left-2">
+                    Abgelaufen
+                  </Badge>
+                )}
                 <button
                   type="button"
                   aria-label={isSelected ? 'Abwählen' : 'Auswählen'}
@@ -590,7 +635,9 @@ export function LibraryPage() {
                   onClick={() => toggleSelect(asset.id)}
                   className={cn(
                     'absolute top-2 left-2 flex size-6 items-center justify-center rounded-md border-2 bg-surface/90 transition-opacity',
-                    isSelected ? 'border-ink bg-ink text-bg opacity-100' : 'border-border-strong opacity-0 group-hover:opacity-100 focus:opacity-100',
+                    isSelected
+                      ? 'border-ink bg-ink text-bg opacity-100'
+                      : 'border-border-strong opacity-0 group-hover:opacity-100 focus:opacity-100',
                     selected.length > 0 && 'opacity-100',
                   )}
                 >
@@ -626,8 +673,16 @@ export function LibraryPage() {
                     />
                   </td>
                   <td className="px-3 py-2">
-                    <button type="button" onClick={() => setParams({ asset: asset.id })} className="flex items-center gap-3 text-left">
-                      <AssetPreview asset={asset} background={background} className="size-10 shrink-0 rounded-lg" />
+                    <button
+                      type="button"
+                      onClick={() => setParams({ asset: asset.id })}
+                      className="flex items-center gap-3 text-left"
+                    >
+                      <AssetPreview
+                        asset={asset}
+                        background={background}
+                        className="size-10 shrink-0 rounded-lg"
+                      />
                       <span className="font-medium text-ink">{asset.title}</span>
                     </button>
                   </td>
@@ -639,8 +694,12 @@ export function LibraryPage() {
                     </div>
                   </td>
                   <td className="hidden px-3 py-2 text-muted uppercase sm:table-cell">{asset.ext}</td>
-                  <td className="hidden px-3 py-2 text-muted sm:table-cell">{formatBytes(asset.size_bytes)}</td>
-                  <td className="hidden px-3 py-2 text-muted lg:table-cell">{formatDate(asset.created_at)}</td>
+                  <td className="hidden px-3 py-2 text-muted sm:table-cell">
+                    {formatBytes(asset.size_bytes)}
+                  </td>
+                  <td className="hidden px-3 py-2 text-muted lg:table-cell">
+                    {formatDate(asset.created_at)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -653,7 +712,13 @@ export function LibraryPage() {
       <Dialog
         open={dialog !== null}
         onOpenChange={(open) => !open && setDialog(null)}
-        title={dialog === 'collection' ? 'Neue Sammlung' : dialog === 'tag' ? 'Tag vergeben' : 'Bibliothek umbenennen'}
+        title={
+          dialog === 'collection'
+            ? 'Neue Sammlung'
+            : dialog === 'tag'
+              ? 'Tag vergeben'
+              : 'Bibliothek umbenennen'
+        }
         description={
           dialog === 'collection' && selected.length > 0
             ? `${selected.length} ausgewählte Datei(en) werden hinzugefügt.`
@@ -680,7 +745,12 @@ export function LibraryPage() {
           }}
         >
           <Field label={dialog === 'tag' ? 'Tag' : 'Name'}>
-            <Input autoFocus value={dialogValue} onChange={(e) => setDialogValue(e.target.value)} maxLength={120} />
+            <Input
+              autoFocus
+              value={dialogValue}
+              onChange={(e) => setDialogValue(e.target.value)}
+              maxLength={120}
+            />
           </Field>
         </form>
       </Dialog>

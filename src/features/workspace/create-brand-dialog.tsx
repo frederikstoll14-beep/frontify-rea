@@ -71,7 +71,13 @@ export function CreateBrandDialog({
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Name">
-            <Input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="z. B. SV Musterstadt 1904 e.V." maxLength={120} />
+            <Input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="z. B. SV Musterstadt 1904 e.V."
+              maxLength={120}
+            />
           </Field>
           <Field label="Art">
             <Select
@@ -92,7 +98,11 @@ export function CreateBrandDialog({
           </Field>
         </div>
         <Field label="Claim (optional)">
-          <Input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Wofür steht die Marke in einem Satz?" />
+          <Input
+            value={tagline}
+            onChange={(e) => setTagline(e.target.value)}
+            placeholder="Wofür steht die Marke in einem Satz?"
+          />
         </Field>
         <fieldset>
           <legend className="mb-2 text-[13px] font-medium text-ink-2">Vorlage</legend>
@@ -105,14 +115,14 @@ export function CreateBrandDialog({
                 aria-pressed={templateId === t.id}
                 className={cn(
                   'relative rounded-xl border p-3.5 text-left transition-colors',
-                  templateId === t.id ? 'border-ink bg-surface-2 ring-1 ring-ink' : 'border-border hover:border-border-strong',
+                  templateId === t.id
+                    ? 'border-ink bg-surface-2 ring-1 ring-ink'
+                    : 'border-border hover:border-border-strong',
                 )}
               >
                 <span className="block pr-6 text-sm font-semibold text-ink">{t.name}</span>
                 <span className="mt-0.5 block text-xs leading-snug text-muted">{t.description}</span>
-                {templateId === t.id && (
-                  <Check className="absolute top-3 right-3 size-4 text-ink" />
-                )}
+                {templateId === t.id && <Check className="absolute top-3 right-3 size-4 text-ink" />}
               </button>
             ))}
           </div>

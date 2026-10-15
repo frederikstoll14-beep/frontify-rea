@@ -16,9 +16,19 @@ import { chapter, heading, p, page, task, text, ul } from './builders'
 import { demoTemplate } from './demo'
 import type { BrandTemplate, BrandTemplateData, TemplateChapter } from './types'
 
-function fullTemplate(w: Wording, applications: TemplateChapter, extra: Partial<BrandTemplateData>): BrandTemplateData {
+function fullTemplate(
+  w: Wording,
+  applications: TemplateChapter,
+  extra: Partial<BrandTemplateData>,
+): BrandTemplateData {
   return {
-    theme: { primary: '#15171F', accent: '#D9481F', headingFont: 'Barlow Condensed', bodyFont: 'Inter', heroStyle: 'brand' },
+    theme: {
+      primary: '#15171F',
+      accent: '#D9481F',
+      headingFont: 'Barlow Condensed',
+      bodyFont: 'Inter',
+      heroStyle: 'brand',
+    },
     home: {
       welcome: `Willkommen im Markenportal. Hier findest du alles zur Marke: Markenkern, Gestaltungsregeln, Logos, Bilder und Vorlagen.`,
       quickLinks: [],
@@ -133,11 +143,15 @@ export const TEMPLATES: BrandTemplate[] = [
           'Wo sitzen Wappen, Sponsor, Rückennummer und Name? Welche Schrift gilt für Nummern?',
           'Welche Vorgaben macht der Verband (z. B. Ärmelbadge, Werbeflächen)?',
         ]),
-        applicationPage('Spieltag & Stadion', 'Matchday-Grafiken, Stadion-Signage, Anzeigetafel, Durchsagen.', [
-          'Welche Grafiken braucht ein Spieltag (Ankündigung, Aufstellung, Halbzeit, Ergebnis)?',
-          'Wie sieht die Beschilderung im Stadion/in der Halle aus?',
-          'Welche Rituale und Sounds (Einlaufmusik, Torhymne) gehören dazu?',
-        ]),
+        applicationPage(
+          'Spieltag & Stadion',
+          'Matchday-Grafiken, Stadion-Signage, Anzeigetafel, Durchsagen.',
+          [
+            'Welche Grafiken braucht ein Spieltag (Ankündigung, Aufstellung, Halbzeit, Ergebnis)?',
+            'Wie sieht die Beschilderung im Stadion/in der Halle aus?',
+            'Welche Rituale und Sounds (Einlaufmusik, Torhymne) gehören dazu?',
+          ],
+        ),
         applicationPage('Social Media', 'Instagram, TikTok, YouTube, WhatsApp-Kanal.', [
           'Welche Kanäle mit welcher Rolle und Zielgruppe?',
           'Welche Formate (Reels, Storys, Karussells) und welche Templates?',
@@ -151,10 +165,11 @@ export const TEMPLATES: BrandTemplate[] = [
           'Wie wird das Vereinslogo mit Partnerlogos kombiniert?',
           'Welche Werbeflächen und Pakete gibt es?',
         ]),
-        applicationPage('Print & Geschäftsausstattung', 'Briefbogen, Visitenkarten, Mitgliedsausweis, Plakate.', [
-          'Welche Druckerzeugnisse braucht der Verein?',
-          'Welche Vorlagen stehen zum Download bereit?',
-        ]),
+        applicationPage(
+          'Print & Geschäftsausstattung',
+          'Briefbogen, Visitenkarten, Mitgliedsausweis, Plakate.',
+          ['Welche Druckerzeugnisse braucht der Verein?', 'Welche Vorlagen stehen zum Download bereit?'],
+        ),
       ]),
       {},
     ),
@@ -186,7 +201,9 @@ export const TEMPLATES: BrandTemplate[] = [
         applicationPage('Geschäftsausstattung', 'Briefbogen, Visitenkarten, E-Mail-Signatur.', [
           'Welche Elemente gibt es, und wo liegen die Vorlagen?',
         ]),
-        applicationPage('Events & Messe', 'Stand, Roll-ups, Give-aways.', ['Wie tritt die Marke bei Events auf?']),
+        applicationPage('Events & Messe', 'Stand, Roll-ups, Give-aways.', [
+          'Wie tritt die Marke bei Events auf?',
+        ]),
       ]),
       {},
     ),
@@ -230,8 +247,12 @@ export const TEMPLATES: BrandTemplate[] = [
     data: fullTemplate(
       organisationWording,
       chapter('Anwendungen', [
-        applicationPage('Digital', 'Website, Social Media, Newsletter.', ['Welche digitalen Kanäle gibt es?']),
-        applicationPage('Print', 'Flyer, Plakate, Geschäftsausstattung.', ['Welche Druckerzeugnisse gibt es?']),
+        applicationPage('Digital', 'Website, Social Media, Newsletter.', [
+          'Welche digitalen Kanäle gibt es?',
+        ]),
+        applicationPage('Print', 'Flyer, Plakate, Geschäftsausstattung.', [
+          'Welche Druckerzeugnisse gibt es?',
+        ]),
         applicationPage('Events', 'Veranstaltungen und Auftritte.', ['Wie tritt die Marke bei Events auf?']),
       ]),
       {},
@@ -243,7 +264,13 @@ export const TEMPLATES: BrandTemplate[] = [
     description: 'Nur das Grundgerüst: ein Markenhandbuch mit Startseite und Standard-Bibliotheken',
     orgType: 'organisation',
     data: {
-      theme: { primary: '#15171F', accent: '#D9481F', headingFont: 'Fraunces', bodyFont: 'Inter', heroStyle: 'brand' },
+      theme: {
+        primary: '#15171F',
+        accent: '#D9481F',
+        headingFont: 'Fraunces',
+        bodyFont: 'Inter',
+        heroStyle: 'brand',
+      },
       home: { welcome: 'Willkommen im Markenportal.', showColors: true, showLibraries: true },
       libraries: DEFAULT_LIBRARIES,
       guidelines: [
@@ -255,7 +282,12 @@ export const TEMPLATES: BrandTemplate[] = [
             page('Start', 'Erste Seite des Markenhandbuchs.', [
               heading('Willkommen'),
               text(p('Lege los: Klicke auf „Bearbeiten“ und füge mit „+“ Bausteine hinzu.')),
-              task(ul(['Lege links neue Kapitel und Seiten an.', 'Pflege Farben und Schriften unter „Markenbasis“.'])),
+              task(
+                ul([
+                  'Lege links neue Kapitel und Seiten an.',
+                  'Pflege Farben und Schriften unter „Markenbasis“.',
+                ]),
+              ),
             ]),
           ],
         },

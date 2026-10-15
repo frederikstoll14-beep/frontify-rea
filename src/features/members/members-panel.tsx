@@ -20,7 +20,11 @@ export interface RoleOption {
 export const WORKSPACE_ROLES: RoleOption[] = [
   { value: 'owner', label: 'Owner', description: 'Volle Rechte inkl. Löschen des Workspaces' },
   { value: 'admin', label: 'Admin', description: 'Verwaltet alle Marken und Mitglieder (z. B. Dozierende)' },
-  { value: 'member', label: 'Mitglied', description: 'Kann eigene Marken anlegen und Marken mit Sichtbarkeit „Workspace“ ansehen' },
+  {
+    value: 'member',
+    label: 'Mitglied',
+    description: 'Kann eigene Marken anlegen und Marken mit Sichtbarkeit „Workspace“ ansehen',
+  },
 ]
 
 export const BRAND_ROLES: RoleOption[] = [
@@ -33,9 +37,19 @@ function roleLabel(options: RoleOption[], value: string) {
   return options.find((o) => o.value === value)?.label ?? value
 }
 
-function InvitationRow({ invitation, roles, onRevoke }: { invitation: Invitation; roles: RoleOption[]; onRevoke: () => void }) {
+function InvitationRow({
+  invitation,
+  roles,
+  onRevoke,
+}: {
+  invitation: Invitation
+  roles: RoleOption[]
+  onRevoke: () => void
+}) {
   const role = invitation.brand_role ?? invitation.workspace_role
-  const usage = invitation.max_uses ? `${invitation.use_count}/${invitation.max_uses}` : `${invitation.use_count}× genutzt`
+  const usage = invitation.max_uses
+    ? `${invitation.use_count}/${invitation.max_uses}`
+    : `${invitation.use_count}× genutzt`
   return (
     <li className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-border-strong px-3 py-2.5">
       {invitation.email ? <Mail className="size-4 text-muted" /> : <Link2 className="size-4 text-muted" />}
@@ -117,7 +131,8 @@ export function MembersPanel({
             const url = inviteUrl(result.invitation.token)
             void navigator.clipboard.writeText(url).catch(() => undefined)
             toast.success('Einladung erstellt – Link kopiert', {
-              description: 'Sobald sich die Person mit dieser E-Mail registriert, hat sie automatisch Zugriff.',
+              description:
+                'Sobald sich die Person mit dieser E-Mail registriert, hat sie automatisch Zugriff.',
               action: {
                 label: 'E-Mail öffnen',
                 onClick: () => {
@@ -148,8 +163,19 @@ export function MembersPanel({
               sendInvite()
             }}
           >
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@hochschule.de" className="flex-1" />
-            <Select value={role} onChange={(e) => setRole(e.target.value)} className="sm:w-44" aria-label="Rolle">
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@hochschule.de"
+              className="flex-1"
+            />
+            <Select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="sm:w-44"
+              aria-label="Rolle"
+            >
               {assignable.map((r) => (
                 <option key={r.value} value={r.value}>
                   {r.label}
@@ -164,7 +190,9 @@ export function MembersPanel({
             <Button size="sm" variant="outline" onClick={() => setLinkDialog(true)}>
               <Link2 /> Einladungslink für Gruppe erstellen
             </Button>
-            <span className="text-xs text-muted">Ideal für einen ganzen Kurs: ein Link, beliebig viele Personen.</span>
+            <span className="text-xs text-muted">
+              Ideal für einen ganzen Kurs: ein Link, beliebig viele Personen.
+            </span>
           </div>
         </section>
       )}
@@ -208,7 +236,9 @@ export function MembersPanel({
                     onClick={async () => {
                       const ok = await confirm({
                         title: isSelf ? 'Wirklich verlassen?' : `${name} entfernen?`,
-                        description: isSelf ? 'Du verlierst den Zugriff.' : 'Die Person verliert den Zugriff.',
+                        description: isSelf
+                          ? 'Du verlierst den Zugriff.'
+                          : 'Die Person verliert den Zugriff.',
                         confirmLabel: isSelf ? 'Verlassen' : 'Entfernen',
                         danger: true,
                       })
@@ -241,7 +271,9 @@ export function MembersPanel({
                 key={inv.id}
                 invitation={inv}
                 roles={roles}
-                onRevoke={() => revoke.mutate(inv.id, { onSuccess: () => toast.success('Einladung widerrufen') })}
+                onRevoke={() =>
+                  revoke.mutate(inv.id, { onSuccess: () => toast.success('Einladung widerrufen') })
+                }
               />
             ))}
           </ul>
@@ -291,9 +323,16 @@ export function MembersPanel({
       >
         {createdLink ? (
           <div className="space-y-3">
-            <p className="text-sm text-ink-2">Der Link wurde kopiert. Teile ihn z. B. im Kurs-Chat oder Moodle.</p>
+            <p className="text-sm text-ink-2">
+              Der Link wurde kopiert. Teile ihn z. B. im Kurs-Chat oder Moodle.
+            </p>
             <div className="flex gap-2">
-              <Input readOnly value={createdLink} onFocus={(e) => e.target.select()} className="font-mono text-xs" />
+              <Input
+                readOnly
+                value={createdLink}
+                onFocus={(e) => e.target.select()}
+                className="font-mono text-xs"
+              />
               <Button
                 variant="outline"
                 size="icon"

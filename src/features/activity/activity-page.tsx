@@ -60,11 +60,19 @@ export function ActivityPage() {
         (loadingComments ? (
           <PageSpinner />
         ) : comments.length === 0 ? (
-          <EmptyState icon={<MessageSquare />} title="Noch kein Feedback" description="Kommentare zu Seiten und Dateien erscheinen hier gesammelt." />
+          <EmptyState
+            icon={<MessageSquare />}
+            title="Noch kein Feedback"
+            description="Kommentare zu Seiten und Dateien erscheinen hier gesammelt."
+          />
         ) : (
           <ul className="space-y-3">
             {comments.map((c) => {
-              const page = c.page as { title: string; slug: string; guideline: { slug: string } | null } | null
+              const page = c.page as {
+                title: string
+                slug: string
+                guideline: { slug: string } | null
+              } | null
               const asset = c.asset as { title: string; library: { slug: string } | null } | null
               const href = page
                 ? `${basePath}/g/${page.guideline?.slug}/${page.slug}`
@@ -73,13 +81,18 @@ export function ActivityPage() {
                   : basePath
               return (
                 <li key={c.id}>
-                  <Link to={href} className="flex gap-3 rounded-2xl border border-border bg-surface p-4 transition-shadow hover:shadow-card">
+                  <Link
+                    to={href}
+                    className="flex gap-3 rounded-2xl border border-border bg-surface p-4 transition-shadow hover:shadow-card"
+                  >
                     <Avatar name={displayName(c.author)} />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 text-sm">
                         <span className="font-semibold text-ink">{displayName(c.author)}</span>
                         <span className="text-muted">zu</span>
-                        <span className="font-medium text-ink-2">{page?.title ?? asset?.title ?? 'Inhalt'}</span>
+                        <span className="font-medium text-ink-2">
+                          {page?.title ?? asset?.title ?? 'Inhalt'}
+                        </span>
                         {c.resolved && (
                           <Badge tone="success">
                             <CheckCircle2 className="size-3" /> erledigt
@@ -107,7 +120,8 @@ export function ActivityPage() {
                 <span className="absolute top-1.5 -left-[29px] size-2.5 rounded-full border-2 border-bg bg-border-strong" />
                 <p className="text-sm text-ink-2">
                   <span className="font-semibold text-ink">{a.actor ? displayName(a.actor) : 'System'}</span>{' '}
-                  {actionText(a.action, a.entity)} {a.label && <span className="font-medium text-ink">„{a.label}“</span>}
+                  {actionText(a.action, a.entity)}{' '}
+                  {a.label && <span className="font-medium text-ink">„{a.label}“</span>}
                 </p>
                 <p className="text-xs text-muted" title={formatDateTime(a.created_at)}>
                   {timeAgo(a.created_at)}

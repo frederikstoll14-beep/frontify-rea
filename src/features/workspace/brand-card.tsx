@@ -15,7 +15,10 @@ export function BrandCard({ brand }: { brand: Brand }) {
       to={`/b/${brand.slug}`}
       className="group overflow-hidden rounded-2xl border border-border bg-surface transition-shadow hover:shadow-card"
     >
-      <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden" style={{ backgroundColor: primary, color: ink }}>
+      <div
+        className="relative flex aspect-[16/9] items-center justify-center overflow-hidden"
+        style={{ backgroundColor: primary, color: ink }}
+      >
         {brand.cover_path ? (
           <StorageImage path={brand.cover_path} alt="" className="absolute inset-0 h-full w-full" />
         ) : null}
@@ -24,7 +27,11 @@ export function BrandCard({ brand }: { brand: Brand }) {
             <StorageImage path={brand.logo_path} alt={brand.name} fit="contain" className="h-full w-full" />
           </span>
         ) : (
-          !brand.cover_path && <span className="relative font-display text-4xl font-semibold opacity-90">{initials(brand.name)}</span>
+          !brand.cover_path && (
+            <span className="relative font-display text-4xl font-semibold opacity-90">
+              {initials(brand.name)}
+            </span>
+          )
         )}
         <span className="absolute top-3 right-3 flex gap-1.5">
           {brand.is_public && (
@@ -43,7 +50,8 @@ export function BrandCard({ brand }: { brand: Brand }) {
         <div className="min-w-0">
           <p className="truncate font-semibold text-ink">{brand.name}</p>
           <p className="truncate text-xs text-muted">
-            {ORG_TYPES[brand.org_type as OrgType] ?? brand.org_type} · aktualisiert {timeAgo(brand.updated_at)}
+            {ORG_TYPES[brand.org_type as OrgType] ?? brand.org_type} · aktualisiert{' '}
+            {timeAgo(brand.updated_at)}
           </p>
         </div>
         <ArrowRight className="size-4 shrink-0 text-muted transition-transform group-hover:translate-x-0.5" />

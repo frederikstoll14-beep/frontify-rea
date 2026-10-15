@@ -12,7 +12,12 @@ export async function signUp(page: Page, name: string, email: string, redirect =
   await page.getByRole('button', { name: 'Konto erstellen' }).click()
 }
 
-export async function createWorkspaceAndBrand(page: Page, workspace: string, brand: string, template = /^Sportverein/) {
+export async function createWorkspaceAndBrand(
+  page: Page,
+  workspace: string,
+  brand: string,
+  template = /^Sportverein/,
+) {
   await page.getByRole('button', { name: 'Workspace anlegen' }).first().click()
   await page.getByLabel('Name').fill(workspace)
   await page.getByRole('button', { name: 'Anlegen' }).click()

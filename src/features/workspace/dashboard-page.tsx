@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { displayName, useAuth } from '@/api/auth'
-import { useBrands } from '@/api/brands'
+import { useBrands, useMemberBrands } from '@/api/brands'
 import { useCreateWorkspace, useWorkspaces } from '@/api/workspaces'
 import { AppShell } from '@/components/layout/app-shell'
 import { Button } from '@/components/ui/button'
@@ -20,7 +20,13 @@ function firstName(name: string): string {
   return parts[0] ?? name
 }
 
-export function CreateWorkspaceDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function CreateWorkspaceDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
   const create = useCreateWorkspace()
   const navigate = useNavigate()
   const [name, setName] = useState('')
@@ -63,7 +69,13 @@ export function CreateWorkspaceDialog({ open, onOpenChange }: { open: boolean; o
         }}
       >
         <Field label="Name">
-          <Input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="z. B. Brand Identity · WS 2026/27" maxLength={120} />
+          <Input
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="z. B. Brand Identity · WS 2026/27"
+            maxLength={120}
+          />
         </Field>
         <Field label="Beschreibung (optional)">
           <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
@@ -77,10 +89,12 @@ export function DashboardPage() {
   const { user, profile } = useAuth()
   const { data: workspaces = [], isLoading } = useWorkspaces(user?.id)
   const { data: brands = [] } = useBrands(undefined, Boolean(user))
+  const { data: memberBrands = [] } = useMemberBrands(user?.id)
   const [createOpen, setCreateOpen] = useState(false)
 
   const workspaceIds = new Set(workspaces.map((w) => w.id))
-  const sharedBrands = brands.filter((b) => !workspaceIds.has(b.workspace_id))
+  // Nur eigene Workspaces und direkte Einladungen – keine fremden öffentlichen Marken
+  const sharedBrands = memberBrands.filter((b) => !workspaceIds.has(b.workspace_id))
   const recentBrands = brands.filter((b) => workspaceIds.has(b.workspace_id)).slice(0, 6)
 
   return (
@@ -98,26 +112,42 @@ export function DashboardPage() {
 
       {isLoading ? (
         <PageSpinner />
-      ) : workspaces.length === 0 && sharedBrands.length === 0 ? (
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
-          <Card className="p-6">
-            <GraduationCap className="mb-4 size-8 text-accent" />
-            <h2 className="text-lg font-semibold text-ink">Workspace anlegen</h2>
-            <p className="mt-1 mb-5 text-sm text-muted">
-              Für Dozierende oder Teams: Lege einen Workspace an, z. B. für deinen Kurs. Darin entstehen die Marken.
-            </p>
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus /> Workspace anlegen
-            </Button>
-          </Card>
-          <Card className="p-6">
-            <Users className="mb-4 size-8 text-accent" />
-            <h2 className="text-lg font-semibold text-ink">Einladung erhalten?</h2>
-            <p className="mt-1 text-sm text-muted">
-              Öffne einfach den Einladungslink, den du bekommen hast. Danach erscheint der Workspace hier.
-            </p>
-          </Card>
-        </div>
+      ) : workspaces.length === 0 ? (
+        <>
+          <div className="mt-10 grid gap-4 md:grid-cols-2">
+            <Card className="p-6">
+              <GraduationCap className="mb-4 size-8 text-accent" />
+              <h2 className="text-lg font-semibold text-ink">Workspace anlegen</h2>
+              <p className="mt-1 mb-5 text-sm text-muted">
+                Für Dozierende oder Teams: Lege einen Workspace an, z. B. für deinen Kurs. Darin entstehen die
+                Marken.
+              </p>
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus /> Workspace anlegen
+              </Button>
+            </Card>
+            <Card className="p-6">
+              <Users className="mb-4 size-8 text-accent" />
+              <h2 className="text-lg font-semibold text-ink">Einladung erhalten?</h2>
+              <p className="mt-1 text-sm text-muted">
+                Öffne einfach den Einladungslink, den du bekommen hast. Danach erscheint der Workspace hier.
+              </p>
+            </Card>
+          </div>
+          {sharedBrands.length > 0 && (
+            <section className="mt-12">
+              <SectionTitle
+                title="Mit dir geteilt"
+                description="Marken, zu denen du direkt eingeladen wurdest."
+              />
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {sharedBrands.map((b) => (
+                  <BrandCard key={b.id} brand={b} />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
       ) : (
         <div className="mt-10 space-y-12">
           <section>
@@ -134,7 +164,9 @@ export function DashboardPage() {
                       <h3 className="font-semibold text-ink">{ws.name}</h3>
                       <Badge>{WORKSPACE_ROLES.find((r) => r.value === ws.role)?.label}</Badge>
                     </div>
-                    {ws.description && <p className="mt-1 line-clamp-2 text-sm text-muted">{ws.description}</p>}
+                    {ws.description && (
+                      <p className="mt-1 line-clamp-2 text-sm text-muted">{ws.description}</p>
+                    )}
                   </div>
                   <span className="mt-4 flex items-center justify-between text-sm text-muted">
                     {ws.brand_count} {ws.brand_count === 1 ? 'Marke' : 'Marken'}
@@ -156,7 +188,10 @@ export function DashboardPage() {
           )}
           {sharedBrands.length > 0 && (
             <section>
-              <SectionTitle title="Mit dir geteilt" description="Marken, zu denen du direkt eingeladen wurdest." />
+              <SectionTitle
+                title="Mit dir geteilt"
+                description="Marken, zu denen du direkt eingeladen wurdest."
+              />
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {sharedBrands.map((b) => (
                   <BrandCard key={b.id} brand={b} />
@@ -167,8 +202,8 @@ export function DashboardPage() {
           <Card className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
             <Sparkles className="size-6 shrink-0 text-accent" />
             <p className="flex-1 text-sm text-ink-2">
-              Neu hier? Lege in einem Workspace die Vorlage <strong>„Beispiel: SV Rheinblick 1921“</strong> an und sieh dir an, wie ein fertiges
-              Markenportal aussieht.
+              Neu hier? Lege in einem Workspace die Vorlage <strong>„Beispiel: SV Rheinblick 1921“</strong> an
+              und sieh dir an, wie ein fertiges Markenportal aussieht.
             </p>
           </Card>
         </div>

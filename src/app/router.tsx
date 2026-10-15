@@ -2,16 +2,10 @@ import { createBrowserRouter, Link, Navigate, Outlet } from 'react-router'
 import { AppShell } from '@/components/layout/app-shell'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/misc'
-import { ActivityPage } from '@/features/activity/activity-page'
 import { ForgotPasswordPage, LoginPage, RequireAuth, ResetPasswordPage } from '@/features/auth/auth-pages'
-import { BasicsPage } from '@/features/basics/basics-page'
 import { BrandLayout } from '@/features/brand/brand-layout'
 import { PortalHome } from '@/features/brand/portal-home'
 import { GuidelineIndex, GuidelineLayout } from '@/features/guidelines/guideline-layout'
-import { GuidelinePageView } from '@/features/guidelines/guideline-page'
-import { LibraryPage } from '@/features/library/library-page'
-import { PrintPage } from '@/features/print/print-page'
-import { BrandSettingsPage } from '@/features/settings/brand-settings'
 import { AccountPage } from '@/features/workspace/account-page'
 import { DashboardPage } from '@/features/workspace/dashboard-page'
 import { InvitePage } from '@/features/workspace/invite-page'
@@ -69,14 +63,37 @@ export const router = createBrowserRouter([
             element: <GuidelineLayout />,
             children: [
               { index: true, element: <GuidelineIndex /> },
-              { path: ':pageSlug', element: <GuidelinePageView /> },
+              {
+                path: ':pageSlug',
+                lazy: () =>
+                  import('@/features/guidelines/guideline-page').then((m) => ({
+                    Component: m.GuidelinePageView,
+                  })),
+              },
             ],
           },
-          { path: 'bibliothek/:librarySlug', element: <LibraryPage /> },
-          { path: 'basis', element: <BasicsPage /> },
-          { path: 'aktivitaet', element: <ActivityPage /> },
-          { path: 'einstellungen', element: <BrandSettingsPage /> },
-          { path: 'drucken/:guidelineSlug', element: <PrintPage /> },
+          {
+            path: 'bibliothek/:librarySlug',
+            lazy: () => import('@/features/library/library-page').then((m) => ({ Component: m.LibraryPage })),
+          },
+          {
+            path: 'basis',
+            lazy: () => import('@/features/basics/basics-page').then((m) => ({ Component: m.BasicsPage })),
+          },
+          {
+            path: 'aktivitaet',
+            lazy: () =>
+              import('@/features/activity/activity-page').then((m) => ({ Component: m.ActivityPage })),
+          },
+          {
+            path: 'einstellungen',
+            lazy: () =>
+              import('@/features/settings/brand-settings').then((m) => ({ Component: m.BrandSettingsPage })),
+          },
+          {
+            path: 'drucken/:guidelineSlug',
+            lazy: () => import('@/features/print/print-page').then((m) => ({ Component: m.PrintPage })),
+          },
         ],
       },
       { path: '*', element: <NotFound /> },

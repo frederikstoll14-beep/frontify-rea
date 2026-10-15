@@ -166,7 +166,9 @@ export function coreChapter(w: Wording): TemplateChapter {
     ]),
     page('Positionierung', 'Wofür wir in den Köpfen unserer Zielgruppen stehen wollen.', [
       heading('Positionierung'),
-      quote('Für [Zielgruppe] ist [Markenname] die/der/das [Kategorie], die/der [Nutzen bietet], weil [Beleg].'),
+      quote(
+        'Für [Zielgruppe] ist [Markenname] die/der/das [Kategorie], die/der [Nutzen bietet], weil [Beleg].',
+      ),
       text(p('Formuliert eure Positionierung und begründet sie.')),
       heading('Wettbewerbsumfeld'),
       table([
@@ -251,7 +253,11 @@ export function logoChapter(w: Wording): TemplateChapter {
       heading('Do’s & Don’ts'),
       dosDonts(
         [
-          { kind: 'do', title: 'Auf ruhigem Hintergrund', text: 'Ausreichend Kontrast, Schutzzone einhalten' },
+          {
+            kind: 'do',
+            title: 'Auf ruhigem Hintergrund',
+            text: 'Ausreichend Kontrast, Schutzzone einhalten',
+          },
           { kind: 'dont', title: 'Nicht verzerren', text: 'Proportionen niemals verändern' },
           { kind: 'dont', title: 'Keine fremden Farben', text: 'Nur freigegebene Farbvarianten nutzen' },
           { kind: 'dont', title: 'Keine Effekte', text: 'Keine Schatten, Verläufe oder Konturen' },
@@ -287,7 +293,11 @@ export function colorChapter(): TemplateChapter {
       imageBlock('Beispiel für die Farbverteilung'),
       dosDonts([
         { kind: 'do', title: 'Klare Hierarchie', text: 'Primärfarbe trägt, Akzentfarbe setzt Highlights' },
-        { kind: 'dont', title: 'Zu viele Farben', text: 'Nicht alle Farben gleichzeitig gleich stark einsetzen' },
+        {
+          kind: 'dont',
+          title: 'Zu viele Farben',
+          text: 'Nicht alle Farben gleichzeitig gleich stark einsetzen',
+        },
       ]),
     ]),
   ])
@@ -309,7 +319,11 @@ export function typographyChapter(): TemplateChapter {
     page('Textstile', 'Hierarchie und Satzregeln.', [
       heading('Textstile & Hierarchie'),
       typographyBlock('styles'),
-      callout('info', 'Satzregeln', ul(['Flattersatz linksbündig', 'Keine Versalien in Fließtexten', 'Zeilenlänge max. 70 Zeichen'])),
+      callout(
+        'info',
+        'Satzregeln',
+        ul(['Flattersatz linksbündig', 'Keine Versalien in Fließtexten', 'Zeilenlänge max. 70 Zeichen']),
+      ),
     ]),
   ])
 }
@@ -324,7 +338,9 @@ export function imageryChapter(sporty: boolean): TemplateChapter {
         {
           kind: 'do',
           title: sporty ? 'Echte Emotionen' : 'Authentische Momente',
-          text: sporty ? 'Jubel, Einsatz, Gemeinschaft, Nähe zum Geschehen' : 'Echte Menschen in echten Situationen',
+          text: sporty
+            ? 'Jubel, Einsatz, Gemeinschaft, Nähe zum Geschehen'
+            : 'Echte Menschen in echten Situationen',
         },
         { kind: 'dont', title: 'Gestellte Stockfotos', text: 'Austauschbare, sterile Motive vermeiden' },
       ]),
@@ -427,17 +443,47 @@ export function contactChapter(): TemplateChapter {
 export const DEFAULT_LIBRARIES: TemplateLibrary[] = [
   { name: 'Logos', kind: 'logos', slug: 'logos', description: 'Alle Logo-Varianten in allen Formaten' },
   { name: 'Bildwelt', kind: 'media', slug: 'bildwelt', description: 'Fotos und Key Visuals' },
-  { name: 'Icons & Grafiken', kind: 'icons', slug: 'icons', description: 'Icons, Muster, grafische Elemente' },
-  { name: 'Vorlagen', kind: 'templates', slug: 'vorlagen', description: 'Social Media, Präsentationen, Print' },
+  {
+    name: 'Icons & Grafiken',
+    kind: 'icons',
+    slug: 'icons',
+    description: 'Icons, Muster, grafische Elemente',
+  },
+  {
+    name: 'Vorlagen',
+    kind: 'templates',
+    slug: 'vorlagen',
+    description: 'Social Media, Präsentationen, Print',
+  },
   { name: 'Dokumente', kind: 'documents', slug: 'dokumente', description: 'Präsentationen, PDFs, Briefings' },
-  { name: 'Audio & Video', kind: 'audio_video', slug: 'audio-video', description: 'Sound-Logo, Clips, Trailer' },
+  {
+    name: 'Audio & Video',
+    kind: 'audio_video',
+    slug: 'audio-video',
+    description: 'Sound-Logo, Clips, Trailer',
+  },
 ]
 
 export const DEFAULT_TEXT_STYLES = (heading: string, body: string) => [
-  { name: 'Display', token: 'display', fontFamily: heading, fontWeight: 700, fontSize: 64, lineHeight: 1.0, sample: 'Display' },
+  {
+    name: 'Display',
+    token: 'display',
+    fontFamily: heading,
+    fontWeight: 700,
+    fontSize: 64,
+    lineHeight: 1.0,
+    sample: 'Display',
+  },
   { name: 'Headline 1', token: 'h1', fontFamily: heading, fontWeight: 700, fontSize: 40, lineHeight: 1.1 },
   { name: 'Headline 2', token: 'h2', fontFamily: heading, fontWeight: 600, fontSize: 28, lineHeight: 1.2 },
   { name: 'Headline 3', token: 'h3', fontFamily: heading, fontWeight: 600, fontSize: 20, lineHeight: 1.3 },
   { name: 'Fließtext', token: 'body', fontFamily: body, fontWeight: 400, fontSize: 16, lineHeight: 1.6 },
-  { name: 'Bildunterschrift', token: 'caption', fontFamily: body, fontWeight: 400, fontSize: 13, lineHeight: 1.4 },
+  {
+    name: 'Bildunterschrift',
+    token: 'caption',
+    fontFamily: body,
+    fontWeight: 400,
+    fontSize: 13,
+    lineHeight: 1.4,
+  },
 ]

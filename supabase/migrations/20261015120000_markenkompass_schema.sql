@@ -1470,6 +1470,24 @@ begin
 end;
 $$;
 
+-- Konto löschen (DSGVO). Owner müssen ihre Workspaces vorher löschen oder übergeben.
+create or replace function public.delete_my_account()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'Nicht angemeldet';
+  end if;
+  if exists (select 1 from public.workspace_members where user_id = auth.uid() and role = 'owner') then
+    raise exception 'Du bist Owner eines Workspaces. Lösche ihn zuerst oder ernenne eine andere Person zum Owner.';
+  end if;
+  delete from auth.users where id = auth.uid();
+end;
+$$;
+
 -- ---------------------------------------------------------------------
 -- Rechte auf Funktionen
 -- ---------------------------------------------------------------------
@@ -1479,6 +1497,7 @@ revoke execute on function public.apply_brand_template(uuid, jsonb) from public,
 revoke execute on function public.accept_invitation(text) from public, anon;
 revoke execute on function public.add_member_by_email(uuid, text, public.workspace_role, uuid, public.brand_role) from public, anon;
 revoke execute on function public.leave_workspace(uuid) from public, anon;
+revoke execute on function public.delete_my_account() from public, anon;
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
 revoke execute on function public.handle_user_email_change() from public, anon, authenticated;
 revoke execute on function public.log_activity() from public, anon, authenticated;
@@ -1490,6 +1509,7 @@ grant execute on function public.apply_brand_template(uuid, jsonb) to authentica
 grant execute on function public.accept_invitation(text) to authenticated;
 grant execute on function public.add_member_by_email(uuid, text, public.workspace_role, uuid, public.brand_role) to authenticated;
 grant execute on function public.leave_workspace(uuid) to authenticated;
+grant execute on function public.delete_my_account() to authenticated;
 grant execute on function public.invitation_preview(text) to anon, authenticated;
 grant execute on function public.search_brand(uuid, text) to anon, authenticated;
 

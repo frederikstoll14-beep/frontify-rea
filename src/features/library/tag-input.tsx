@@ -5,7 +5,15 @@ export function normalizeTag(tag: string): string {
   return tag.trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 40)
 }
 
-export function TagInput({ value, onChange, placeholder = 'Tag hinzufügen' }: { value: string[]; onChange: (tags: string[]) => void; placeholder?: string }) {
+export function TagInput({
+  value,
+  onChange,
+  placeholder = 'Tag hinzufügen',
+}: {
+  value: string[]
+  onChange: (tags: string[]) => void
+  placeholder?: string
+}) {
   const [input, setInput] = useState('')
   const add = (raw: string) => {
     const tags = raw
@@ -18,7 +26,10 @@ export function TagInput({ value, onChange, placeholder = 'Tag hinzufügen' }: {
   return (
     <div className="flex min-h-10 flex-wrap items-center gap-1.5 rounded-lg border border-border bg-surface px-2 py-1.5 focus-within:border-ring">
       {value.map((tag) => (
-        <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-surface-2 py-0.5 pr-1 pl-2.5 text-xs font-medium text-ink-2">
+        <span
+          key={tag}
+          className="inline-flex items-center gap-1 rounded-full bg-surface-2 py-0.5 pr-1 pl-2.5 text-xs font-medium text-ink-2"
+        >
           {tag}
           <button
             type="button"

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/api/auth'
 import { AppShell } from '@/components/layout/app-shell'
 import { Button } from '@/components/ui/button'
+import { useConfirm } from '@/components/ui/confirm'
 import { Field, Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/misc'
 import { supabase } from '@/lib/supabase'
@@ -14,7 +16,9 @@ export function AccountPage() {
   const qc = useQueryClient()
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
-  const [busy, setBusy] = useState<'name' | 'password' | null>(null)
+  const [busy, setBusy] = useState<'name' | 'password' | 'delete' | null>(null)
+  const confirm = useConfirm()
+  const navigate = useNavigate()
 
   useEffect(() => setName(profile?.full_name ?? ''), [profile?.full_name])
 
@@ -35,7 +39,10 @@ export function AccountPage() {
             onClick={async () => {
               if (!user) return
               setBusy('name')
-              const { error } = await supabase.from('profiles').update({ full_name: name.trim() }).eq('id', user.id)
+              const { error } = await supabase
+                .from('profiles')
+                .update({ full_name: name.trim() })
+                .eq('id', user.id)
               setBusy(null)
               if (error) toast.error(errorMessage(error))
               else {
@@ -50,7 +57,12 @@ export function AccountPage() {
         <Card className="space-y-4 p-5">
           <h2 className="font-semibold text-ink">Passwort ändern</h2>
           <Field label="Neues Passwort" hint="Mindestens 8 Zeichen">
-            <Input type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Input
+              type="password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </Field>
           <Button
             variant="outline"
@@ -68,6 +80,40 @@ export function AccountPage() {
             }}
           >
             Passwort ändern
+          </Button>
+        </Card>
+        <Card className="space-y-3 border-danger/40 p-5">
+          <h2 className="font-semibold text-danger">Konto löschen</h2>
+          <p className="text-sm text-muted">
+            Löscht dein Konto und alle Mitgliedschaften. Deine Kommentare bleiben ohne Namen erhalten, damit
+            Diskussionen nachvollziehbar bleiben. Bist du Owner eines Workspaces, lösche ihn vorher oder
+            ernenne eine andere Person zum Owner.
+          </p>
+          <Button
+            variant="outline"
+            className="text-danger"
+            loading={busy === 'delete'}
+            onClick={async () => {
+              const ok = await confirm({
+                title: 'Konto endgültig löschen?',
+                description: 'Das kann nicht rückgängig gemacht werden.',
+                confirmLabel: 'Konto löschen',
+                danger: true,
+              })
+              if (!ok) return
+              setBusy('delete')
+              const { error } = await supabase.rpc('delete_my_account')
+              setBusy(null)
+              if (error) {
+                toast.error(errorMessage(error))
+                return
+              }
+              await supabase.auth.signOut()
+              toast.success('Dein Konto wurde gelöscht')
+              navigate('/login')
+            }}
+          >
+            Konto löschen
           </Button>
         </Card>
       </div>

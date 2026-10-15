@@ -41,10 +41,15 @@ export function Dialog({
               {description ? (
                 <D.Description className="mt-1 text-sm text-muted">{description}</D.Description>
               ) : (
-                <D.Description className="sr-only">{typeof title === 'string' ? title : 'Dialog'}</D.Description>
+                <D.Description className="sr-only">
+                  {typeof title === 'string' ? title : 'Dialog'}
+                </D.Description>
               )}
             </div>
-            <D.Close className="-mr-1 rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink" aria-label="Schließen">
+            <D.Close
+              className="-mr-1 rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink"
+              aria-label="Schließen"
+            >
               <X className="size-5" />
             </D.Close>
           </div>
@@ -92,8 +97,13 @@ export function Sheet({
         >
           <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
             <D.Title className="min-w-0 truncate text-base font-semibold text-ink">{title}</D.Title>
-            <D.Description className="sr-only">{description ?? (typeof title === 'string' ? title : 'Panel')}</D.Description>
-            <D.Close className="rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink" aria-label="Schließen">
+            <D.Description className="sr-only">
+              {description ?? (typeof title === 'string' ? title : 'Panel')}
+            </D.Description>
+            <D.Close
+              className="rounded-md p-1.5 text-muted hover:bg-surface-2 hover:text-ink"
+              aria-label="Schließen"
+            >
               <X className="size-5" />
             </D.Close>
           </div>

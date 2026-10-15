@@ -1,4 +1,13 @@
-import { FileArchive, FileAudio, FileCode, FileImage, FileText, FileType, FileVideo, File as FileIcon } from 'lucide-react'
+import {
+  FileArchive,
+  FileAudio,
+  FileCode,
+  FileImage,
+  FileText,
+  FileType,
+  FileVideo,
+  File as FileIcon,
+} from 'lucide-react'
 import type { Asset } from '@/api/libraries'
 import { useSignedUrl } from '@/api/storage'
 import type { PreviewBackground } from '@/lib/blocks/types'
@@ -55,7 +64,15 @@ export function backgroundClass(bg: PreviewBackground | 'none' | undefined): str
   }
 }
 
-export function FileTypeIcon({ mime, ext, className }: { mime?: string | null; ext?: string | null; className?: string }) {
+export function FileTypeIcon({
+  mime,
+  ext,
+  className,
+}: {
+  mime?: string | null
+  ext?: string | null
+  className?: string
+}) {
   const e = (ext ?? '').toLowerCase()
   const Icon = mime?.startsWith('image/')
     ? FileImage
@@ -89,9 +106,18 @@ export function AssetPreview({
   fit?: 'cover' | 'contain'
   preferOriginal?: boolean
 }) {
-  const imagePath = preferOriginal && isImageMime(asset.mime_type) ? asset.file_path : (asset.thumb_path ?? (isImageMime(asset.mime_type) ? asset.file_path : null))
+  const imagePath =
+    preferOriginal && isImageMime(asset.mime_type)
+      ? asset.file_path
+      : (asset.thumb_path ?? (isImageMime(asset.mime_type) ? asset.file_path : null))
   return (
-    <div className={cn('relative flex items-center justify-center overflow-hidden', backgroundClass(background), className)}>
+    <div
+      className={cn(
+        'relative flex items-center justify-center overflow-hidden',
+        backgroundClass(background),
+        className,
+      )}
+    >
       {imagePath ? (
         <StorageImage
           path={imagePath}

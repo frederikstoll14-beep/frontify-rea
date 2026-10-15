@@ -26,7 +26,8 @@ export async function newUser(label: string): Promise<{ client: Client; id: stri
     options: { data: { full_name: label } },
   })
   if (error) throw error
-  if (!data.user || !data.session) throw new Error('Kein Session-Token – ist "enable_confirmations" lokal aus?')
+  if (!data.user || !data.session)
+    throw new Error('Kein Session-Token – ist "enable_confirmations" lokal aus?')
   return { client, id: data.user.id, email }
 }
 

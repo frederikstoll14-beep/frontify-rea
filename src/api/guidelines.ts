@@ -8,7 +8,8 @@ export type Guideline = Tables<'guidelines'>
 export type GuidelinePage = Tables<'guideline_pages'>
 export type PageRevision = Tables<'page_revisions'>
 
-export interface Block<T extends BlockType = BlockType> extends Omit<Tables<'blocks'>, 'type' | 'content' | 'width'> {
+export interface Block<T extends BlockType = BlockType>
+  extends Omit<Tables<'blocks'>, 'type' | 'content' | 'width'> {
   type: T
   width: BlockWidth
   content: BlockContentMap[T]
@@ -37,7 +38,9 @@ export function usePages(guidelineId: string | undefined) {
     queryKey: keys.pages(guidelineId ?? ''),
     enabled: Boolean(guidelineId),
     queryFn: async (): Promise<GuidelinePage[]> =>
-      unwrap(await supabase.from('guideline_pages').select('*').eq('guideline_id', guidelineId!).order('sort')),
+      unwrap(
+        await supabase.from('guideline_pages').select('*').eq('guideline_id', guidelineId!).order('sort'),
+      ),
   })
 }
 
@@ -110,7 +113,13 @@ export function useCreateGuideline(brandId: string) {
       unwrap(
         await supabase
           .from('guideline_pages')
-          .insert({ guideline_id: guideline.id, brand_id: brandId, kind: 'page', title: 'Einführung', slug: 'einfuehrung' })
+          .insert({
+            guideline_id: guideline.id,
+            brand_id: brandId,
+            kind: 'page',
+            title: 'Einführung',
+            slug: 'einfuehrung',
+          })
           .select()
           .single(),
       )
@@ -261,7 +270,10 @@ export async function insertBlock(input: {
   return block
 }
 
-export async function updateBlock(id: string, patch: { content?: unknown; width?: BlockWidth; sort?: number }) {
+export async function updateBlock(
+  id: string,
+  patch: { content?: unknown; width?: BlockWidth; sort?: number },
+) {
   const update: TablesUpdate<'blocks'> = {}
   if (patch.content !== undefined) update.content = patch.content as JsonValue
   if (patch.width !== undefined) update.width = patch.width
@@ -310,7 +322,12 @@ export function useCreateRevision(pageId: string, brandId: string) {
       return unwrap(
         await supabase
           .from('page_revisions')
-          .insert({ page_id: pageId, brand_id: brandId, label: input.label, snapshot: snapshot as unknown as JsonValue })
+          .insert({
+            page_id: pageId,
+            brand_id: brandId,
+            label: input.label,
+            snapshot: snapshot as unknown as JsonValue,
+          })
           .select()
           .single(),
       )

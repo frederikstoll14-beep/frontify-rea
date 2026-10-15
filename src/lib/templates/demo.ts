@@ -93,8 +93,20 @@ export const demoTemplate: BrandTemplate = {
         name: 'Ergänzungsfarben',
         description: 'Für Infografiken, Statistik und digitale Oberflächen.',
         colors: [
-          { name: 'Nachtblau', hex: '#071A35', token: 'nachtblau', cmyk: '100/80/30/70', usage: 'Dunkle Flächen, Text' },
-          { name: 'Kieselgrau', hex: '#8C9196', token: 'kieselgrau', cmyk: '10/0/0/50', usage: 'Sekundärtext, Linien' },
+          {
+            name: 'Nachtblau',
+            hex: '#071A35',
+            token: 'nachtblau',
+            cmyk: '100/80/30/70',
+            usage: 'Dunkle Flächen, Text',
+          },
+          {
+            name: 'Kieselgrau',
+            hex: '#8C9196',
+            token: 'kieselgrau',
+            cmyk: '10/0/0/50',
+            usage: 'Sekundärtext, Linien',
+          },
           { name: 'Uferhell', hex: '#EEF2F7', token: 'uferhell', usage: 'Hintergrundflächen digital' },
         ],
       },
@@ -275,14 +287,26 @@ export const demoTemplate: BrandTemplate = {
               ),
               dosDonts(
                 [
-                  { kind: 'do', title: 'Wir sagen', text: '„Was für ein Kampf! Danke für eure Stimmung, Rheinblick! 💙💛“' },
+                  {
+                    kind: 'do',
+                    title: 'Wir sagen',
+                    text: '„Was für ein Kampf! Danke für eure Stimmung, Rheinblick! 💙💛“',
+                  },
                   {
                     kind: 'dont',
                     title: 'Wir sagen nicht',
                     text: '„Hiermit informieren wir über das Spielergebnis der 1. Herren.“',
                   },
-                  { kind: 'do', title: 'Du-Ansprache', text: 'Wir duzen auf allen Kanälen – außer in Verträgen.' },
-                  { kind: 'dont', title: 'Häme', text: 'Wir machen uns nie über Gegner oder Schiedsrichter lustig.' },
+                  {
+                    kind: 'do',
+                    title: 'Du-Ansprache',
+                    text: 'Wir duzen auf allen Kanälen – außer in Verträgen.',
+                  },
+                  {
+                    kind: 'dont',
+                    title: 'Häme',
+                    text: 'Wir machen uns nie über Gegner oder Schiedsrichter lustig.',
+                  },
                 ],
                 2,
               ),
@@ -320,13 +344,23 @@ export const demoTemplate: BrandTemplate = {
               callout(
                 'info',
                 'Dateien',
-                p('Alle Varianten liegen in der Bibliothek „Logos“ als SVG, PNG und PDF. Lade dort eure Dateien hoch.'),
+                p(
+                  'Alle Varianten liegen in der Bibliothek „Logos“ als SVG, PNG und PDF. Lade dort eure Dateien hoch.',
+                ),
               ),
               dosDonts(
                 [
-                  { kind: 'do', title: 'Auf Rheinblau oder Weiß', text: 'Immer mit Schutzzone in Wellenhöhe' },
+                  {
+                    kind: 'do',
+                    title: 'Auf Rheinblau oder Weiß',
+                    text: 'Immer mit Schutzzone in Wellenhöhe',
+                  },
                   { kind: 'dont', title: 'Nicht auf Flutlichtgelb', text: 'Zu wenig Kontrast, wirkt billig' },
-                  { kind: 'dont', title: 'Nicht drehen oder verzerren', text: 'Das Wappen steht immer gerade' },
+                  {
+                    kind: 'dont',
+                    title: 'Nicht drehen oder verzerren',
+                    text: 'Das Wappen steht immer gerade',
+                  },
                   { kind: 'dont', title: 'Keine Effekte', text: 'Keine Schatten, Glanz oder 3D' },
                 ],
                 2,
@@ -336,7 +370,11 @@ export const demoTemplate: BrandTemplate = {
               heading('Vereinsfarben'),
               colorsBlock('cards'),
               subheading('Gewichtung'),
-              text(p('Rheinblau trägt (60 %), Weiß schafft Ruhe (30 %), Flutlichtgelb setzt Akzente (max. 10 %).')),
+              text(
+                p(
+                  'Rheinblau trägt (60 %), Weiß schafft Ruhe (30 %), Flutlichtgelb setzt Akzente (max. 10 %).',
+                ),
+              ),
               downloadKit(),
             ]),
             page('Typografie', 'Barlow Condensed und Inter.', [
@@ -345,7 +383,9 @@ export const demoTemplate: BrandTemplate = {
               callout(
                 'tip',
                 'Ersatzschrift',
-                p('In Word, PowerPoint und E-Mails nutzt du <strong>Arial</strong>, wenn die Hausschriften fehlen.'),
+                p(
+                  'In Word, PowerPoint und E-Mails nutzt du <strong>Arial</strong>, wenn die Hausschriften fehlen.',
+                ),
               ),
             ]),
             page('Bildsprache', 'Nah dran, echt, mit Rhein im Hintergrund.', [
@@ -358,7 +398,11 @@ export const demoTemplate: BrandTemplate = {
               galleryBlock(),
               dosDonts([
                 { kind: 'do', title: 'Emotion & Nähe', text: 'Gesichter, Gesten, Gemeinschaft' },
-                { kind: 'dont', title: 'Leere Ränge', text: 'Keine Bilder, die den Verein kleiner wirken lassen' },
+                {
+                  kind: 'dont',
+                  title: 'Leere Ränge',
+                  text: 'Keine Bilder, die den Verein kleiner wirken lassen',
+                },
               ]),
             ]),
           ]),
@@ -375,7 +419,9 @@ export const demoTemplate: BrandTemplate = {
             ]),
             page('Spieltag', 'Grafiken rund ums Heimspiel.', [
               heading('Matchday-Grafiken'),
-              text(p('Für jeden Spieltag gibt es vier Grafiken: Ankündigung, Aufstellung, Halbzeit, Endstand.')),
+              text(
+                p('Für jeden Spieltag gibt es vier Grafiken: Ankündigung, Aufstellung, Halbzeit, Endstand.'),
+              ),
               galleryBlock(),
               checklist('Vor dem Posten prüfen', [
                 'Richtiges Datum, Uhrzeit, Spielort',
@@ -393,7 +439,10 @@ export const demoTemplate: BrandTemplate = {
                 ['WhatsApp-Kanal', 'Service & Termine', 'Eltern, Mitglieder', 'bei Bedarf'],
               ]),
               accordion([
-                { title: 'Wer darf posten?', html: p('Die Social-Media-AG und benannte Abteilungsverantwortliche.') },
+                {
+                  title: 'Wer darf posten?',
+                  html: p('Die Social-Media-AG und benannte Abteilungsverantwortliche.'),
+                },
                 {
                   title: 'Wie reagieren wir auf negative Kommentare?',
                   html: p('Sachlich, freundlich, nie öffentlich streiten. Beleidigungen werden gelöscht.'),
@@ -419,7 +468,11 @@ export const demoTemplate: BrandTemplate = {
                 3,
                 'outline',
               ),
-              callout('info', 'Hinweis', p('Der SV Rheinblick 1921 e.V. ist ein fiktiver Verein für Lehrzwecke.')),
+              callout(
+                'info',
+                'Hinweis',
+                p('Der SV Rheinblick 1921 e.V. ist ein fiktiver Verein für Lehrzwecke.'),
+              ),
               text(ul(['Alle Namen, Adressen und Daten sind erfunden.'])),
             ]),
           ]),

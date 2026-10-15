@@ -35,12 +35,35 @@ import { SearchDialog } from './search-dialog'
 
 const ROLE_LABELS: Record<string, string> = { admin: 'Admin', editor: 'Bearbeiten', viewer: 'Ansehen' }
 
-export function BrandMark({ brand, className }: { brand: BrandWithAccess | { name: string; logo_path: string | null }; className?: string }) {
+export function BrandMark({
+  brand,
+  className,
+  onColor = false,
+}: {
+  brand: BrandWithAccess | { name: string; logo_path: string | null }
+  className?: string
+  /** Auf farbiger Fläche: Logo auf weißer Kachel, Kürzel transparent */
+  onColor?: boolean
+}) {
   if (brand.logo_path) {
-    return <StorageImage path={brand.logo_path} alt={brand.name} fit="contain" className={cn('size-9 rounded-lg', className)} loading="eager" />
+    return (
+      <StorageImage
+        path={brand.logo_path}
+        alt={brand.name}
+        fit="contain"
+        className={cn('size-9 rounded-lg', onColor && 'bg-white/95 p-1.5', className)}
+        loading="eager"
+      />
+    )
   }
   return (
-    <span className={cn('flex size-9 items-center justify-center rounded-lg bg-brand text-sm font-bold text-brand-ink', className)}>
+    <span
+      className={cn(
+        'flex size-9 items-center justify-center rounded-lg text-sm font-bold',
+        onColor ? 'bg-white/15 text-current ring-1 ring-current/25' : 'bg-brand text-brand-ink',
+        className,
+      )}
+    >
       {initials(brand.name)}
     </span>
   )
@@ -146,11 +169,16 @@ function BrandHeader() {
 
   useEffect(() => setMenuOpen(false), [location.pathname])
 
-  const navItem = 'flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors whitespace-nowrap'
+  const navItem =
+    'flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors whitespace-nowrap'
   const navClass = ({ isActive }: { isActive: boolean }) =>
     cn(navItem, isActive ? 'bg-surface-2 text-ink' : 'text-ink-2 hover:bg-surface-2 hover:text-ink')
 
-  const libraryLinks = libraries.map((l) => ({ to: `${basePath}/bibliothek/${l.slug}`, label: l.name, count: l.asset_count }))
+  const libraryLinks = libraries.map((l) => ({
+    to: `${basePath}/bibliothek/${l.slug}`,
+    label: l.name,
+    count: l.asset_count,
+  }))
 
   const links = (
     <>
@@ -173,14 +201,25 @@ function BrandHeader() {
     <>
       <header className="no-print sticky top-0 z-30 border-b border-border bg-bg/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-2 px-3 sm:gap-3 sm:px-4 lg:h-16 lg:px-6">
-          <Button size="icon-sm" variant="ghost" className="lg:hidden" aria-label="Menü" onClick={() => setMenuOpen(true)}>
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            className="lg:hidden"
+            aria-label="Menü"
+            onClick={() => setMenuOpen(true)}
+          >
             <Menu />
           </Button>
           <Link to={basePath} className="flex min-w-0 items-center gap-2.5">
             <BrandMark brand={brand} className="size-8 lg:size-9" />
-            <span className="truncate font-brand-heading text-base font-semibold text-ink lg:text-lg">{brand.name}</span>
+            <span className="truncate font-brand-heading text-base font-semibold text-ink lg:text-lg">
+              {brand.name}
+            </span>
           </Link>
-          <nav className="ml-4 hidden min-w-0 items-center gap-1 overflow-x-auto lg:flex" aria-label="Hauptnavigation">
+          <nav
+            className="ml-4 hidden min-w-0 items-center gap-1 overflow-x-auto lg:flex"
+            aria-label="Hauptnavigation"
+          >
             {links}
             {libraryLinks.length > 0 && (
               <MenuRoot>
@@ -189,7 +228,9 @@ function BrandHeader() {
                     type="button"
                     className={cn(
                       navItem,
-                      location.pathname.includes('/bibliothek/') ? 'bg-surface-2 text-ink' : 'text-ink-2 hover:bg-surface-2 hover:text-ink',
+                      location.pathname.includes('/bibliothek/')
+                        ? 'bg-surface-2 text-ink'
+                        : 'text-ink-2 hover:bg-surface-2 hover:text-ink',
                     )}
                   >
                     <FolderOpen className="size-4" /> Bibliotheken
@@ -220,8 +261,24 @@ function BrandHeader() {
                 onChange={(v) => setEditMode(v === 'edit')}
                 className="hidden sm:inline-flex"
                 options={[
-                  { value: 'view', label: <><Eye /> Ansehen</>, title: 'Ansicht wie für Leser:innen' },
-                  { value: 'edit', label: <><PencilLine /> Bearbeiten</>, title: 'Inhalte bearbeiten' },
+                  {
+                    value: 'view',
+                    label: (
+                      <>
+                        <Eye /> Ansehen
+                      </>
+                    ),
+                    title: 'Ansicht wie für Leser:innen',
+                  },
+                  {
+                    value: 'edit',
+                    label: (
+                      <>
+                        <PencilLine /> Bearbeiten
+                      </>
+                    ),
+                    title: 'Inhalte bearbeiten',
+                  },
                 ]}
               />
             )}
@@ -248,7 +305,12 @@ function BrandHeader() {
             {isMember && (
               <MenuRoot>
                 <MenuTrigger asChild>
-                  <Button size="icon-sm" variant="ghost" aria-label="Weitere" className="hidden sm:inline-flex">
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    aria-label="Weitere"
+                    className="hidden sm:inline-flex"
+                  >
                     <Settings />
                   </Button>
                 </MenuTrigger>
@@ -287,7 +349,9 @@ function BrandHeader() {
           {links}
           {libraryLinks.length > 0 && (
             <>
-              <p className="mt-3 px-3 text-[11px] font-semibold tracking-wide text-muted uppercase">Bibliotheken</p>
+              <p className="mt-3 px-3 text-[11px] font-semibold tracking-wide text-muted uppercase">
+                Bibliotheken
+              </p>
               {libraryLinks.map((l) => (
                 <NavLink key={l.to} to={l.to} className={navClass}>
                   <FolderOpen className="size-4" /> {l.label}

@@ -57,7 +57,11 @@ export function useBrandAssets(brandId: string | undefined, enabled = true) {
     enabled: Boolean(brandId) && enabled,
     queryFn: async (): Promise<Asset[]> =>
       unwrap(
-        await supabase.from('assets').select('*').eq('brand_id', brandId!).order('created_at', { ascending: false }),
+        await supabase
+          .from('assets')
+          .select('*')
+          .eq('brand_id', brandId!)
+          .order('created_at', { ascending: false }),
       ),
   })
 }
@@ -163,7 +167,10 @@ function guessMime(name: string): string {
 }
 
 function titleFromFileName(name: string): string {
-  const base = name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()
+  const base = name
+    .replace(/\.[^.]+$/, '')
+    .replace(/[_-]+/g, ' ')
+    .trim()
   return base.length > 0 ? base.slice(0, 200) : 'Datei'
 }
 
@@ -186,7 +193,13 @@ export function useLibraryMutations(brandId: string) {
         return unwrap(
           await supabase
             .from('libraries')
-            .insert({ brand_id: brandId, name: input.name, kind: input.kind, slug, sort: input.existing.length })
+            .insert({
+              brand_id: brandId,
+              name: input.name,
+              kind: input.kind,
+              slug,
+              sort: input.existing.length,
+            })
             .select()
             .single(),
         )
@@ -343,7 +356,9 @@ export function useLibraryMutations(brandId: string) {
     deleteAssets: useMutation({
       mutationFn: async (assets: Asset[]) => {
         const ids = assets.map((a) => a.id)
-        const versions = unwrap(await supabase.from('asset_versions').select('file_path, thumb_path').in('asset_id', ids))
+        const versions = unwrap(
+          await supabase.from('asset_versions').select('file_path, thumb_path').in('asset_id', ids),
+        )
         // Dateien, die noch von Bausteinen genutzt werden könnten, bleiben nicht referenziert zurück → entfernen
         await removeFiles([
           ...assets.flatMap((a) => [a.file_path, a.thumb_path]),
@@ -368,7 +383,8 @@ export function useLibraryMutations(brandId: string) {
     renameCollection: useMutation({
       mutationFn: async (input: { collection: Collection; name: string }) =>
         check(await supabase.from('collections').update({ name: input.name }).eq('id', input.collection.id)),
-      onSuccess: (_r, input) => qc.invalidateQueries({ queryKey: keys.collections(input.collection.library_id) }),
+      onSuccess: (_r, input) =>
+        qc.invalidateQueries({ queryKey: keys.collections(input.collection.library_id) }),
     }),
     deleteCollection: useMutation({
       mutationFn: async (collection: Collection) =>
@@ -380,7 +396,11 @@ export function useLibraryMutations(brandId: string) {
         if (input.add) {
           check(
             await supabase.from('collection_assets').upsert(
-              input.assetIds.map((asset_id) => ({ collection_id: input.collection.id, asset_id, brand_id: brandId })),
+              input.assetIds.map((asset_id) => ({
+                collection_id: input.collection.id,
+                asset_id,
+                brand_id: brandId,
+              })),
               { onConflict: 'collection_id,asset_id', ignoreDuplicates: true },
             ),
           )
@@ -394,7 +414,8 @@ export function useLibraryMutations(brandId: string) {
           )
         }
       },
-      onSuccess: (_r, input) => qc.invalidateQueries({ queryKey: keys.collections(input.collection.library_id) }),
+      onSuccess: (_r, input) =>
+        qc.invalidateQueries({ queryKey: keys.collections(input.collection.library_id) }),
     }),
   }
 }

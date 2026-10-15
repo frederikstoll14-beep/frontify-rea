@@ -1,13 +1,21 @@
 import { BookOpen, ChevronDown, ListTree, Printer } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, Outlet, useNavigate, useOutletContext, useParams } from 'react-router'
-import { buildNav, flattenNav, useGuidelines, usePages, type Guideline, type GuidelinePage } from '@/api/guidelines'
+import {
+  buildNav,
+  flattenNav,
+  useGuidelines,
+  usePages,
+  type Guideline,
+  type GuidelinePage,
+} from '@/api/guidelines'
 import { Button } from '@/components/ui/button'
 import { Sheet } from '@/components/ui/dialog'
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from '@/components/ui/menu'
 import { EmptyState, PageSpinnerFallback } from './fallbacks'
 import { useBrandContext } from '@/features/brand/brand-context'
 import { GuidelineNav } from './guideline-nav'
+import { GuidelineMenu } from './guideline-settings'
 
 export interface GuidelineOutletContext {
   guideline: Guideline
@@ -20,7 +28,7 @@ export function useGuidelineOutlet(): GuidelineOutletContext {
 
 export function GuidelineLayout() {
   const { guidelineSlug } = useParams()
-  const { brand, basePath, canEdit } = useBrandContext()
+  const { brand, basePath, canEdit, editMode } = useBrandContext()
   const { data: guidelines = [], isLoading } = useGuidelines(brand.id)
   const guideline = guidelines.find((g) => g.slug === guidelineSlug)
   const { data: pages = [], isLoading: loadingPages } = usePages(guideline?.id)
@@ -77,7 +85,15 @@ export function GuidelineLayout() {
 
   const sidebar = (onNavigate?: () => void) => (
     <div className="space-y-4">
-      {switcher}
+      <div className="flex items-start gap-1">
+        <div className="min-w-0 flex-1">{switcher}</div>
+        {editMode && <GuidelineMenu guideline={guideline} />}
+      </div>
+      {!guideline.is_published && (
+        <p className="rounded-lg bg-warning-soft px-2.5 py-1.5 text-xs text-warning">
+          Entwurf – nur für Bearbeitende sichtbar
+        </p>
+      )}
       <GuidelineNav guideline={guideline} pages={pages} onNavigate={onNavigate} />
       <div className="border-t border-border pt-3">
         <Button asChild size="sm" variant="ghost" className="w-full justify-start">
@@ -126,7 +142,11 @@ export function GuidelineIndex() {
       <EmptyState
         icon={<BookOpen />}
         title="Noch keine Seiten"
-        description={canEdit ? 'Schalte oben auf „Bearbeiten“ und lege links die erste Seite an.' : 'Hier entsteht bald etwas.'}
+        description={
+          canEdit
+            ? 'Schalte oben auf „Bearbeiten“ und lege links die erste Seite an.'
+            : 'Hier entsteht bald etwas.'
+        }
       />
     </div>
   )

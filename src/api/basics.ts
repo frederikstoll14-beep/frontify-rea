@@ -138,7 +138,9 @@ export function useBasicsMutations(brandId: string) {
     reorderTextStyles: useMutation({
       mutationFn: async (items: Array<{ id: string; sort: number }>) => {
         await Promise.all(
-          items.map(async (item) => check(await supabase.from('text_styles').update({ sort: item.sort }).eq('id', item.id))),
+          items.map(async (item) =>
+            check(await supabase.from('text_styles').update({ sort: item.sort }).eq('id', item.id)),
+          ),
         )
       },
       onSettled: invalidateStyles,

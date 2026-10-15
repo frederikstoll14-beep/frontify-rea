@@ -661,6 +661,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"delete_my_account":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "invitation_preview":
 { Args: { "p_token": string }; Returns: {
               "brand_name": string,"brand_role": Database["public"]['Enums']["brand_role"],"email_bound": boolean,"is_valid": boolean,"workspace_name": string,"workspace_role": Database["public"]['Enums']["workspace_role"]

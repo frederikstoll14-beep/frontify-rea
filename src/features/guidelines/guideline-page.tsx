@@ -1,7 +1,27 @@
-import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
 import { rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, ArrowRight, CircleAlert, Cloud, EyeOff, FileText, History, Link2, Loader2, MessageSquare, Plus } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  CircleAlert,
+  Cloud,
+  EyeOff,
+  FileText,
+  History,
+  Link2,
+  Loader2,
+  MessageSquare,
+  Plus,
+} from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { toast } from 'sonner'
@@ -32,7 +52,13 @@ export function BlockView({ block }: { block: Block }) {
   return <View block={block} content={block.content} />
 }
 
-function BlockEditorSlot({ block, onChange }: { block: Block; onChange: (patch: Record<string, unknown>) => void }) {
+function BlockEditorSlot({
+  block,
+  onChange,
+}: {
+  block: Block
+  onChange: (patch: Record<string, unknown>) => void
+}) {
   const def = getBlockDefinition(block.type)
   const Editor = def.Editor as React.ComponentType<{
     block: Block
@@ -69,8 +95,13 @@ function PageToc({ blocks }: { blocks: Block[] }) {
   )
   if (headings.length < 2) return null
   return (
-    <nav aria-label="Auf dieser Seite" className="no-print sticky top-24 hidden w-52 shrink-0 self-start xl:block">
-      <p className="mb-2 text-[11px] font-semibold tracking-[0.08em] text-muted uppercase">Auf dieser Seite</p>
+    <nav
+      aria-label="Auf dieser Seite"
+      className="no-print sticky top-24 hidden w-52 shrink-0 self-start xl:block"
+    >
+      <p className="mb-2 text-[11px] font-semibold tracking-[0.08em] text-muted uppercase">
+        Auf dieser Seite
+      </p>
       <ul className="space-y-1 border-l border-border">
         {headings.map((h) => (
           <li key={h.id}>
@@ -183,7 +214,13 @@ export function GuidelinePageView() {
     const block = await state.insert(type, at)
     if (block) {
       setSelected(block.id)
-      setTimeout(() => document.querySelector(`[data-block-id="${block.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50)
+      setTimeout(
+        () =>
+          document
+            .querySelector(`[data-block-id="${block.id}"]`)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+        50,
+      )
     }
   }
 
@@ -225,13 +262,23 @@ export function GuidelinePageView() {
               </Tooltip>
               {canEdit && (
                 <Tooltip content="Versionen">
-                  <Button size="icon-sm" variant="ghost" aria-label="Versionen" onClick={() => setPanel('revisions')}>
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    aria-label="Versionen"
+                    onClick={() => setPanel('revisions')}
+                  >
                     <History />
                   </Button>
                 </Tooltip>
               )}
               {isMember && (
-                <Button size="sm" variant="ghost" onClick={() => setPanel('comments')} aria-label="Kommentare">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setPanel('comments')}
+                  aria-label="Kommentare"
+                >
                   <MessageSquare />
                   {openComments > 0 && <span className="text-xs font-semibold">{openComments}</span>}
                 </Button>
@@ -261,7 +308,9 @@ export function GuidelinePageView() {
               <h1 className="font-brand-heading text-4xl leading-tight font-bold text-balance text-ink sm:text-5xl">
                 {page.title}
               </h1>
-              {page.intro && <p className="mt-3 text-lg leading-relaxed text-pretty text-ink-2">{page.intro}</p>}
+              {page.intro && (
+                <p className="mt-3 text-lg leading-relaxed text-pretty text-ink-2">{page.intro}</p>
+              )}
             </>
           )}
           <p className="mt-4 text-xs text-muted">Zuletzt aktualisiert: {formatDateTime(page.updated_at)}</p>
@@ -293,7 +342,10 @@ export function GuidelinePageView() {
                     onInsertAfter={() => setInserterAt(i + 1)}
                   >
                     {selected === block.id ? (
-                      <BlockEditorSlot block={block} onChange={(patch) => state.updateContent(block.id, patch)} />
+                      <BlockEditorSlot
+                        block={block}
+                        onChange={(patch) => state.updateContent(block.id, patch)}
+                      />
                     ) : (
                       <div className="pointer-events-none min-h-8 select-none">
                         <BlockView block={block} />
@@ -328,7 +380,10 @@ export function GuidelinePageView() {
         )}
 
         {(prev || next) && (
-          <nav className="no-print mt-14 grid gap-3 border-t border-border pt-6 sm:grid-cols-2" aria-label="Seitennavigation">
+          <nav
+            className="no-print mt-14 grid gap-3 border-t border-border pt-6 sm:grid-cols-2"
+            aria-label="Seitennavigation"
+          >
             {prev ? (
               <Link
                 to={`${basePath}/g/${guideline.slug}/${prev.slug}`}
@@ -365,10 +420,18 @@ export function GuidelinePageView() {
         onPick={(type) => void handleInsert(type)}
       />
 
-      <Sheet open={panel === 'comments'} onOpenChange={(open) => setPanel(open ? 'comments' : null)} title={`Kommentare · ${page.title}`}>
+      <Sheet
+        open={panel === 'comments'}
+        onOpenChange={(open) => setPanel(open ? 'comments' : null)}
+        title={`Kommentare · ${page.title}`}
+      >
         <CommentsPanel target={{ pageId: page.id }} />
       </Sheet>
-      <Sheet open={panel === 'revisions'} onOpenChange={(open) => setPanel(open ? 'revisions' : null)} title="Versionen dieser Seite">
+      <Sheet
+        open={panel === 'revisions'}
+        onOpenChange={(open) => setPanel(open ? 'revisions' : null)}
+        title="Versionen dieser Seite"
+      >
         <RevisionsPanel
           page={page}
           blocks={state.blocks}

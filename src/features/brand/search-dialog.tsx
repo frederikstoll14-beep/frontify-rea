@@ -22,7 +22,13 @@ function snippet(text: string | null, query: string): string {
   return `${start > 0 ? '…' : ''}${clean.slice(start, idx + 90)}…`
 }
 
-export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function SearchDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
   const { brand, basePath } = useBrandContext()
   const [query, setQuery] = useState('')
   const [debounced, setDebounced] = useState('')
@@ -60,7 +66,8 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
       <div className="mt-4 min-h-40 space-y-5">
         {debounced.trim().length < 2 ? (
           <p className="flex items-center gap-2 py-8 text-center text-sm text-muted">
-            Mindestens zwei Zeichen eingeben. Tipp: <Command className="size-3.5" /> K öffnet die Suche überall.
+            Mindestens zwei Zeichen eingeben. Tipp: <Command className="size-3.5" /> K öffnet die Suche
+            überall.
           </p>
         ) : isFetching && results.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted">Sucht …</p>
@@ -82,7 +89,11 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                         <FileText className="mt-0.5 size-4 shrink-0 text-muted" />
                         <span className="min-w-0">
                           <span className="block font-medium text-ink">{r.title}</span>
-                          {r.snippet && <span className="line-clamp-2 block text-[13px] text-muted">{snippet(r.snippet, debounced)}</span>}
+                          {r.snippet && (
+                            <span className="line-clamp-2 block text-[13px] text-muted">
+                              {snippet(r.snippet, debounced)}
+                            </span>
+                          )}
                         </span>
                       </button>
                     </li>
@@ -129,7 +140,10 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                         }}
                         className="flex items-center gap-2 rounded-full border border-border py-1 pr-3 pl-1 text-sm hover:bg-surface-2"
                       >
-                        <span className="size-6 rounded-full border border-black/10" style={{ backgroundColor: r.hex ?? '' }} />
+                        <span
+                          className="size-6 rounded-full border border-black/10"
+                          style={{ backgroundColor: r.hex ?? '' }}
+                        />
                         {r.title} <span className="font-mono text-xs text-muted">{r.hex}</span>
                       </button>
                     </li>

@@ -28,7 +28,15 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
   )
 }
 
-function Pins({ comments, active, onClick }: { comments: Comment[]; active: string | null; onClick: (c: Comment) => void }) {
+function Pins({
+  comments,
+  active,
+  onClick,
+}: {
+  comments: Comment[]
+  active: string | null
+  onClick: (c: Comment) => void
+}) {
   return (
     <>
       {comments
@@ -109,7 +117,14 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
   }
 
   const tabs = [
-    { value: 'info', label: <span className="inline-flex items-center gap-1.5"><Info className="size-4" /> Details</span> },
+    {
+      value: 'info',
+      label: (
+        <span className="inline-flex items-center gap-1.5">
+          <Info className="size-4" /> Details
+        </span>
+      ),
+    },
     ...(isMember
       ? [
           {
@@ -123,7 +138,14 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
               </span>
             ),
           },
-          { value: 'versions', label: <span className="inline-flex items-center gap-1.5"><History className="size-4" /> Versionen</span> },
+          {
+            value: 'versions',
+            label: (
+              <span className="inline-flex items-center gap-1.5">
+                <History className="size-4" /> Versionen
+              </span>
+            ),
+          },
         ]
       : []),
   ]
@@ -150,9 +172,23 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
             {asset.mime_type.startsWith('video/') ? (
               <AssetVideo asset={asset} />
             ) : (
-              <AssetPreview asset={asset} background="none" className="aspect-[4/3] max-h-[65vh] w-full" preferOriginal />
+              <AssetPreview
+                asset={asset}
+                background="none"
+                className="aspect-[4/3] max-h-[65vh] w-full"
+                preferOriginal
+              />
             )}
-            {isImage && <Pins comments={comments} active={activePin} onClick={(c) => { setActivePin(c.id); setTab('comments') }} />}
+            {isImage && (
+              <Pins
+                comments={comments}
+                active={activePin}
+                onClick={(c) => {
+                  setActivePin(c.id)
+                  setTab('comments')
+                }}
+              />
+            )}
             {pin && (
               <span
                 className="pointer-events-none absolute size-7 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full border-2 border-white bg-ink shadow-md"
@@ -188,7 +224,9 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
             </div>
           </div>
           {tab === 'comments' && isImage && (
-            <p className="mt-2 text-xs text-muted">Tipp: Klicke ins Bild, um eine Stelle für deinen Kommentar zu markieren.</p>
+            <p className="mt-2 text-xs text-muted">
+              Tipp: Klicke ins Bild, um eine Stelle für deinen Kommentar zu markieren.
+            </p>
           )}
         </div>
 
@@ -202,7 +240,10 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
               {canEdit ? (
                 <>
                   <Field label="Titel">
-                    <Input value={value.title} onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))} />
+                    <Input
+                      value={value.title}
+                      onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+                    />
                   </Field>
                   <Field label="Beschreibung">
                     <Textarea
@@ -216,7 +257,11 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
                   </Field>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <Field label="Copyright / Urheber:in">
-                      <Input value={value.copyright} onChange={(e) => setDraft((d) => ({ ...d, copyright: e.target.value }))} placeholder="Foto: …" />
+                      <Input
+                        value={value.copyright}
+                        onChange={(e) => setDraft((d) => ({ ...d, copyright: e.target.value }))}
+                        placeholder="Foto: …"
+                      />
                     </Field>
                     <Field label="Nutzbar bis">
                       <Input
@@ -235,7 +280,10 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
                     />
                   </Field>
                   <Field label="Bibliothek">
-                    <Select value={value.library_id} onChange={(e) => setDraft((d) => ({ ...d, library_id: e.target.value }))}>
+                    <Select
+                      value={value.library_id}
+                      onChange={(e) => setDraft((d) => ({ ...d, library_id: e.target.value }))}
+                    >
                       {libraries.map((l) => (
                         <option key={l.id} value={l.id}>
                           {l.name}
@@ -280,16 +328,26 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
               )}
               <dl className="divide-y divide-border border-t border-border pt-2">
                 <MetaRow label="Datei" value={<span className="break-all">{asset.file_name}</span>} />
-                <MetaRow label="Format" value={<span className="uppercase">{asset.ext || asset.mime_type}</span>} />
+                <MetaRow
+                  label="Format"
+                  value={<span className="uppercase">{asset.ext || asset.mime_type}</span>}
+                />
                 <MetaRow label="Größe" value={formatBytes(asset.size_bytes)} />
-                {asset.width && asset.height && <MetaRow label="Abmessungen" value={`${asset.width} × ${asset.height} px`} />}
+                {asset.width && asset.height && (
+                  <MetaRow label="Abmessungen" value={`${asset.width} × ${asset.height} px`} />
+                )}
                 <MetaRow label="Version" value={asset.version} />
                 <MetaRow label="Hochgeladen" value={formatDateTime(asset.created_at)} />
                 {asset.copyright && <MetaRow label="Copyright" value={asset.copyright} />}
                 {asset.expires_at && (
                   <MetaRow
                     label="Nutzbar bis"
-                    value={<span className={cn(expired && 'font-semibold text-danger')}>{formatDate(asset.expires_at)}{expired && ' (abgelaufen)'}</span>}
+                    value={
+                      <span className={cn(expired && 'font-semibold text-danger')}>
+                        {formatDate(asset.expires_at)}
+                        {expired && ' (abgelaufen)'}
+                      </span>
+                    }
                   />
                 )}
               </dl>
@@ -337,10 +395,19 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
                 <div className="space-y-2 rounded-xl border border-border p-3">
                   <p className="text-sm font-medium text-ink">Neue Version hochladen</p>
                   <p className="text-xs text-muted">
-                    Die Datei wird ersetzt, Verknüpfungen in Bausteinen bleiben erhalten. Die bisherige Datei bleibt als Version gespeichert.
+                    Die Datei wird ersetzt, Verknüpfungen in Bausteinen bleiben erhalten. Die bisherige Datei
+                    bleibt als Version gespeichert.
                   </p>
-                  <Input value={versionNote} onChange={(e) => setVersionNote(e.target.value)} placeholder="Was hat sich geändert? (optional)" />
-                  <Button size="sm" loading={m.replaceAsset.isPending} onClick={() => replaceInput.current?.click()}>
+                  <Input
+                    value={versionNote}
+                    onChange={(e) => setVersionNote(e.target.value)}
+                    placeholder="Was hat sich geändert? (optional)"
+                  />
+                  <Button
+                    size="sm"
+                    loading={m.replaceAsset.isPending}
+                    onClick={() => replaceInput.current?.click()}
+                  >
                     <Upload /> Datei auswählen
                   </Button>
                   <input
@@ -367,10 +434,14 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
               )}
               <ul className="space-y-2">
                 <li className="rounded-xl border border-ink/20 bg-surface-2/60 p-3 text-sm">
-                  <span className="font-semibold text-ink">Version {asset.version}</span> · aktuell · {asset.file_name}
+                  <span className="font-semibold text-ink">Version {asset.version}</span> · aktuell ·{' '}
+                  {asset.file_name}
                 </li>
                 {versions.map((v) => (
-                  <li key={v.id} className="flex items-start justify-between gap-3 rounded-xl border border-border p-3">
+                  <li
+                    key={v.id}
+                    className="flex items-start justify-between gap-3 rounded-xl border border-border p-3"
+                  >
                     <div className="min-w-0 text-sm">
                       <p className="font-semibold text-ink">Version {v.version}</p>
                       <p className="truncate text-xs text-muted">
@@ -382,7 +453,13 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
                     <div className="flex shrink-0 gap-1">
                       {canDownload && (
                         <DownloadMenu
-                          asset={{ ...asset, file_path: v.file_path, file_name: v.file_name, mime_type: v.mime_type, width: v.width }}
+                          asset={{
+                            ...asset,
+                            file_path: v.file_path,
+                            file_name: v.file_name,
+                            mime_type: v.mime_type,
+                            width: v.width,
+                          }}
                           iconOnly
                           variant="ghost"
                         />
@@ -408,7 +485,9 @@ export function AssetDetailSheet({ asset, onClose }: { asset: Asset | null; onCl
                     </div>
                   </li>
                 ))}
-                {versions.length === 0 && <p className="text-sm text-muted">Noch keine früheren Versionen.</p>}
+                {versions.length === 0 && (
+                  <p className="text-sm text-muted">Noch keine früheren Versionen.</p>
+                )}
               </ul>
             </div>
           )}

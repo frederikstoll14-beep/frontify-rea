@@ -66,7 +66,9 @@ export function useAuth(): AuthState {
   return useContext(AuthContext)
 }
 
-export function displayName(profile: Pick<Tables<'profiles'>, 'full_name' | 'email'> | null | undefined): string {
+export function displayName(
+  profile: Pick<Tables<'profiles'>, 'full_name' | 'email'> | null | undefined,
+): string {
   if (!profile) return 'Unbekannt'
   return profile.full_name?.trim() || profile.email
 }

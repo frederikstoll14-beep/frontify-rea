@@ -23,7 +23,14 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
   function Textarea({ className, rows = 3, ...props }, ref) {
-    return <textarea ref={ref} rows={rows} className={cn(fieldBase, 'py-2 leading-relaxed', className)} {...props} />
+    return (
+      <textarea
+        ref={ref}
+        rows={rows}
+        className={cn(fieldBase, 'py-2 leading-relaxed', className)}
+        {...props}
+      />
+    )
   },
 )
 
@@ -74,7 +81,10 @@ export function Field({
     const element = children as ReactElement<{ id?: string }>
     const type = element.type
     const isLabelable =
-      (typeof type === 'string' && labelable.includes(type)) || type === Input || type === Textarea || type === Select
+      (typeof type === 'string' && labelable.includes(type)) ||
+      type === Input ||
+      type === Textarea ||
+      type === Select
     if (isLabelable) {
       controlId = element.props.id ?? autoId
       if (!element.props.id) control = cloneElement(element, { id: controlId })

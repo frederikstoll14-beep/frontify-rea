@@ -1,7 +1,15 @@
 import { ArrowDown, ArrowUp, FileType, Pencil, Plus, Trash2, Type, Upload } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { fontFiles, useBasicsMutations, useFonts, useTextStyles, type Font, type FontFile, type TextStyle } from '@/api/basics'
+import {
+  fontFiles,
+  useBasicsMutations,
+  useFonts,
+  useTextStyles,
+  type Font,
+  type FontFile,
+  type TextStyle,
+} from '@/api/basics'
 import { toJson } from '@/api/client'
 import { buildPath, getSignedUrl, removeFiles, uploadFile } from '@/api/storage'
 import { Button } from '@/components/ui/button'
@@ -90,7 +98,11 @@ function FontDialog({ draft, onClose }: { draft: FontDraft; onClose: () => void 
           continue
         }
         const ext = fileExtension(file.name)
-        const path = await uploadFile(buildPath(brand.id, 'fonts', file.name), file, `font/${ext === 'otf' ? 'otf' : ext}`)
+        const path = await uploadFile(
+          buildPath(brand.id, 'fonts', file.name),
+          file,
+          `font/${ext === 'otf' ? 'otf' : ext}`,
+        )
         const guess = guessWeight(file.name)
         added.push({ path, name: file.name, format: ext, ...guess })
       }
@@ -186,13 +198,20 @@ function FontDialog({ draft, onClose }: { draft: FontDraft; onClose: () => void 
             <p className="text-[13px] font-medium text-ink-2">Schriftdateien (WOFF2 empfohlen)</p>
             <ul className="space-y-1.5">
               {value.files.map((file, i) => (
-                <li key={file.path} className="flex flex-wrap items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
+                <li
+                  key={file.path}
+                  className="flex flex-wrap items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm"
+                >
                   <FileType className="size-4 text-muted" />
                   <span className="min-w-0 flex-1 truncate">{file.name}</span>
                   <Select
                     value={String(file.weight)}
                     onChange={(e) =>
-                      set({ files: value.files.map((f, fi) => (fi === i ? { ...f, weight: Number(e.target.value) } : f)) })
+                      set({
+                        files: value.files.map((f, fi) =>
+                          fi === i ? { ...f, weight: Number(e.target.value) } : f,
+                        ),
+                      })
                     }
                     className="h-8 w-36"
                     aria-label="Schriftschnitt"
@@ -207,7 +226,9 @@ function FontDialog({ draft, onClose }: { draft: FontDraft; onClose: () => void 
                     value={file.style}
                     onChange={(e) =>
                       set({
-                        files: value.files.map((f, fi) => (fi === i ? { ...f, style: e.target.value as 'normal' | 'italic' } : f)),
+                        files: value.files.map((f, fi) =>
+                          fi === i ? { ...f, style: e.target.value as 'normal' | 'italic' } : f,
+                        ),
                       })
                     }
                     className="h-8 w-28"
@@ -230,7 +251,12 @@ function FontDialog({ draft, onClose }: { draft: FontDraft; onClose: () => void 
                 </li>
               ))}
             </ul>
-            <Button size="sm" variant="outline" loading={uploading} onClick={() => fileInput.current?.click()}>
+            <Button
+              size="sm"
+              variant="outline"
+              loading={uploading}
+              onClick={() => fileInput.current?.click()}
+            >
               <Upload /> Dateien hochladen
             </Button>
             <input
@@ -244,7 +270,9 @@ function FontDialog({ draft, onClose }: { draft: FontDraft; onClose: () => void 
                 e.target.value = ''
               }}
             />
-            <p className="text-xs text-muted">Achte auf die Lizenz: Viele Schriften dürfen nicht weitergegeben werden.</p>
+            <p className="text-xs text-muted">
+              Achte auf die Lizenz: Viele Schriften dürfen nicht weitergegeben werden.
+            </p>
           </div>
         )}
         <Field label="Schnitte">
@@ -256,7 +284,11 @@ function FontDialog({ draft, onClose }: { draft: FontDraft; onClose: () => void 
                   key={w}
                   type="button"
                   onClick={() =>
-                    set({ weights: active ? value.weights.filter((x) => x !== w) : [...value.weights, w].sort((a, b) => a - b) })
+                    set({
+                      weights: active
+                        ? value.weights.filter((x) => x !== w)
+                        : [...value.weights, w].sort((a, b) => a - b),
+                    })
                   }
                   className={`rounded-lg border px-2.5 py-1 text-sm ${active ? 'border-ink bg-ink text-bg' : 'border-border text-ink-2'}`}
                   style={{ fontFamily: family, fontWeight: w }}
@@ -269,14 +301,26 @@ function FontDialog({ draft, onClose }: { draft: FontDraft; onClose: () => void 
         </Field>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Ersatzschrift" hint="Für Office oder wenn die Schrift fehlt">
-            <Input value={value.fallback} onChange={(e) => set({ fallback: e.target.value })} placeholder="Arial, sans-serif" />
+            <Input
+              value={value.fallback}
+              onChange={(e) => set({ fallback: e.target.value })}
+              placeholder="Arial, sans-serif"
+            />
           </Field>
           <Field label="Lizenz">
-            <Input value={value.license} onChange={(e) => set({ license: e.target.value })} placeholder="SIL Open Font License" />
+            <Input
+              value={value.license}
+              onChange={(e) => set({ license: e.target.value })}
+              placeholder="SIL Open Font License"
+            />
           </Field>
         </div>
         <Field label="Beschreibung">
-          <Textarea value={value.description} onChange={(e) => set({ description: e.target.value })} rows={2} />
+          <Textarea
+            value={value.description}
+            onChange={(e) => set({ description: e.target.value })}
+            rows={2}
+          />
         </Field>
       </div>
     </Dialog>
@@ -347,7 +391,11 @@ function StyleDialog({ draft, fonts, onClose }: { draft: StyleDraft; fonts: Font
               variant="ghost"
               className="mr-auto text-danger"
               onClick={async () => {
-                const ok = await confirm({ title: 'Textstil löschen?', confirmLabel: 'Löschen', danger: true })
+                const ok = await confirm({
+                  title: 'Textstil löschen?',
+                  confirmLabel: 'Löschen',
+                  danger: true,
+                })
                 if (ok) m.deleteTextStyle.mutate(value.id!, { onSuccess: onClose })
               }}
             >
@@ -382,10 +430,20 @@ function StyleDialog({ draft, fonts, onClose }: { draft: StyleDraft; fonts: Font
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Name">
-            <Input autoFocus value={value.name} onChange={(e) => set({ name: e.target.value })} placeholder="z. B. Headline 1" />
+            <Input
+              autoFocus
+              value={value.name}
+              onChange={(e) => set({ name: e.target.value })}
+              placeholder="z. B. Headline 1"
+            />
           </Field>
           <Field label="Token-Name">
-            <Input value={value.token} onChange={(e) => set({ token: e.target.value })} placeholder={slugify(value.name || 'h1')} className="font-mono" />
+            <Input
+              value={value.token}
+              onChange={(e) => set({ token: e.target.value })}
+              placeholder={slugify(value.name || 'h1')}
+              className="font-mono"
+            />
           </Field>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -400,7 +458,10 @@ function StyleDialog({ draft, fonts, onClose }: { draft: StyleDraft; fonts: Font
             </Select>
           </Field>
           <Field label="Schnitt">
-            <Select value={String(value.font_weight)} onChange={(e) => set({ font_weight: Number(e.target.value) })}>
+            <Select
+              value={String(value.font_weight)}
+              onChange={(e) => set({ font_weight: Number(e.target.value) })}
+            >
               {(font?.weights.length ? font.weights : WEIGHTS).map((w) => (
                 <option key={w} value={w}>
                   {w} {WEIGHT_NAMES[w]}
@@ -417,7 +478,13 @@ function StyleDialog({ draft, fonts, onClose }: { draft: StyleDraft; fonts: Font
             </Select>
           </Field>
           <Field label="Größe (px)">
-            <Input type="number" min={6} max={400} value={value.font_size} onChange={(e) => set({ font_size: Number(e.target.value) || 16 })} />
+            <Input
+              type="number"
+              min={6}
+              max={400}
+              value={value.font_size}
+              onChange={(e) => set({ font_size: Number(e.target.value) || 16 })}
+            />
           </Field>
           <Field label="Zeilenhöhe">
             <Input
@@ -445,7 +512,11 @@ function StyleDialog({ draft, fonts, onClose }: { draft: StyleDraft; fonts: Font
           <Input value={value.sample} onChange={(e) => set({ sample: e.target.value })} />
         </Field>
         <Field label="Verwendung">
-          <Input value={value.usage} onChange={(e) => set({ usage: e.target.value })} placeholder="z. B. Seitentitel, Plakat-Headlines" />
+          <Input
+            value={value.usage}
+            onChange={(e) => set({ usage: e.target.value })}
+            placeholder="z. B. Seitentitel, Plakat-Headlines"
+          />
         </Field>
       </div>
     </Dialog>
@@ -524,15 +595,25 @@ export function TypographyManager() {
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
             {fonts.map((font) => (
-              <div key={font.id} className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-surface p-4">
+              <div
+                key={font.id}
+                className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-surface p-4"
+              >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     {font.role && <Badge>{font.role}</Badge>}
                     <span className="text-xs text-muted">
-                      {font.source === 'google' ? 'Web-Font' : font.source === 'upload' ? `${fontFiles(font).length} Datei(en)` : 'System'}
+                      {font.source === 'google'
+                        ? 'Web-Font'
+                        : font.source === 'upload'
+                          ? `${fontFiles(font).length} Datei(en)`
+                          : 'System'}
                     </span>
                   </div>
-                  <p className="mt-2 truncate text-3xl text-ink" style={{ fontFamily: fontStack(font.family, font.fallback) }}>
+                  <p
+                    className="mt-2 truncate text-3xl text-ink"
+                    style={{ fontFamily: fontStack(font.family, font.fallback) }}
+                  >
                     {font.family}
                   </p>
                   <p className="mt-1 text-xs text-muted">Schnitte: {font.weights.join(', ')}</p>
@@ -567,7 +648,8 @@ export function TypographyManager() {
                       onClick={async () => {
                         const ok = await confirm({
                           title: 'Schrift löschen?',
-                          description: 'Textstile mit dieser Schrift bleiben bestehen, nutzen aber die Ersatzschrift.',
+                          description:
+                            'Textstile mit dieser Schrift bleiben bestehen, nutzen aber die Ersatzschrift.',
                           confirmLabel: 'Löschen',
                           danger: true,
                         })
@@ -616,7 +698,10 @@ export function TypographyManager() {
           }
         />
         {styles.length === 0 ? (
-          <EmptyState title="Noch keine Textstile" description={fonts.length === 0 ? 'Lege zuerst eine Schrift an.' : undefined} />
+          <EmptyState
+            title="Noch keine Textstile"
+            description={fonts.length === 0 ? 'Lege zuerst eine Schrift an.' : undefined}
+          />
         ) : (
           <div className="divide-y divide-border rounded-2xl border border-border bg-surface">
             {styles.map((s, i) => {
@@ -639,13 +724,19 @@ export function TypographyManager() {
                       {s.sample || s.name}
                     </p>
                     <p className="mt-1 text-xs text-muted">
-                      <span className="font-semibold text-ink-2">{s.name}</span> · {s.font_family} {s.font_weight} · {Number(s.font_size)} px /{' '}
-                      {Number(s.line_height)}
+                      <span className="font-semibold text-ink-2">{s.name}</span> · {s.font_family}{' '}
+                      {s.font_weight} · {Number(s.font_size)} px / {Number(s.line_height)}
                     </p>
                   </div>
                   {canEdit && (
                     <div className="flex shrink-0">
-                      <Button size="icon-sm" variant="ghost" aria-label="Nach oben" disabled={i === 0} onClick={() => moveStyle(i, -1)}>
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        aria-label="Nach oben"
+                        disabled={i === 0}
+                        onClick={() => moveStyle(i, -1)}
+                      >
                         <ArrowUp />
                       </Button>
                       <Button
@@ -657,7 +748,12 @@ export function TypographyManager() {
                       >
                         <ArrowDown />
                       </Button>
-                      <Button size="icon-sm" variant="ghost" aria-label="Bearbeiten" onClick={() => editStyle(s)}>
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        aria-label="Bearbeiten"
+                        onClick={() => editStyle(s)}
+                      >
                         <Pencil />
                       </Button>
                     </div>

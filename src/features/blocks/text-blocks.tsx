@@ -1,4 +1,15 @@
-import { AlertTriangle, Check, ChevronDown, Copy, Info, Lightbulb, OctagonAlert, Plus, StickyNote, Trash2 } from 'lucide-react'
+import {
+  AlertTriangle,
+  Check,
+  ChevronDown,
+  Copy,
+  Info,
+  Lightbulb,
+  OctagonAlert,
+  Plus,
+  StickyNote,
+  Trash2,
+} from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { RichText, RichTextEditor } from '@/components/rich-text'
@@ -22,12 +33,16 @@ export function HeadingView({ content }: BlockViewProps<'heading'>) {
   return (
     <div id={headingAnchor(content.text)} className="scroll-mt-24 pt-2">
       {content.eyebrow && (
-        <p className="mb-1.5 text-xs font-semibold tracking-[0.14em] text-brand-accent-text uppercase">{content.eyebrow}</p>
+        <p className="mb-1.5 text-xs font-semibold tracking-[0.14em] text-brand-accent-text uppercase">
+          {content.eyebrow}
+        </p>
       )}
       <Tag
         className={cn(
           'font-brand-heading leading-tight text-ink',
-          content.level === 3 ? 'text-xl font-semibold sm:text-2xl' : 'text-[1.75rem] font-bold sm:text-[2.1rem]',
+          content.level === 3
+            ? 'text-xl font-semibold sm:text-2xl'
+            : 'text-[1.75rem] font-bold sm:text-[2.1rem]',
         )}
       >
         {content.text}
@@ -51,7 +66,9 @@ export function HeadingEditor({ content, onChange }: BlockEditorProps<'heading'>
         placeholder="Überschrift"
         className={cn(
           'font-brand-heading leading-tight text-ink',
-          content.level === 3 ? 'text-xl font-semibold sm:text-2xl' : 'text-[1.75rem] font-bold sm:text-[2.1rem]',
+          content.level === 3
+            ? 'text-xl font-semibold sm:text-2xl'
+            : 'text-[1.75rem] font-bold sm:text-[2.1rem]',
         )}
       />
       <SettingsPanel>
@@ -102,7 +119,11 @@ export function TextEditor({ content, onChange }: BlockEditorProps<'text'>) {
 
 const TONES: Record<CalloutTone, { label: string; icon: typeof Info; className: string }> = {
   info: { label: 'Info', icon: Info, className: 'bg-info-soft border-info/25 [&_.callout-icon]:text-info' },
-  tip: { label: 'Tipp', icon: Lightbulb, className: 'bg-success-soft border-success/25 [&_.callout-icon]:text-success' },
+  tip: {
+    label: 'Tipp',
+    icon: Lightbulb,
+    className: 'bg-success-soft border-success/25 [&_.callout-icon]:text-success',
+  },
   warning: {
     label: 'Achtung',
     icon: AlertTriangle,
@@ -260,13 +281,17 @@ export function ChecklistView({ content, block }: BlockViewProps<'checklist'>) {
                 >
                   {done && <Check className="size-3.5" strokeWidth={3} />}
                 </span>
-                <span className={cn('text-[15px] text-ink-2', done && 'text-muted line-through')}>{item.text}</span>
+                <span className={cn('text-[15px] text-ink-2', done && 'text-muted line-through')}>
+                  {item.text}
+                </span>
               </button>
             </li>
           )
         })}
       </ul>
-      {items.length > 0 && <p className="mt-3 text-xs text-muted">Dein Häkchen-Stand wird nur in diesem Browser gespeichert.</p>}
+      {items.length > 0 && (
+        <p className="mt-3 text-xs text-muted">Dein Häkchen-Stand wird nur in diesem Browser gespeichert.</p>
+      )}
     </div>
   )
 }
@@ -292,7 +317,12 @@ export function ChecklistEditor({ content, onChange }: BlockEditorProps<'checkli
               if (e.key === 'Enter') ops.add({ id: uniqueId(), text: '' })
             }}
           />
-          <ItemControls index={i} count={content.items.length} onMove={ops.move} onRemove={() => ops.remove(i)} />
+          <ItemControls
+            index={i}
+            count={content.items.length}
+            onMove={ops.move}
+            onRemove={() => ops.remove(i)}
+          />
         </div>
       ))}
       <AddItemButton onClick={() => ops.add({ id: uniqueId(), text: '' })}>Punkt hinzufügen</AddItemButton>
@@ -323,7 +353,10 @@ export function TableView({ content }: BlockViewProps<'table'>) {
           {body.map((row, r) => (
             <tr key={r} className="border-t border-border">
               {row.map((cell, c) => (
-                <td key={c} className={cn('px-4 py-3 align-top text-ink-2', c === 0 && 'font-medium text-ink')}>
+                <td
+                  key={c}
+                  className={cn('px-4 py-3 align-top text-ink-2', c === 0 && 'font-medium text-ink')}
+                >
                   {cell}
                 </td>
               ))}
@@ -339,7 +372,9 @@ export function TableEditor({ content, onChange }: BlockEditorProps<'table'>) {
   const rows = content.rows.length > 0 ? content.rows : [['']]
   const cols = Math.max(...rows.map((r) => r.length))
   const setCell = (r: number, c: number, value: string) =>
-    onChange({ rows: rows.map((row, ri) => (ri === r ? row.map((cell, ci) => (ci === c ? value : cell)) : row)) })
+    onChange({
+      rows: rows.map((row, ri) => (ri === r ? row.map((cell, ci) => (ci === c ? value : cell)) : row)),
+    })
   return (
     <div>
       <div className="overflow-x-auto rounded-2xl border border-border bg-surface p-2">
@@ -375,10 +410,18 @@ export function TableEditor({ content, onChange }: BlockEditorProps<'table'>) {
       </div>
       <SettingsPanel>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" onClick={() => onChange({ rows: [...rows, Array(cols).fill('')] })}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onChange({ rows: [...rows, Array(cols).fill('')] })}
+          >
             <Plus /> Zeile
           </Button>
-          <Button size="sm" variant="outline" onClick={() => onChange({ rows: rows.map((row) => [...row, '']) })}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onChange({ rows: rows.map((row) => [...row, '']) })}
+          >
             <Plus /> Spalte
           </Button>
           <Button
@@ -390,7 +433,11 @@ export function TableEditor({ content, onChange }: BlockEditorProps<'table'>) {
             <Trash2 /> Letzte Spalte
           </Button>
         </div>
-        <Switch checked={content.header} onCheckedChange={(header) => onChange({ header })} label="Erste Zeile als Kopfzeile" />
+        <Switch
+          checked={content.header}
+          onCheckedChange={(header) => onChange({ header })}
+          label="Erste Zeile als Kopfzeile"
+        />
       </SettingsPanel>
     </div>
   )
@@ -429,12 +476,19 @@ export function AccordionEditor({ content, onChange }: BlockEditorProps<'accordi
               placeholder="Titel / Frage"
               className="font-medium"
             />
-            <ItemControls index={i} count={content.items.length} onMove={ops.move} onRemove={() => ops.remove(i)} />
+            <ItemControls
+              index={i}
+              count={content.items.length}
+              onMove={ops.move}
+              onRemove={() => ops.remove(i)}
+            />
           </div>
           <RichTextEditor value={item.html} onChange={(html) => ops.update(i, { html })} headings={false} />
         </div>
       ))}
-      <AddItemButton onClick={() => ops.add({ id: uniqueId(), title: '', html: '' })}>Eintrag hinzufügen</AddItemButton>
+      <AddItemButton onClick={() => ops.add({ id: uniqueId(), title: '', html: '' })}>
+        Eintrag hinzufügen
+      </AddItemButton>
     </div>
   )
 }
@@ -491,7 +545,9 @@ export function NoteView({ content }: BlockViewProps<'note'>) {
     <div className="flex gap-3 rounded-2xl border border-dashed border-warning/50 bg-warning-soft/60 p-4">
       <StickyNote className="mt-0.5 size-5 shrink-0 text-warning" />
       <div className="min-w-0">
-        <p className="mb-1 text-xs font-semibold tracking-wide text-warning uppercase">Team-Notiz · nur im Bearbeitungsmodus</p>
+        <p className="mb-1 text-xs font-semibold tracking-wide text-warning uppercase">
+          Team-Notiz · nur im Bearbeitungsmodus
+        </p>
         <RichText html={content.html} className="text-sm" />
       </div>
     </div>
@@ -504,7 +560,12 @@ export function NoteEditor({ content, onChange }: BlockEditorProps<'note'>) {
       <p className="mb-2 text-xs font-semibold tracking-wide text-warning uppercase">
         Team-Notiz · Leser:innen sehen sie nicht
       </p>
-      <RichTextEditor value={content.html} onChange={(html) => onChange({ html })} headings={false} autoFocus />
+      <RichTextEditor
+        value={content.html}
+        onChange={(html) => onChange({ html })}
+        headings={false}
+        autoFocus
+      />
     </div>
   )
 }
@@ -540,7 +601,11 @@ export function CodeView({ content }: BlockViewProps<'code'>) {
 export function CodeEditor({ content, onChange }: BlockEditorProps<'code'>) {
   return (
     <div className="space-y-2">
-      <Select value={content.language} onChange={(e) => onChange({ language: e.target.value })} className="w-48">
+      <Select
+        value={content.language}
+        onChange={(e) => onChange({ language: e.target.value })}
+        className="w-48"
+      >
         {LANGUAGES.map((l) => (
           <option key={l} value={l}>
             {l}

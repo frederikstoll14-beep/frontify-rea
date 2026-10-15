@@ -54,7 +54,9 @@ export function AssetPickerDialog({
       onOpenChange(false)
       return
     }
-    setSelected((prev) => (prev.includes(asset.id) ? prev.filter((id) => id !== asset.id) : [...prev, asset.id]))
+    setSelected((prev) =>
+      prev.includes(asset.id) ? prev.filter((id) => id !== asset.id) : [...prev, asset.id],
+    )
   }
 
   return (
@@ -90,7 +92,13 @@ export function AssetPickerDialog({
       <div className="mb-4 flex flex-col gap-2 sm:flex-row">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" />
-          <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Suchen …" className="pl-9" autoFocus />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Suchen …"
+            className="pl-9"
+            autoFocus
+          />
         </div>
         <Select value={libraryId} onChange={(e) => setLibraryId(e.target.value)} className="sm:w-56">
           <option value="">Alle Bibliotheken</option>
@@ -123,7 +131,9 @@ export function AssetPickerDialog({
                 )}
               >
                 <AssetPreview asset={asset} className="aspect-square" />
-                <div className="truncate border-t border-border px-2.5 py-2 text-xs font-medium">{asset.title}</div>
+                <div className="truncate border-t border-border px-2.5 py-2 text-xs font-medium">
+                  {asset.title}
+                </div>
                 {isSelected && (
                   <span className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-ink text-bg">
                     <Check className="size-4" />

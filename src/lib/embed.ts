@@ -49,7 +49,10 @@ export function genericEmbed(input: string): EmbedInfo | null {
     }
   }
   if (host.endsWith('canva.com')) {
-    const base = url.toString().split('?')[0].replace(/\/(edit|view)\/?$/, '/view')
+    const base = url
+      .toString()
+      .split('?')[0]
+      .replace(/\/(edit|view)\/?$/, '/view')
     return { provider: 'Canva', src: `${base.endsWith('/view') ? base : `${base}/view`}?embed` }
   }
   if (host === 'miro.com') {

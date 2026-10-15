@@ -20,7 +20,13 @@ export function useFileUpload(brandId: string, folder = 'blocks') {
     setUploading(true)
     try {
       const result = await uploadBrandFile(brandId, folder, file)
-      return { path: result.path, width: result.width, height: result.height, mime: result.mime, assetId: null }
+      return {
+        path: result.path,
+        width: result.width,
+        height: result.height,
+        mime: result.mime,
+        assetId: null,
+      }
     } catch (error) {
       toast.error(`Upload fehlgeschlagen: ${errorMessage(error)}`)
       return null
@@ -118,7 +124,15 @@ export function ImageField({
         brandId={brandId}
         open={pickerOpen}
         onOpenChange={setPickerOpen}
-        filter={accept.startsWith('image') ? 'image' : accept.startsWith('video') ? 'video' : accept.startsWith('audio') ? 'audio' : 'all'}
+        filter={
+          accept.startsWith('image')
+            ? 'image'
+            : accept.startsWith('video')
+              ? 'video'
+              : accept.startsWith('audio')
+                ? 'audio'
+                : 'all'
+        }
         onPick={(assets) => {
           const asset = assets[0]
           if (asset) {

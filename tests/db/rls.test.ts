@@ -22,7 +22,13 @@ let libraryId: string
 
 async function firstPage(client: Client, brand: string) {
   return must(
-    await client.from('guideline_pages').select('id, title, kind').eq('brand_id', brand).eq('kind', 'page').limit(1).single(),
+    await client
+      .from('guideline_pages')
+      .select('id, title, kind')
+      .eq('brand_id', brand)
+      .eq('kind', 'page')
+      .limit(1)
+      .single(),
   )
 }
 
@@ -58,11 +64,15 @@ beforeAll(async () => {
 
 describe('Workspace & Marke anlegen', () => {
   it('legt Workspace mit Owner-Mitgliedschaft und eindeutigem Slug an', async () => {
-    const members = must(await owner.client.from('workspace_members').select('*').eq('workspace_id', workspaceId))
+    const members = must(
+      await owner.client.from('workspace_members').select('*').eq('workspace_id', workspaceId),
+    )
     expect(members).toHaveLength(1)
     expect(members[0].role).toBe('owner')
     const second = must(await owner.client.rpc('create_workspace', { p_name: 'Brand Identity WS 26/27' }))
-    expect(second.slug).not.toBe(must(await owner.client.from('workspaces').select('slug').eq('id', workspaceId).single()).slug)
+    expect(second.slug).not.toBe(
+      must(await owner.client.from('workspaces').select('slug').eq('id', workspaceId).single()).slug,
+    )
   })
 
   it('wendet die Vorlage vollständig an', async () => {
@@ -131,11 +141,20 @@ describe('Sichtbarkeit', () => {
 
   it('Marken-Einladung gibt keinen Zugriff auf andere Marken des Workspaces', async () => {
     const other = must(
-      await owner.client.rpc('create_brand', { p_workspace: workspaceId, p_name: 'Andere Gruppe', p_template: {} }),
+      await owner.client.rpc('create_brand', {
+        p_workspace: workspaceId,
+        p_name: 'Andere Gruppe',
+        p_template: {},
+      }),
     )
     expect(must(await viewer.client.from('brands').select('id').eq('id', other.id))).toHaveLength(0)
-    expect(must(await viewer.client.from('workspace_members').select('user_id').eq('workspace_id', workspaceId))).toHaveLength(0)
-    const { error } = await viewer.client.rpc('create_brand', { p_workspace: workspaceId, p_name: 'Gast-Marke' })
+    expect(
+      must(await viewer.client.from('workspace_members').select('user_id').eq('workspace_id', workspaceId)),
+    ).toHaveLength(0)
+    const { error } = await viewer.client.rpc('create_brand', {
+      p_workspace: workspaceId,
+      p_name: 'Gast-Marke',
+    })
     expect(error?.message).toMatch(/Kein Mitglied/)
   })
 
@@ -197,7 +216,13 @@ describe('Sichtbarkeit', () => {
         .select(),
     )
     expect(must(await anonClient().from('brands').select('id').eq('id', brandId))).toHaveLength(0)
-    must(await owner.client.from('brands').update({ is_public: false, public_until: null }).eq('id', brandId).select())
+    must(
+      await owner.client
+        .from('brands')
+        .update({ is_public: false, public_until: null })
+        .eq('id', brandId)
+        .select(),
+    )
   })
 
   it('Entwürfe sind nur für Bearbeitende sichtbar', async () => {
@@ -225,19 +250,31 @@ describe('Bearbeiten', () => {
     const block = must(
       await student.client
         .from('blocks')
-        .insert({ page_id: pageId, brand_id: brandId, type: 'text', content: { html: '<p>Hallo</p>' }, sort: 99 })
+        .insert({
+          page_id: pageId,
+          brand_id: brandId,
+          type: 'text',
+          content: { html: '<p>Hallo</p>' },
+          sort: 99,
+        })
         .select()
         .single(),
     )
     expect(block.updated_by).toBe(student.id)
     const updated = must(
-      await student.client.from('blocks').update({ content: { html: '<p>Neu</p>' } }).eq('id', block.id).select(),
+      await student.client
+        .from('blocks')
+        .update({ content: { html: '<p>Neu</p>' } })
+        .eq('id', block.id)
+        .select(),
     )
     expect(updated).toHaveLength(1)
   })
 
   it('Editor darf Marken-Einstellungen und Mitglieder nicht ändern', async () => {
-    const updated = must(await student.client.from('brands').update({ name: 'Umbenannt' }).eq('id', brandId).select())
+    const updated = must(
+      await student.client.from('brands').update({ name: 'Umbenannt' }).eq('id', brandId).select(),
+    )
     expect(updated).toHaveLength(0)
     const { error } = await student.client
       .from('brand_members')
@@ -248,7 +285,11 @@ describe('Bearbeiten', () => {
   it('brand_id wird immer aus dem Elternobjekt abgeleitet (kein Cross-Brand-Schreiben)', async () => {
     // Student legt eigene Marke an und versucht, einen Block in fremde Seite zu schreiben
     const own = must(
-      await student.client.rpc('create_brand', { p_workspace: workspaceId, p_name: 'Eigene Marke', p_template: {} }),
+      await student.client.rpc('create_brand', {
+        p_workspace: workspaceId,
+        p_name: 'Eigene Marke',
+        p_template: {},
+      }),
     )
     const otherBrandGuideline = must(
       await owner.client.from('guidelines').select('id').eq('brand_id', brandId).limit(1).single(),
@@ -272,7 +313,13 @@ describe('Bearbeiten', () => {
 
   it('Kapitel lassen sich nicht verschachteln', async () => {
     const chapter = must(
-      await owner.client.from('guideline_pages').select('id, guideline_id').eq('brand_id', brandId).eq('kind', 'chapter').limit(1).single(),
+      await owner.client
+        .from('guideline_pages')
+        .select('id, guideline_id')
+        .eq('brand_id', brandId)
+        .eq('kind', 'chapter')
+        .limit(1)
+        .single(),
     )
     const { error } = await owner.client.from('guideline_pages').insert({
       guideline_id: chapter.guideline_id,
@@ -294,7 +341,9 @@ describe('Bearbeiten', () => {
         .single(),
     )
     expect(revision.created_by).toBe(student.id)
-    expect(must(await viewer.client.from('page_revisions').select('id').eq('page_id', pageId))).toHaveLength(0)
+    expect(must(await viewer.client.from('page_revisions').select('id').eq('page_id', pageId))).toHaveLength(
+      0,
+    )
   })
 
   it('Suche findet Seiten, Blöcke und Farben', async () => {
@@ -307,7 +356,9 @@ describe('Bearbeiten', () => {
   })
 
   it('Aktivitätsverlauf protokolliert Änderungen für Mitglieder', async () => {
-    const activity = must(await viewer.client.from('activity').select('action, entity').eq('brand_id', brandId))
+    const activity = must(
+      await viewer.client.from('activity').select('action, entity').eq('brand_id', brandId),
+    )
     expect(activity.some((a) => a.entity === 'comments')).toBe(true)
     expect(activity.some((a) => a.entity === 'brand_members')).toBe(true)
   })
@@ -402,7 +453,9 @@ describe('Rollen-Schutz', () => {
     const { data, error } = await later.auth.signUp({ email, password: 'test-passwort-123' })
     expect(error).toBeNull()
     expect(data.session).toBeTruthy()
-    const roles = must(await later.from('brand_members').select('role').eq('brand_id', brandId).eq('user_id', data.user!.id))
+    const roles = must(
+      await later.from('brand_members').select('role').eq('brand_id', brandId).eq('user_id', data.user!.id),
+    )
     expect(roles[0]?.role).toBe('editor')
   })
 
@@ -416,5 +469,33 @@ describe('Rollen-Schutz', () => {
     )
     const { error } = await outsider.client.rpc('accept_invitation', { p_token: invite.token })
     expect(error?.message).toMatch(/andere E-Mail/)
+  })
+})
+
+describe('Konto löschen', () => {
+  it('Owner können ihr Konto erst nach Übergabe löschen, andere sofort', async () => {
+    const { error } = await owner.client.rpc('delete_my_account')
+    expect(error?.message).toMatch(/Owner/)
+
+    const leaving = await newUser('weg')
+    must(await owner.client.rpc('add_member_by_email', { p_workspace: workspaceId, p_email: leaving.email }))
+    must(
+      await leaving.client
+        .from('comments')
+        .insert({ page_id: pageId, brand_id: brandId, body: 'Tschüss' })
+        .select()
+        .single(),
+    )
+    const { error: deleteError } = await leaving.client.rpc('delete_my_account')
+    expect(deleteError).toBeNull()
+    const members = must(
+      await owner.client.from('workspace_members').select('user_id').eq('user_id', leaving.id),
+    )
+    expect(members).toHaveLength(0)
+    const profiles = must(await owner.client.from('profiles').select('id').eq('id', leaving.id))
+    expect(profiles).toHaveLength(0)
+    // Kommentare bleiben anonymisiert erhalten
+    const comments = must(await owner.client.from('comments').select('author_id, body').eq('body', 'Tschüss'))
+    expect(comments[0].author_id).toBeNull()
   })
 })

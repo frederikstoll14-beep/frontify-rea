@@ -45,6 +45,24 @@ export function useBrands(workspaceId?: string, enabled = true) {
   })
 }
 
+/** Marken, zu denen die Person direkt eingeladen wurde (ohne fremde öffentliche Marken). */
+export function useMemberBrands(userId: string | undefined) {
+  return useQuery({
+    queryKey: [...keys.brands, 'member', userId],
+    enabled: Boolean(userId),
+    queryFn: async (): Promise<Brand[]> => {
+      const rows = unwrap(
+        await supabase.from('brand_members').select('brand:brands(*)').eq('user_id', userId!),
+      )
+      return rows
+        .map((r) => r.brand as BrandRow | null)
+        .filter((b): b is BrandRow => b !== null)
+        .map(toBrand)
+        .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+    },
+  })
+}
+
 export function useBrand(slug: string | undefined) {
   return useQuery({
     queryKey: keys.brand(slug ?? ''),
@@ -93,7 +111,10 @@ export function useCreateBrand() {
   })
 }
 
-export type BrandPatch = Omit<TablesUpdate<'brands'>, 'theme' | 'home'> & { theme?: BrandTheme; home?: BrandHome }
+export type BrandPatch = Omit<TablesUpdate<'brands'>, 'theme' | 'home'> & {
+  theme?: BrandTheme
+  home?: BrandHome
+}
 
 export function useUpdateBrand(brand: Pick<Brand, 'id' | 'slug'>) {
   const qc = useQueryClient()
@@ -103,7 +124,9 @@ export function useUpdateBrand(brand: Pick<Brand, 'id' | 'slug'>) {
       const update: TablesUpdate<'brands'> = { ...rest }
       if (theme) update.theme = theme as JsonValue
       if (home) update.home = home as JsonValue
-      return toBrand(unwrap(await supabase.from('brands').update(update).eq('id', brand.id).select().single()))
+      return toBrand(
+        unwrap(await supabase.from('brands').update(update).eq('id', brand.id).select().single()),
+      )
     },
     onSuccess: (next) => {
       qc.invalidateQueries({ queryKey: keys.brand(brand.slug) })

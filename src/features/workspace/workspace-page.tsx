@@ -118,19 +118,28 @@ export function WorkspacePage() {
       {tab === 'mitglieder' && (
         <div className="max-w-3xl">
           <p className="mb-5 text-sm text-ink-2">
-            Workspace-Mitglieder können eigene Marken anlegen und alle Marken mit Sichtbarkeit „Workspace“ ansehen und kommentieren.
-            Admins (z. B. Dozierende) haben auf alle Marken Admin-Rechte.
+            Workspace-Mitglieder können eigene Marken anlegen und alle Marken mit Sichtbarkeit „Workspace“
+            ansehen und kommentieren. Admins (z. B. Dozierende) haben auf alle Marken Admin-Rechte.
           </p>
           <MembersPanel
             workspaceId={workspace.id}
             members={members}
-            roles={workspace.role === 'owner' ? WORKSPACE_ROLES : WORKSPACE_ROLES.filter((r) => r.value !== 'owner')}
+            roles={
+              workspace.role === 'owner'
+                ? WORKSPACE_ROLES
+                : WORKSPACE_ROLES.filter((r) => r.value !== 'owner')
+            }
             canManage={isAdmin}
             scopeLabel={workspace.name}
             onRoleChange={(userId, role) =>
-              setRole.mutate({ userId, role: role as WorkspaceRole }, { onError: (e) => toast.error(errorMessage(e)) })
+              setRole.mutate(
+                { userId, role: role as WorkspaceRole },
+                { onError: (e) => toast.error(errorMessage(e)) },
+              )
             }
-            onRemove={(userId) => removeMember.mutate(userId, { onError: (e) => toast.error(errorMessage(e)) })}
+            onRemove={(userId) =>
+              removeMember.mutate(userId, { onError: (e) => toast.error(errorMessage(e)) })
+            }
           />
         </div>
       )}
@@ -153,7 +162,10 @@ export function WorkspacePage() {
                 onClick={() =>
                   update.mutate(
                     { id: workspace.id, name: name.trim() || workspace.name, description },
-                    { onSuccess: () => toast.success('Gespeichert'), onError: (e) => toast.error(errorMessage(e)) },
+                    {
+                      onSuccess: () => toast.success('Gespeichert'),
+                      onError: (e) => toast.error(errorMessage(e)),
+                    },
                   )
                 }
               >
@@ -164,11 +176,17 @@ export function WorkspacePage() {
           {workspace.role !== 'owner' && (
             <Card className="p-5">
               <h2 className="font-semibold text-ink">Workspace verlassen</h2>
-              <p className="mt-1 mb-4 text-sm text-muted">Du verlierst den Zugriff auf alle Marken in diesem Workspace.</p>
+              <p className="mt-1 mb-4 text-sm text-muted">
+                Du verlierst den Zugriff auf alle Marken in diesem Workspace.
+              </p>
               <Button
                 variant="outline"
                 onClick={async () => {
-                  const ok = await confirm({ title: 'Workspace verlassen?', confirmLabel: 'Verlassen', danger: true })
+                  const ok = await confirm({
+                    title: 'Workspace verlassen?',
+                    confirmLabel: 'Verlassen',
+                    danger: true,
+                  })
                   if (ok) leave.mutate(workspace.id, { onSuccess: () => navigate('/') })
                 }}
               >
@@ -192,10 +210,13 @@ export function WorkspacePage() {
                     danger: true,
                   })
                   if (!ok) return
-                  remove.mutate({ id: workspace.id, brandIds: brands.map((b) => b.id) }, {
-                    onSuccess: () => navigate('/'),
-                    onError: (e) => toast.error(errorMessage(e)),
-                  })
+                  remove.mutate(
+                    { id: workspace.id, brandIds: brands.map((b) => b.id) },
+                    {
+                      onSuccess: () => navigate('/'),
+                      onError: (e) => toast.error(errorMessage(e)),
+                    },
+                  )
                 }}
               >
                 <Trash2 /> Workspace löschen

@@ -17,7 +17,15 @@ function safeRedirect(target: string | null): string {
   return target
 }
 
-function AuthShell({ children, title, subtitle }: { children: React.ReactNode; title: string; subtitle?: string }) {
+function AuthShell({
+  children,
+  title,
+  subtitle,
+}: {
+  children: React.ReactNode
+  title: string
+  subtitle?: string
+}) {
   return (
     <div className="grid min-h-dvh bg-bg lg:grid-cols-[1fr_minmax(420px,520px)]">
       <div className="relative hidden overflow-hidden bg-ink p-12 text-bg lg:flex lg:flex-col lg:justify-between">
@@ -34,7 +42,8 @@ function AuthShell({ children, title, subtitle }: { children: React.ReactNode; t
             Die ganze Marke an einem Ort. Für alle, die mit ihr arbeiten.
           </p>
           <p className="mt-4 text-bg/70">
-            Markenkern, Logos, Farben, Typografie, Bildwelt und Vorlagen – gemeinsam pflegen, sicher teilen, überall abrufbar.
+            Markenkern, Logos, Farben, Typografie, Bildwelt und Vorlagen – gemeinsam pflegen, sicher teilen,
+            überall abrufbar.
           </p>
         </div>
         <div className="flex h-2 overflow-hidden rounded-full">
@@ -62,7 +71,9 @@ export function LoginPage() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const redirect = safeRedirect(params.get('weiter'))
-  const [mode, setMode] = useState<'login' | 'signup'>(params.get('modus') === 'registrieren' ? 'signup' : 'login')
+  const [mode, setMode] = useState<'login' | 'signup'>(
+    params.get('modus') === 'registrieren' ? 'signup' : 'login',
+  )
   const [name, setName] = useState('')
   const [email, setEmail] = useState(params.get('email') ?? '')
   const [password, setPassword] = useState('')
@@ -141,7 +152,11 @@ export function LoginPage() {
   return (
     <AuthShell
       title={mode === 'login' ? 'Willkommen zurück' : 'Konto erstellen'}
-      subtitle={mode === 'login' ? `Melde dich bei ${APP_NAME} an.` : 'Kostenlos – du brauchst nur eine E-Mail-Adresse.'}
+      subtitle={
+        mode === 'login'
+          ? `Melde dich bei ${APP_NAME} an.`
+          : 'Kostenlos – du brauchst nur eine E-Mail-Adresse.'
+      }
     >
       <Segmented
         value={mode}
@@ -161,11 +176,25 @@ export function LoginPage() {
       >
         {mode === 'signup' && (
           <Field label="Name" htmlFor="name">
-            <Input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Vor- und Nachname" />
+            <Input
+              id="name"
+              autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="Vor- und Nachname"
+            />
           </Field>
         )}
         <Field label="E-Mail" htmlFor="email">
-          <Input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </Field>
         <Field
           label="Passwort"
@@ -187,10 +216,17 @@ export function LoginPage() {
       </form>
       {mode === 'login' && (
         <div className="mt-4 flex flex-wrap justify-between gap-2 text-sm">
-          <button type="button" className="font-medium text-accent hover:underline" onClick={() => void magicLink()}>
+          <button
+            type="button"
+            className="font-medium text-accent hover:underline"
+            onClick={() => void magicLink()}
+          >
             Login-Link per E-Mail
           </button>
-          <Link to={`/passwort-vergessen?email=${encodeURIComponent(email)}`} className="text-muted hover:text-ink">
+          <Link
+            to={`/passwort-vergessen?email=${encodeURIComponent(email)}`}
+            className="text-muted hover:text-ink"
+          >
             Passwort vergessen?
           </Link>
         </div>
@@ -208,7 +244,10 @@ export function ForgotPasswordPage() {
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
   return (
-    <AuthShell title="Passwort zurücksetzen" subtitle="Wir schicken dir einen Link, mit dem du ein neues Passwort festlegst.">
+    <AuthShell
+      title="Passwort zurücksetzen"
+      subtitle="Wir schicken dir einen Link, mit dem du ein neues Passwort festlegst."
+    >
       {sent ? (
         <p className="rounded-2xl border border-border bg-surface p-4 text-sm text-ink-2">
           Falls ein Konto für {email} existiert, ist die E-Mail unterwegs.
@@ -285,7 +324,13 @@ export function ResetPasswordPage() {
         }}
       >
         <Field label="Neues Passwort" hint="Mindestens 8 Zeichen">
-          <Input type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus />
+          <Input
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoFocus
+          />
         </Field>
         <Button type="submit" className="w-full" loading={busy}>
           Speichern

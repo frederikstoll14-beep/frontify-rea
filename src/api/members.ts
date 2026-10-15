@@ -25,7 +25,11 @@ export function useSetBrandRole(brandId: string) {
   return useMutation({
     mutationFn: async (input: { userId: string; role: Enums<'brand_role'> }) =>
       check(
-        await supabase.from('brand_members').update({ role: input.role }).eq('brand_id', brandId).eq('user_id', input.userId),
+        await supabase
+          .from('brand_members')
+          .update({ role: input.role })
+          .eq('brand_id', brandId)
+          .eq('user_id', input.userId),
       ),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.brandMembers(brandId) }),
   })
@@ -71,7 +75,9 @@ export interface InviteInput {
 export function useInvite() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (input: InviteInput): Promise<{ status: 'added' | 'invited'; invitation?: Invitation }> => {
+    mutationFn: async (
+      input: InviteInput,
+    ): Promise<{ status: 'added' | 'invited'; invitation?: Invitation }> => {
       const { data: auth } = await supabase.auth.getUser()
       if (!auth.user) throw new Error('Nicht angemeldet')
       const email = input.email?.trim().toLowerCase() || null
@@ -117,7 +123,8 @@ export function useInvite() {
 export function useRevokeInvitation(workspaceId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (id: string) => check(await supabase.from('invitations').update({ revoked: true }).eq('id', id)),
+    mutationFn: async (id: string) =>
+      check(await supabase.from('invitations').update({ revoked: true }).eq('id', id)),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.invitations(workspaceId) }),
   })
 }

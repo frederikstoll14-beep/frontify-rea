@@ -17,7 +17,14 @@ import { useBrandContext, useCanDownload } from '@/features/brand/brand-context'
 import { AddItemButton, InlineInput, ItemControls, listOps, SettingsPanel, SettingsRow } from './editor-kit'
 import type { BlockEditorProps, BlockViewProps } from './types'
 
-const RATIOS = { auto: '', '1:1': 'aspect-square', '4:3': 'aspect-[4/3]', '16:9': 'aspect-video', '3:2': 'aspect-[3/2]', '3:4': 'aspect-[3/4]' }
+const RATIOS = {
+  auto: '',
+  '1:1': 'aspect-square',
+  '4:3': 'aspect-[4/3]',
+  '16:9': 'aspect-video',
+  '3:2': 'aspect-[3/2]',
+  '3:4': 'aspect-[3/4]',
+}
 
 const BACKGROUND_OPTIONS: Array<{ value: PreviewBackground | 'none'; label: string }> = [
   { value: 'none', label: 'Ohne' },
@@ -84,7 +91,9 @@ export function ImageView({ content }: BlockViewProps<'image'>) {
       {(content.caption || (content.allowDownload && canDownload)) && (
         <figcaption className="mt-2.5 flex items-start justify-between gap-3 text-sm text-muted">
           <span>{content.caption}</span>
-          {content.allowDownload && canDownload && <ImageDownloadButton image={content.image} title={content.caption} />}
+          {content.allowDownload && canDownload && (
+            <ImageDownloadButton image={content.image} title={content.caption} />
+          )}
         </figcaption>
       )}
     </figure>
@@ -107,7 +116,12 @@ export function ImageEditor({ content, onChange }: BlockEditorProps<'image'>) {
           </Field>
         </div>
         <SettingsRow label="Hintergrund">
-          <Segmented size="sm" value={content.background} onChange={(background) => onChange({ background })} options={BACKGROUND_OPTIONS} />
+          <Segmented
+            size="sm"
+            value={content.background}
+            onChange={(background) => onChange({ background })}
+            options={BACKGROUND_OPTIONS}
+          />
         </SettingsRow>
         <SettingsRow label="Format">
           <Segmented
@@ -136,7 +150,11 @@ export function ImageEditor({ content, onChange }: BlockEditorProps<'image'>) {
             />
           </SettingsRow>
         )}
-        <Switch checked={content.allowDownload} onCheckedChange={(allowDownload) => onChange({ allowDownload })} label="Download anbieten" />
+        <Switch
+          checked={content.allowDownload}
+          onCheckedChange={(allowDownload) => onChange({ allowDownload })}
+          label="Download anbieten"
+        />
       </SettingsPanel>
     </div>
   )
@@ -151,14 +169,23 @@ export function GalleryView({ content }: BlockViewProps<'gallery'>) {
   const items = content.items.filter((i) => i.image)
   if (items.length === 0) {
     return editMode ? null : (
-      <EmptyState icon={<Images />} title="Noch keine Bilder" description="Hier entsteht die Bildwelt." className="py-8" />
+      <EmptyState
+        icon={<Images />}
+        title="Noch keine Bilder"
+        description="Hier entsteht die Bildwelt."
+        className="py-8"
+      />
     )
   }
   return (
     <div className={cn('grid gap-3', GALLERY_COLS[content.columns])}>
       {items.map((item) => (
         <figure key={item.id} className="avoid-break">
-          <StorageImage path={item.image!.path} alt={item.caption} className={cn('w-full rounded-xl', RATIOS[content.ratio])} />
+          <StorageImage
+            path={item.image!.path}
+            alt={item.caption}
+            className={cn('w-full rounded-xl', RATIOS[content.ratio])}
+          />
           {item.caption && <figcaption className="mt-1.5 text-[13px] text-muted">{item.caption}</figcaption>}
         </figure>
       ))}
@@ -190,7 +217,11 @@ export function GalleryEditor({ content, onChange }: BlockEditorProps<'gallery'>
           <div key={item.id} className="space-y-1.5">
             <div className="relative">
               {item.image ? (
-                <StorageImage path={item.image.path} alt={item.caption} className={cn('w-full rounded-xl', RATIOS[content.ratio])} />
+                <StorageImage
+                  path={item.image.path}
+                  alt={item.caption}
+                  className={cn('w-full rounded-xl', RATIOS[content.ratio])}
+                />
               ) : (
                 <div className={cn('rounded-xl bg-surface-2', RATIOS[content.ratio])} />
               )}
@@ -202,7 +233,12 @@ export function GalleryEditor({ content, onChange }: BlockEditorProps<'gallery'>
                 className="absolute top-1.5 right-1.5 rounded-lg bg-surface/90 shadow-sm"
               />
             </div>
-            <InlineInput value={item.caption} onChange={(caption) => ops.update(i, { caption })} placeholder="Bildunterschrift" className="text-[13px]" />
+            <InlineInput
+              value={item.caption}
+              onChange={(caption) => ops.update(i, { caption })}
+              placeholder="Bildunterschrift"
+              className="text-[13px]"
+            />
           </div>
         ))}
       </div>
@@ -261,7 +297,13 @@ export function GalleryEditor({ content, onChange }: BlockEditorProps<'gallery'>
               ...assets.map((a) => ({
                 id: uniqueId(),
                 caption: a.title,
-                image: { path: a.file_path, width: a.width, height: a.height, mime: a.mime_type, assetId: a.id },
+                image: {
+                  path: a.file_path,
+                  width: a.width,
+                  height: a.height,
+                  mime: a.mime_type,
+                  assetId: a.id,
+                },
               })),
             ],
           })
@@ -276,7 +318,15 @@ export function GalleryEditor({ content, onChange }: BlockEditorProps<'gallery'>
 function VideoFile({ path }: { path: string }) {
   const { data: url } = useSignedUrl(path)
   if (!url) return <div className="aspect-video animate-pulse rounded-2xl bg-surface-2" />
-  return <video src={url} controls playsInline className="aspect-video w-full rounded-2xl bg-black" preload="metadata" />
+  return (
+    <video
+      src={url}
+      controls
+      playsInline
+      className="aspect-video w-full rounded-2xl bg-black"
+      preload="metadata"
+    />
+  )
 }
 
 export function VideoView({ content }: BlockViewProps<'video'>) {
@@ -388,8 +438,18 @@ export function AudioEditor({ content, onChange }: BlockEditorProps<'audio'>) {
   const { upload, uploading } = useFileUpload(brand.id)
   return (
     <div className="space-y-3 rounded-2xl border border-border bg-surface p-4">
-      <InlineInput value={content.title} onChange={(title) => onChange({ title })} placeholder="Titel, z. B. Sound-Logo" className="font-semibold" />
-      <InlineInput value={content.caption} onChange={(caption) => onChange({ caption })} placeholder="Beschreibung" className="text-sm text-muted" />
+      <InlineInput
+        value={content.title}
+        onChange={(title) => onChange({ title })}
+        placeholder="Titel, z. B. Sound-Logo"
+        className="font-semibold"
+      />
+      <InlineInput
+        value={content.caption}
+        onChange={(caption) => onChange({ caption })}
+        placeholder="Beschreibung"
+        className="text-sm text-muted"
+      />
       {content.file && <AudioFile path={content.file.path} />}
       <Button size="sm" variant="outline" loading={uploading} onClick={() => input.current?.click()}>
         <Upload /> {content.file ? 'Audiodatei ersetzen' : 'Audiodatei hochladen'}
@@ -433,7 +493,12 @@ export function EmbedView({ content }: BlockViewProps<'embed'>) {
       </div>
       <figcaption className="mt-2 flex items-center justify-between gap-3 text-sm text-muted">
         <span>{content.caption}</span>
-        <a href={content.url} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1 hover:text-ink">
+        <a
+          href={content.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex shrink-0 items-center gap-1 hover:text-ink"
+        >
           {embed.provider} öffnen <ExternalLink className="size-3.5" />
         </a>
       </figcaption>
@@ -454,7 +519,12 @@ export function EmbedEditor({ content, onChange }: BlockEditorProps<'embed'>) {
         >
           <div className="relative">
             <Link2 className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" />
-            <Input value={content.url} onChange={(e) => onChange({ url: e.target.value })} placeholder="https://" className="pl-9" />
+            <Input
+              value={content.url}
+              onChange={(e) => onChange({ url: e.target.value })}
+              placeholder="https://"
+              className="pl-9"
+            />
           </div>
         </Field>
         <div className="grid gap-3 sm:grid-cols-[1fr_140px]">
@@ -467,7 +537,9 @@ export function EmbedEditor({ content, onChange }: BlockEditorProps<'embed'>) {
               min={200}
               max={1600}
               value={content.height}
-              onChange={(e) => onChange({ height: Math.min(1600, Math.max(200, Number(e.target.value) || 480)) })}
+              onChange={(e) =>
+                onChange({ height: Math.min(1600, Math.max(200, Number(e.target.value) || 480)) })
+              }
             />
           </Field>
         </div>
@@ -478,7 +550,12 @@ export function EmbedEditor({ content, onChange }: BlockEditorProps<'embed'>) {
 
 /* ---------- Dateien & Downloads ---------- */
 
-const ASSET_COLS = { 2: 'grid-cols-2', 3: 'grid-cols-2 md:grid-cols-3', 4: 'grid-cols-2 md:grid-cols-4', 5: 'grid-cols-2 md:grid-cols-5' }
+const ASSET_COLS = {
+  2: 'grid-cols-2',
+  3: 'grid-cols-2 md:grid-cols-3',
+  4: 'grid-cols-2 md:grid-cols-4',
+  5: 'grid-cols-2 md:grid-cols-5',
+}
 
 export function AssetsView({ content }: BlockViewProps<'assets'>) {
   const { data: assets = [], isLoading } = useAssetsByIds(content.assetIds)
@@ -533,7 +610,9 @@ export function AssetsView({ content }: BlockViewProps<'assets'>) {
                     {asset.ext} · {formatBytes(asset.size_bytes)}
                   </p>
                 </div>
-                {canDownload && (asset.downloadable || canDownload) && <DownloadMenu asset={asset} iconOnly variant="ghost" />}
+                {canDownload && (asset.downloadable || canDownload) && (
+                  <DownloadMenu asset={asset} iconOnly variant="ghost" />
+                )}
               </div>
             </div>
           ))}
@@ -550,8 +629,18 @@ export function AssetsEditor({ content, onChange }: BlockEditorProps<'assets'>) 
   return (
     <div className="space-y-3">
       <div className="space-y-2 rounded-2xl border border-border bg-surface p-4">
-        <InlineInput value={content.title} onChange={(title) => onChange({ title })} placeholder="Titel, z. B. Logo-Paket" className="font-semibold" />
-        <Textarea value={content.description} onChange={(e) => onChange({ description: e.target.value })} placeholder="Beschreibung (optional)" rows={2} />
+        <InlineInput
+          value={content.title}
+          onChange={(title) => onChange({ title })}
+          placeholder="Titel, z. B. Logo-Paket"
+          className="font-semibold"
+        />
+        <Textarea
+          value={content.description}
+          onChange={(e) => onChange({ description: e.target.value })}
+          placeholder="Beschreibung (optional)"
+          rows={2}
+        />
         <div className={cn('grid gap-2', ASSET_COLS[content.columns])}>
           {assets.map((asset, i) => (
             <div key={asset.id} className="relative overflow-hidden rounded-xl border border-border">
@@ -591,7 +680,11 @@ export function AssetsEditor({ content, onChange }: BlockEditorProps<'assets'>) 
             options={BACKGROUND_OPTIONS.filter((o) => o.value !== 'none')}
           />
         </SettingsRow>
-        <Switch checked={content.showDownloadAll} onCheckedChange={(showDownloadAll) => onChange({ showDownloadAll })} label="„Alle als ZIP“ anbieten" />
+        <Switch
+          checked={content.showDownloadAll}
+          onCheckedChange={(showDownloadAll) => onChange({ showDownloadAll })}
+          label="„Alle als ZIP“ anbieten"
+        />
       </SettingsPanel>
       <AssetPickerDialog
         brandId={brand.id}

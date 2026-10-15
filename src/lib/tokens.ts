@@ -155,7 +155,10 @@ export function toDtcgJson(source: TokenSource): string {
   }
   const fontFamily: DtcgGroup = {}
   source.fonts.forEach((font, i) => {
-    fontFamily[fontKey(font, i)] = { $type: 'fontFamily', $value: [font.family, font.fallback || 'sans-serif'] }
+    fontFamily[fontKey(font, i)] = {
+      $type: 'fontFamily',
+      $value: [font.family, font.fallback || 'sans-serif'],
+    }
   })
   const typography: DtcgGroup = {}
   for (const style of source.textStyles) {
@@ -264,18 +267,29 @@ export function toAse(source: TokenSource): Uint8Array {
 
 export type TokenFormat = 'css' | 'scss' | 'json' | 'tailwind' | 'ase'
 
-export const TOKEN_FORMATS: Record<TokenFormat, { label: string; file: string; mime: string; hint: string }> = {
-  css: { label: 'CSS-Variablen', file: 'tokens.css', mime: 'text/css', hint: 'Für Websites' },
-  scss: { label: 'SCSS', file: '_tokens.scss', mime: 'text/x-scss', hint: 'Für Sass-Projekte' },
-  json: { label: 'JSON (W3C)', file: 'tokens.json', mime: 'application/json', hint: 'Figma Tokens, Style Dictionary' },
-  tailwind: { label: 'Tailwind v4', file: 'tailwind-theme.css', mime: 'text/css', hint: 'Für Tailwind-Projekte' },
-  ase: {
-    label: 'Adobe Swatches (.ase)',
-    file: 'farben.ase',
-    mime: 'application/octet-stream',
-    hint: 'Illustrator, InDesign, Photoshop',
-  },
-}
+export const TOKEN_FORMATS: Record<TokenFormat, { label: string; file: string; mime: string; hint: string }> =
+  {
+    css: { label: 'CSS-Variablen', file: 'tokens.css', mime: 'text/css', hint: 'Für Websites' },
+    scss: { label: 'SCSS', file: '_tokens.scss', mime: 'text/x-scss', hint: 'Für Sass-Projekte' },
+    json: {
+      label: 'JSON (W3C)',
+      file: 'tokens.json',
+      mime: 'application/json',
+      hint: 'Figma Tokens, Style Dictionary',
+    },
+    tailwind: {
+      label: 'Tailwind v4',
+      file: 'tailwind-theme.css',
+      mime: 'text/css',
+      hint: 'Für Tailwind-Projekte',
+    },
+    ase: {
+      label: 'Adobe Swatches (.ase)',
+      file: 'farben.ase',
+      mime: 'application/octet-stream',
+      hint: 'Illustrator, InDesign, Photoshop',
+    },
+  }
 
 export function buildTokenFile(format: TokenFormat, source: TokenSource): Blob {
   const meta = TOKEN_FORMATS[format]

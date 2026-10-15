@@ -10,8 +10,8 @@ export function SetupNotice() {
         <Card className="space-y-4 p-6">
           <h1 className="font-display text-2xl font-semibold text-ink">Fast geschafft: Backend verbinden</h1>
           <p className="text-ink-2">
-            Die App braucht ein (kostenloses) Supabase-Projekt für Login, Datenbank und Dateien. Setze diese zwei Umgebungsvariablen und
-            starte neu bzw. deploye erneut:
+            Die App braucht ein (kostenloses) Supabase-Projekt für Login, Datenbank und Dateien. Setze diese
+            zwei Umgebungsvariablen und starte neu bzw. deploye erneut:
           </p>
           <pre className="overflow-x-auto rounded-xl bg-[#15171F] p-4 font-mono text-sm text-[#EDEBE5]">
             {`VITE_SUPABASE_URL=https://DEIN-PROJEKT.supabase.co

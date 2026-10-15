@@ -237,7 +237,15 @@ export function Card({ className, children }: { className?: string; children: Re
   return <div className={cn('rounded-2xl border border-border bg-surface', className)}>{children}</div>
 }
 
-export function SectionTitle({ title, description, action }: { title: ReactNode; description?: ReactNode; action?: ReactNode }) {
+export function SectionTitle({
+  title,
+  description,
+  action,
+}: {
+  title: ReactNode
+  description?: ReactNode
+  action?: ReactNode
+}) {
   return (
     <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
       <div>

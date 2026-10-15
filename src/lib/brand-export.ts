@@ -38,7 +38,15 @@ export interface ExportInput {
       description: string
     }>
   }>
-  fonts: Array<{ family: string; source: string; role: string; weights: number[]; fallback: string; license: string; description: string }>
+  fonts: Array<{
+    family: string
+    source: string
+    role: string
+    weights: number[]
+    fallback: string
+    license: string
+    description: string
+  }>
   textStyles: Array<{
     name: string
     token: string
@@ -83,7 +91,9 @@ export function buildBrandExport(input: ExportInput): BrandExportFile {
   })
 
   const guidelines: TemplateGuideline[] = input.guidelines.map((g) => {
-    const top = input.pages.filter((p) => p.guideline_id === g.id && p.parent_id === null).sort((a, b) => a.sort - b.sort)
+    const top = input.pages
+      .filter((p) => p.guideline_id === g.id && p.parent_id === null)
+      .sort((a, b) => a.sort - b.sort)
     const items: Array<TemplateChapter | TemplatePage> = top.map((item) =>
       item.kind === 'chapter'
         ? {

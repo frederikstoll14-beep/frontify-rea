@@ -2,7 +2,13 @@ import { Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Dialog } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { BLOCK_CATEGORIES, BLOCK_META, BLOCK_TYPES, type BlockCategory, type BlockType } from '@/lib/blocks/types'
+import {
+  BLOCK_CATEGORIES,
+  BLOCK_META,
+  BLOCK_TYPES,
+  type BlockCategory,
+  type BlockType,
+} from '@/lib/blocks/types'
 import { cn } from '@/lib/utils'
 import { BLOCKS } from '@/features/blocks/registry'
 
@@ -57,7 +63,9 @@ export function BlockInserterDialog({
       <div className="space-y-5">
         {groups.map((group) => (
           <section key={group.category}>
-            <h3 className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">{BLOCK_CATEGORIES[group.category]}</h3>
+            <h3 className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">
+              {BLOCK_CATEGORIES[group.category]}
+            </h3>
             <div className="grid gap-2 sm:grid-cols-2">
               {group.types.map((type) => {
                 const Icon = BLOCKS[type].icon
@@ -76,7 +84,9 @@ export function BlockInserterDialog({
                     </span>
                     <span className="min-w-0">
                       <span className="block text-sm font-semibold text-ink">{BLOCK_META[type].label}</span>
-                      <span className="block text-xs leading-snug text-muted">{BLOCK_META[type].description}</span>
+                      <span className="block text-xs leading-snug text-muted">
+                        {BLOCK_META[type].description}
+                      </span>
                     </span>
                   </button>
                 )
@@ -84,7 +94,9 @@ export function BlockInserterDialog({
             </div>
           </section>
         ))}
-        {groups.length === 0 && <p className="py-6 text-center text-sm text-muted">Kein Baustein gefunden.</p>}
+        {groups.length === 0 && (
+          <p className="py-6 text-center text-sm text-muted">Kein Baustein gefunden.</p>
+        )}
       </div>
     </Dialog>
   )
@@ -92,7 +104,12 @@ export function BlockInserterDialog({
 
 export function InsertLine({ onClick, always }: { onClick: () => void; always?: boolean }) {
   return (
-    <div className={cn('group/insert relative col-span-12 flex h-6 items-center justify-center', !always && 'no-print')}>
+    <div
+      className={cn(
+        'group/insert relative col-span-12 flex h-6 items-center justify-center',
+        !always && 'no-print',
+      )}
+    >
       <div
         className={cn(
           'absolute inset-x-0 top-1/2 h-px bg-accent/40 transition-opacity',

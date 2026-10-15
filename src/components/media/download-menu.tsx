@@ -9,7 +9,10 @@ import { MenuContent, MenuItem, MenuLabel, MenuRoot, MenuSeparator, MenuTrigger 
 import { convertImage, isImageMime, type ConvertFormat } from '@/lib/media'
 import { downloadBlob, errorMessage, slugify } from '@/lib/utils'
 
-type DownloadableAsset = Pick<Asset, 'id' | 'title' | 'file_path' | 'file_name' | 'mime_type' | 'width' | 'ext'>
+type DownloadableAsset = Pick<
+  Asset,
+  'id' | 'title' | 'file_path' | 'file_name' | 'mime_type' | 'width' | 'ext'
+>
 
 const SIZES = [512, 1024, 2048]
 

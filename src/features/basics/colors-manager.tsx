@@ -1,4 +1,13 @@
-import { ArrowLeft, ArrowRight, MoreHorizontal, Palette as PaletteIcon, Pencil, Plus, Trash2, Wand2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  MoreHorizontal,
+  Palette as PaletteIcon,
+  Pencil,
+  Plus,
+  Trash2,
+  Wand2,
+} from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useBasicsMutations, usePalettes, type Color, type Palette } from '@/api/basics'
@@ -9,7 +18,15 @@ import { Field, Input, Select, Textarea } from '@/components/ui/input'
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from '@/components/ui/menu'
 import { EmptyState } from '@/components/ui/misc'
 import { PageSpinner } from '@/components/ui/spinner'
-import { contrastRatio, formatCmyk, hexToRgb, normalizeHex, readableTextColor, rgbToCmyk, wcagLevel } from '@/lib/color'
+import {
+  contrastRatio,
+  formatCmyk,
+  hexToRgb,
+  normalizeHex,
+  readableTextColor,
+  rgbToCmyk,
+  wcagLevel,
+} from '@/lib/color'
 import { errorMessage, slugify } from '@/lib/utils'
 import { useBrandContext } from '@/features/brand/brand-context'
 
@@ -136,10 +153,12 @@ function ColorDialog({
           {hex && (
             <div className="space-y-1 text-xs text-muted">
               <p>
-                Kontrast zu Weiß: {contrastRatio(hex, '#FFFFFF').toFixed(1)}:1 ({wcagLevel(contrastRatio(hex, '#FFFFFF'))})
+                Kontrast zu Weiß: {contrastRatio(hex, '#FFFFFF').toFixed(1)}:1 (
+                {wcagLevel(contrastRatio(hex, '#FFFFFF'))})
               </p>
               <p>
-                Kontrast zu Schwarz: {contrastRatio(hex, '#000000').toFixed(1)}:1 ({wcagLevel(contrastRatio(hex, '#000000'))})
+                Kontrast zu Schwarz: {contrastRatio(hex, '#000000').toFixed(1)}:1 (
+                {wcagLevel(contrastRatio(hex, '#000000'))})
               </p>
             </div>
           )}
@@ -147,7 +166,12 @@ function ColorDialog({
         <div className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Name">
-              <Input autoFocus value={value.name} onChange={(e) => set({ name: e.target.value })} placeholder="z. B. Vereinsblau" />
+              <Input
+                autoFocus
+                value={value.name}
+                onChange={(e) => set({ name: e.target.value })}
+                placeholder="z. B. Vereinsblau"
+              />
             </Field>
             <Field label="HEX" error={hexInput && !hex ? 'Ungültig' : undefined}>
               <div className="flex gap-2">
@@ -192,13 +216,25 @@ function ColorDialog({
             <Input value={value.usage} onChange={(e) => set({ usage: e.target.value })} />
           </Field>
           <Field label="Beschreibung">
-            <Textarea value={value.description} onChange={(e) => set({ description: e.target.value })} rows={2} />
+            <Textarea
+              value={value.description}
+              onChange={(e) => set({ description: e.target.value })}
+              rows={2}
+            />
           </Field>
           <fieldset className="space-y-3 rounded-xl border border-border p-3">
             <legend className="px-1 text-[13px] font-medium text-ink-2">Druck & Industrie</legend>
-            <Field label="CMYK" hint="Verbindlicher Wert aus der Druckerei. Der Vorschlag ist nur eine Näherung.">
+            <Field
+              label="CMYK"
+              hint="Verbindlicher Wert aus der Druckerei. Der Vorschlag ist nur eine Näherung."
+            >
               <div className="flex gap-2">
-                <Input value={value.cmyk} onChange={(e) => set({ cmyk: e.target.value })} placeholder="100/70/0/25" className="font-mono" />
+                <Input
+                  value={value.cmyk}
+                  onChange={(e) => set({ cmyk: e.target.value })}
+                  placeholder="100/70/0/25"
+                  className="font-mono"
+                />
                 <Button
                   variant="outline"
                   size="icon"
@@ -212,16 +248,28 @@ function ColorDialog({
             </Field>
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Pantone">
-                <Input value={value.pantone} onChange={(e) => set({ pantone: e.target.value })} placeholder="2945 C" />
+                <Input
+                  value={value.pantone}
+                  onChange={(e) => set({ pantone: e.target.value })}
+                  placeholder="2945 C"
+                />
               </Field>
               <Field label="HKS">
-                <Input value={value.hks} onChange={(e) => set({ hks: e.target.value })} placeholder="HKS 43 K" />
+                <Input
+                  value={value.hks}
+                  onChange={(e) => set({ hks: e.target.value })}
+                  placeholder="HKS 43 K"
+                />
               </Field>
               <Field label="RAL">
                 <Input value={value.ral} onChange={(e) => set({ ral: e.target.value })} placeholder="5002" />
               </Field>
               <Field label="NCS">
-                <Input value={value.ncs} onChange={(e) => set({ ncs: e.target.value })} placeholder="S 3060-R90B" />
+                <Input
+                  value={value.ncs}
+                  onChange={(e) => set({ ncs: e.target.value })}
+                  placeholder="S 3060-R90B"
+                />
               </Field>
             </div>
           </fieldset>
@@ -237,7 +285,11 @@ export function ColorsManager() {
   const m = useBasicsMutations(brand.id)
   const confirm = useConfirm()
   const [editing, setEditing] = useState<ColorDraft | null>(null)
-  const [paletteDialog, setPaletteDialog] = useState<{ id?: string; name: string; description: string } | null>(null)
+  const [paletteDialog, setPaletteDialog] = useState<{
+    id?: string
+    name: string
+    description: string
+  } | null>(null)
 
   if (isLoading) return <PageSpinner />
 
@@ -303,7 +355,13 @@ export function ColorsManager() {
                   <MenuContent>
                     <MenuItem
                       icon={<Pencil />}
-                      onSelect={() => setPaletteDialog({ id: palette.id, name: palette.name, description: palette.description })}
+                      onSelect={() =>
+                        setPaletteDialog({
+                          id: palette.id,
+                          name: palette.name,
+                          description: palette.description,
+                        })
+                      }
                     >
                       Umbenennen
                     </MenuItem>
@@ -329,7 +387,10 @@ export function ColorsManager() {
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
             {palette.colors.map((color, i) => (
-              <div key={color.id} className="group overflow-hidden rounded-2xl border border-border bg-surface">
+              <div
+                key={color.id}
+                className="group overflow-hidden rounded-2xl border border-border bg-surface"
+              >
                 <button
                   type="button"
                   disabled={!canEdit}
@@ -344,14 +405,26 @@ export function ColorsManager() {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-ink">{color.name}</p>
                     <p className="font-mono text-xs text-muted">{color.hex}</p>
-                    {color.cmyk && <p className="truncate font-mono text-[11px] text-muted">CMYK {color.cmyk}</p>}
+                    {color.cmyk && (
+                      <p className="truncate font-mono text-[11px] text-muted">CMYK {color.cmyk}</p>
+                    )}
                   </div>
                   {canEdit && (
                     <div className="flex opacity-0 transition-opacity group-hover:opacity-100">
-                      <button type="button" aria-label="Nach links" className="rounded p-1 text-muted hover:bg-surface-2" onClick={() => moveColor(palette, i, -1)}>
+                      <button
+                        type="button"
+                        aria-label="Nach links"
+                        className="rounded p-1 text-muted hover:bg-surface-2"
+                        onClick={() => moveColor(palette, i, -1)}
+                      >
                         <ArrowLeft className="size-3.5" />
                       </button>
-                      <button type="button" aria-label="Nach rechts" className="rounded p-1 text-muted hover:bg-surface-2" onClick={() => moveColor(palette, i, 1)}>
+                      <button
+                        type="button"
+                        aria-label="Nach rechts"
+                        className="rounded p-1 text-muted hover:bg-surface-2"
+                        onClick={() => moveColor(palette, i, 1)}
+                      >
                         <ArrowRight className="size-3.5" />
                       </button>
                     </div>
@@ -400,9 +473,15 @@ export function ColorsManager() {
                       patch: { name: paletteDialog.name.trim(), description: paletteDialog.description },
                     })
                   } else {
-                    const created = await m.createPalette.mutateAsync({ name: paletteDialog.name.trim(), sort: palettes.length })
+                    const created = await m.createPalette.mutateAsync({
+                      name: paletteDialog.name.trim(),
+                      sort: palettes.length,
+                    })
                     if (paletteDialog.description) {
-                      await m.updatePalette.mutateAsync({ id: created.id, patch: { description: paletteDialog.description } })
+                      await m.updatePalette.mutateAsync({
+                        id: created.id,
+                        patch: { description: paletteDialog.description },
+                      })
                     }
                   }
                   setPaletteDialog(null)
@@ -419,7 +498,11 @@ export function ColorsManager() {
         {paletteDialog && (
           <div className="space-y-3">
             <Field label="Name">
-              <Input autoFocus value={paletteDialog.name} onChange={(e) => setPaletteDialog({ ...paletteDialog, name: e.target.value })} />
+              <Input
+                autoFocus
+                value={paletteDialog.name}
+                onChange={(e) => setPaletteDialog({ ...paletteDialog, name: e.target.value })}
+              />
             </Field>
             <Field label="Beschreibung">
               <Textarea

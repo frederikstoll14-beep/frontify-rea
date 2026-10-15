@@ -60,7 +60,11 @@ export function MenuItem({
 }
 
 export function MenuLabel({ children }: { children: ReactNode }) {
-  return <M.Label className="px-2.5 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-muted uppercase">{children}</M.Label>
+  return (
+    <M.Label className="px-2.5 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-muted uppercase">
+      {children}
+    </M.Label>
+  )
 }
 
 export function MenuSeparator() {
@@ -74,7 +78,9 @@ export function MenuSubTrigger({ children, icon }: { children: ReactNode; icon?:
     <M.SubTrigger className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 outline-none select-none data-[highlighted]:bg-surface-2 data-[state=open]:bg-surface-2 [&_svg]:size-4 [&_svg]:text-muted">
       {icon}
       <span className="flex-1">{children}</span>
-      <span aria-hidden className="text-muted">›</span>
+      <span aria-hidden className="text-muted">
+        ›
+      </span>
     </M.SubTrigger>
   )
 }

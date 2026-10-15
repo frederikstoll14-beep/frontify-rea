@@ -4,7 +4,16 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'src/lib/database.types.ts', 'playwright-report', 'test-results', 'supabase/.temp'] },
+  {
+    ignores: [
+      'dist',
+      'node_modules',
+      'src/lib/database.types.ts',
+      'playwright-report',
+      'test-results',
+      'supabase/.temp',
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],

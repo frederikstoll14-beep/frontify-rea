@@ -13,7 +13,11 @@ export function brandColors(brand: Pick<Brand, 'theme'>) {
   const primary = normalizeHex(brand.theme.primary ?? '') ?? DEFAULT_PRIMARY
   const accent = normalizeHex(brand.theme.accent ?? '') ?? DEFAULT_ACCENT
   const pick = (background: string, fallback: string) =>
-    contrastRatio(accent, background) >= 3 ? accent : contrastRatio(primary, background) >= 3 ? primary : fallback
+    contrastRatio(accent, background) >= 3
+      ? accent
+      : contrastRatio(primary, background) >= 3
+        ? primary
+        : fallback
   return {
     primary,
     accent,
@@ -25,7 +29,15 @@ export function brandColors(brand: Pick<Brand, 'theme'>) {
 }
 
 /** Setzt die Marken-Variablen (--brand-*) und lädt die Marken-Schriften. */
-export function BrandTheme({ brand, children, className }: { brand: Brand; children: ReactNode; className?: string }) {
+export function BrandTheme({
+  brand,
+  children,
+  className,
+}: {
+  brand: Brand
+  children: ReactNode
+  className?: string
+}) {
   const { data: fonts } = useFonts(brand.id)
   const headingFont = brand.theme.headingFont
   const bodyFont = brand.theme.bodyFont
@@ -35,7 +47,8 @@ export function BrandTheme({ brand, children, className }: { brand: Brand; child
     const fromLibrary = fonts.filter((f) => f.source === 'google')
     const families = [...fromLibrary.map((f) => ({ family: f.family, weights: f.weights }))]
     for (const name of [headingFont, bodyFont]) {
-      if (name && !fonts.some((f) => f.family === name)) families.push({ family: name, weights: [400, 600, 700] })
+      if (name && !fonts.some((f) => f.family === name))
+        families.push({ family: name, weights: [400, 600, 700] })
     }
     loadWebFonts(families)
     for (const font of fonts.filter((f) => f.source === 'upload')) {

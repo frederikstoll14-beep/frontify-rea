@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test'
 import { createWorkspaceAndBrand, signUp, uniqueEmail } from './helpers'
 
-test('Dozentin legt Kurs und Marke an, Studentin tritt per Link bei, Gäste sehen das Portal', async ({ browser }) => {
+test('Dozentin legt Kurs und Marke an, Studentin tritt per Link bei, Gäste sehen das Portal', async ({
+  browser,
+}) => {
   // --- Dozentin ---
   const lecturer = await browser.newPage()
   await signUp(lecturer, 'Prof. Lea Beispiel', uniqueEmail('dozentin'))

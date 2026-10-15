@@ -2,7 +2,14 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { keys } from '@/api/client'
-import { deleteBlock, insertBlock, saveBlockOrder, updateBlock, useBlocks, type Block } from '@/api/guidelines'
+import {
+  deleteBlock,
+  insertBlock,
+  saveBlockOrder,
+  updateBlock,
+  useBlocks,
+  type Block,
+} from '@/api/guidelines'
 import { defaultContent, type BlockType, type BlockWidth } from '@/lib/blocks/types'
 import { registerFlusher } from '@/lib/pending-saves'
 import { errorMessage, moveItem } from '@/lib/utils'
@@ -130,13 +137,19 @@ export function usePageBlocks(pageId: string | undefined, brandId: string) {
       const withSort = next.map((b, i) => ({ ...b, sort: i }))
       setBlocks(withSort)
       const changed = withSort.filter((b, i) => blocksRef.current.find((x) => x.id === b.id)?.sort !== i)
-      if (changed.length > 0) void track(() => saveBlockOrder(changed.map((b) => ({ id: b.id, sort: b.sort }))))
+      if (changed.length > 0)
+        void track(() => saveBlockOrder(changed.map((b) => ({ id: b.id, sort: b.sort }))))
     },
     [track],
   )
 
   const insert = useCallback(
-    async (type: BlockType, index: number, content?: unknown, width: BlockWidth = 'full'): Promise<Block | null> => {
+    async (
+      type: BlockType,
+      index: number,
+      content?: unknown,
+      width: BlockWidth = 'full',
+    ): Promise<Block | null> => {
       if (!pageId) return null
       try {
         setSaveState('saving')
@@ -174,7 +187,10 @@ export function usePageBlocks(pageId: string | undefined, brandId: string) {
       setBlocks((prev) => prev.filter((b) => b.id !== id))
       await track(() => deleteBlock(id))
       toast('Baustein gelöscht', {
-        action: { label: 'Rückgängig', onClick: () => void insert(block.type, index, block.content, block.width) },
+        action: {
+          label: 'Rückgängig',
+          onClick: () => void insert(block.type, index, block.content, block.width),
+        },
       })
     },
     [track, insert],

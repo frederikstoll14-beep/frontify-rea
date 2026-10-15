@@ -50,7 +50,12 @@ export function useCreateWorkspace() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (input: { name: string; description?: string }) =>
-      unwrap(await supabase.rpc('create_workspace', { p_name: input.name, p_description: input.description ?? '' })),
+      unwrap(
+        await supabase.rpc('create_workspace', {
+          p_name: input.name,
+          p_description: input.description ?? '',
+        }),
+      ),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.workspaces }),
   })
 }
@@ -134,7 +139,13 @@ export function useRemoveWorkspaceMember(workspaceId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (userId: string) =>
-      check(await supabase.from('workspace_members').delete().eq('workspace_id', workspaceId).eq('user_id', userId)),
+      check(
+        await supabase
+          .from('workspace_members')
+          .delete()
+          .eq('workspace_id', workspaceId)
+          .eq('user_id', userId),
+      ),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.workspaceMembers(workspaceId) }),
   })
 }

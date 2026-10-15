@@ -45,7 +45,15 @@ export function InlineInput({
   )
 }
 
-export function SettingsRow({ label, children, className }: { label: ReactNode; children: ReactNode; className?: string }) {
+export function SettingsRow({
+  label,
+  children,
+  className,
+}: {
+  label: ReactNode
+  children: ReactNode
+  className?: string
+}) {
   return (
     <div className={cn('flex flex-wrap items-center justify-between gap-x-4 gap-y-2', className)}>
       <Label>{label}</Label>
@@ -56,7 +64,9 @@ export function SettingsRow({ label, children, className }: { label: ReactNode; 
 
 export function SettingsPanel({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-4 space-y-3 rounded-xl border border-border bg-surface-2/50 p-3 text-sm">{children}</div>
+    <div className="mt-4 space-y-3 rounded-xl border border-border bg-surface-2/50 p-3 text-sm">
+      {children}
+    </div>
   )
 }
 
@@ -140,7 +150,9 @@ export function CheckboxList<T extends { id: string; label: string }>({
         onClick={() => onChange([])}
         className={cn(
           'rounded-full border px-2.5 py-1 text-xs font-medium',
-          all ? 'border-ink bg-ink text-bg' : 'border-border bg-surface text-ink-2 hover:border-border-strong',
+          all
+            ? 'border-ink bg-ink text-bg'
+            : 'border-border bg-surface text-ink-2 hover:border-border-strong',
         )}
       >
         {emptyLabel}
@@ -151,10 +163,14 @@ export function CheckboxList<T extends { id: string; label: string }>({
           <button
             key={item.id}
             type="button"
-            onClick={() => onChange(active ? selected.filter((id) => id !== item.id) : [...selected, item.id])}
+            onClick={() =>
+              onChange(active ? selected.filter((id) => id !== item.id) : [...selected, item.id])
+            }
             className={cn(
               'rounded-full border px-2.5 py-1 text-xs font-medium',
-              active ? 'border-ink bg-ink text-bg' : 'border-border bg-surface text-ink-2 hover:border-border-strong',
+              active
+                ? 'border-ink bg-ink text-bg'
+                : 'border-border bg-surface text-ink-2 hover:border-border-strong',
             )}
           >
             {item.label}

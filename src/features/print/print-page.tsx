@@ -31,7 +31,8 @@ export function PrintPage() {
     if (guideline) document.title = `${brand.name} – ${guideline.title}`
   }, [brand.name, guideline])
 
-  if (isLoading || (pageIds.length > 0 && loadingBlocks)) return <PageSpinner label="Bereitet den Druck vor …" />
+  if (isLoading || (pageIds.length > 0 && loadingBlocks))
+    return <PageSpinner label="Bereitet den Druck vor …" />
   if (!guideline) return <EmptyState title="Markenhandbuch nicht gefunden" className="m-8" />
 
   const blocksOf = (pageId: string): Block[] =>
@@ -54,7 +55,7 @@ export function PrintPage() {
       </div>
       <div className="mx-auto max-w-[900px] px-6 py-10 print:px-0 print:py-0">
         <section className="flex min-h-[85vh] flex-col justify-between rounded-3xl bg-brand p-10 text-brand-ink print:min-h-[250mm] print:rounded-none">
-          <BrandMark brand={brand} className="size-20 rounded-2xl bg-white p-2" />
+          <BrandMark brand={brand} onColor className="size-20 rounded-2xl text-2xl" />
           <div>
             <p className="text-sm font-semibold tracking-[0.2em] uppercase opacity-80">{guideline.title}</p>
             <h1 className="mt-3 font-brand-heading text-6xl leading-none font-bold">{brand.name}</h1>
@@ -70,9 +71,11 @@ export function PrintPage() {
               <li key={group.chapter?.id ?? `loose-${i}`}>
                 {group.chapter && <p className="font-semibold">{group.chapter.title}</p>}
                 <ul className={cn('text-ink-2', group.chapter && 'ml-4')}>
-                  {group.pages.filter((p) => p.is_published).map((p) => (
-                    <li key={p.id}>{p.title}</li>
-                  ))}
+                  {group.pages
+                    .filter((p) => p.is_published)
+                    .map((p) => (
+                      <li key={p.id}>{p.title}</li>
+                    ))}
                 </ul>
               </li>
             ))}
@@ -85,7 +88,9 @@ export function PrintPage() {
             .map((page, i) => (
               <section key={page.id} className="print-break py-10">
                 {group.chapter && i === 0 && (
-                  <p className="mb-2 text-xs font-semibold tracking-[0.14em] text-brand-accent-text uppercase">{group.chapter.title}</p>
+                  <p className="mb-2 text-xs font-semibold tracking-[0.14em] text-brand-accent-text uppercase">
+                    {group.chapter.title}
+                  </p>
                 )}
                 <h2 className="font-brand-heading text-4xl font-bold">{page.title}</h2>
                 {page.intro && <p className="mt-2 text-lg text-ink-2">{page.intro}</p>}
