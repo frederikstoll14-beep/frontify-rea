@@ -82,7 +82,9 @@ Den **service_role / secret key** brauchst du **nicht**. Gib ihn niemals weiter.
    | `VITE_SUPABASE_ANON_KEY` | anon/publishable key          |
    | `VITE_APP_NAME`          | optional, z. B. `Markenkompass` |
 
-4. **Deploy**. Nach ca. 1 Minute ist die App erreichbar.
+   Hast du Supabase über die **Supabase-Integration von Vercel** verbunden, legt sie die Variablen als `NEXT_PUBLIC_SUPABASE_URL` und `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (bzw. `…_ANON_KEY`) an. Die App liest diese Namen ebenfalls, du musst nichts umbenennen. Achte darauf, dass die Variablen für **Production** (und für Vorschauen auch **Preview**) gelten.
+
+4. **Deploy**. Nach ca. 1 Minute ist die App erreichbar. Änderst du später Variablen, musst du neu deployen (**Deployments → ⋯ → Redeploy**), weil die Werte beim Build eingebaut werden.
 5. Die Vercel-Adresse in Supabase als **Site URL** und **Redirect URL** eintragen (Schritt 3).
 
 Alternativen zu Vercel sind Netlify oder Cloudflare Pages. Die Datei `public/_redirects` ist schon vorbereitet. Wichtig ist bei jedem Anbieter, dass alle Pfade auf `index.html` umgeleitet werden.

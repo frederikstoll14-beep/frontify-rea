@@ -35,6 +35,20 @@ describe('readSupabaseConfig', () => {
     expect(config.key).toBe('sb_publishable_123')
   })
 
+  it('akzeptiert die NEXT_PUBLIC_*-Namen der Vercel-Integration', () => {
+    const config = readSupabaseConfig({
+      NEXT_PUBLIC_SUPABASE_URL: 'https://abc.supabase.co',
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_123',
+    })
+    expect(config).toEqual({ url: 'https://abc.supabase.co', key: 'sb_publishable_123', problem: null })
+    expect(
+      readSupabaseConfig({
+        NEXT_PUBLIC_SUPABASE_URL: 'https://abc.supabase.co',
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: anon,
+      }).key,
+    ).toBe(anon)
+  })
+
   it('lehnt ungültige Adressen und geheime Schlüssel ab', () => {
     expect(
       readSupabaseConfig({ VITE_SUPABASE_URL: 'kein link', VITE_SUPABASE_ANON_KEY: anon }).problem,
