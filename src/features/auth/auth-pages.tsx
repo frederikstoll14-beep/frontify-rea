@@ -32,8 +32,12 @@ function AuthShell({
         <div className="flex items-center gap-3">
           <svg viewBox="0 0 64 64" className="size-10" aria-hidden>
             <rect width="64" height="64" rx="14" fill="currentColor" opacity="0.12" />
-            <path d="M32 12 L40 32 L32 52 L24 32 Z" fill="currentColor" />
-            <path d="M32 12 L40 32 L32 32 Z" className="fill-accent" />
+            <path d="M14 27 L32 21 L50 27 L32 33 Z" fill="currentColor" opacity="0.45" />
+            <path d="M14 20.5 L32 14.5 L50 20.5 L32 26.5 Z" fill="currentColor" opacity="0.75" />
+            <path d="M14 14 L32 8 L50 14 L32 20 Z" className="fill-accent" />
+            <rect x="8" y="38" width="48" height="5" rx="1.5" fill="currentColor" />
+            <rect x="12" y="43" width="4.5" height="11" rx="1" fill="currentColor" />
+            <rect x="47.5" y="43" width="4.5" height="11" rx="1" fill="currentColor" />
           </svg>
           <span className="font-display text-xl font-semibold">{APP_NAME}</span>
         </div>

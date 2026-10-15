@@ -1,4 +1,4 @@
-import { CompassMark } from '@/components/layout/app-logo'
+import { LogoMark } from '@/components/layout/app-logo'
 import { Card } from '@/components/ui/misc'
 import { APP_NAME } from '@/lib/app'
 
@@ -11,7 +11,7 @@ export function SetupNotice({ problem }: { problem: string | null }) {
     <div className="min-h-dvh bg-bg px-4 py-10">
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="flex items-center gap-2.5">
-          <CompassMark />
+          <LogoMark />
           <span className="font-display text-lg font-semibold tracking-tight text-ink">{APP_NAME}</span>
         </div>
         <Card className="space-y-4 p-6">
