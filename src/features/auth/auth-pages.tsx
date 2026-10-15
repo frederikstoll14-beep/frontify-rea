@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/input'
 import { Segmented } from '@/components/ui/misc'
 import { PageSpinner } from '@/components/ui/spinner'
-import { APP_NAME } from '@/lib/app'
+import { APP_BADGE, APP_CLAIM, APP_NAME } from '@/lib/app'
 import { supabase } from '@/lib/supabase'
 import { errorMessage } from '@/lib/utils'
 
@@ -32,18 +32,24 @@ function AuthShell({
         <div className="flex items-center gap-3">
           <svg viewBox="0 0 64 64" className="size-10" aria-hidden>
             <rect width="64" height="64" rx="14" fill="currentColor" opacity="0.12" />
-            <path d="M32 12 L40 32 L32 52 L24 32 Z" fill="currentColor" />
-            <path d="M32 12 L40 32 L32 32 Z" className="fill-accent" />
+            <rect x="9" y="17" width="10.25" height="10" rx="1.5" fill="currentColor" />
+            <rect x="20.75" y="17" width="10.25" height="10" rx="1.5" className="fill-accent" />
+            <rect x="32.5" y="17" width="10.25" height="10" rx="1.5" fill="#FFC72C" />
+            <rect x="44.25" y="17" width="10.25" height="10" rx="1.5" fill="#3B6FD8" />
+            <rect x="12" y="27" width="5" height="22" rx="1" fill="currentColor" />
+            <rect x="47" y="27" width="5" height="22" rx="1" fill="currentColor" />
+            <rect x="12" y="39" width="40" height="3.5" rx="1" fill="currentColor" opacity="0.55" />
           </svg>
           <span className="font-display text-xl font-semibold">{APP_NAME}</span>
         </div>
         <div className="max-w-md">
-          <p className="font-display text-4xl leading-tight font-semibold">
-            Die ganze Marke an einem Ort. Für alle, die mit ihr arbeiten.
-          </p>
+          <span className="inline-flex rounded-full bg-accent px-3 py-1 text-xs font-semibold tracking-wide text-accent-ink uppercase">
+            {APP_BADGE}
+          </span>
+          <p className="mt-5 font-display text-4xl leading-tight font-semibold">{APP_CLAIM}</p>
           <p className="mt-4 text-bg/70">
-            Markenkern, Logos, Farben, Typografie, Bildwelt und Vorlagen – gemeinsam pflegen, sicher teilen,
-            überall abrufbar.
+            Die ganze Marke an einem Ort, für alle, die mit ihr arbeiten. Markenkern, Logos, Farben,
+            Typografie, Bildwelt und Vorlagen – gemeinsam pflegen, sicher teilen, überall abrufbar.
           </p>
         </div>
         <div className="flex h-2 overflow-hidden rounded-full">
@@ -55,6 +61,9 @@ function AuthShell({
       <div className="flex flex-col px-5 py-8 sm:px-10">
         <div className="lg:hidden">
           <AppLogo />
+          <p className="mt-2 text-sm text-muted">
+            {APP_CLAIM} <span className="font-semibold text-accent">{APP_BADGE}.</span>
+          </p>
         </div>
         <div className="mx-auto my-auto w-full max-w-sm py-10">
           <h1 className="font-display text-3xl font-semibold text-ink">{title}</h1>

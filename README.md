@@ -1,8 +1,10 @@
-# Markenkompass
+# Brandbench
 
-**Die ganze Marke an einem Ort, für alle, die mit ihr arbeiten.**
+**Die Werkbank für deine Marke. Free for students.**
 
-Markenkompass ist ein Brand-Identity-Portal: ein funktionaler Nachbau der Kernfunktionen von [Frontify](https://www.frontify.com), entwickelt für Lehre und kleine Teams. Unternehmen, Vereine, Verbände und Organisationen legen ihre komplette Markenidentität ab:
+Die ganze Marke an einem Ort, für alle, die mit ihr arbeiten.
+
+Brandbench ist ein Brand-Identity-Portal: ein funktionaler Nachbau der Kernfunktionen von [Frontify](https://www.frontify.com), entwickelt für Lehre und kleine Teams. Unternehmen, Vereine, Verbände und Organisationen legen ihre komplette Markenidentität ab:
 
 - Markenkern und Gestaltungsregeln
 - Logos, Farben und Typografie
@@ -66,4 +68,4 @@ Getestet mit Vitest (Logik und Datenbankrechte) und Playwright (Mehrnutzer-Ablau
 
 ## Hinweis
 
-Markenkompass ist ein unabhängiges Lern- und Lehrprojekt und steht in keiner Verbindung zur Frontify AG. Es wurden weder Code noch Gestaltung übernommen, nur öffentlich dokumentierte Funktionsprinzipien analysiert. „Frontify“ ist eine Marke der Frontify AG.
+Brandbench ist ein unabhängiges Lern- und Lehrprojekt und steht in keiner Verbindung zur Frontify AG. Es wurden weder Code noch Gestaltung übernommen, nur öffentlich dokumentierte Funktionsprinzipien analysiert. „Frontify“ ist eine Marke der Frontify AG.

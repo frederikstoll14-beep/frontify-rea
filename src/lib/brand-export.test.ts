@@ -92,8 +92,13 @@ describe('brand-export', () => {
   it('prüft das Dateiformat beim Import', () => {
     const json = JSON.stringify(buildBrandExport(input))
     expect(parseBrandExport(json).source.name).toBe('Test')
-    expect(() => parseBrandExport('{}')).toThrow(/Markenkompass/)
+    expect(() => parseBrandExport('{}')).toThrow(/Brandbench/)
     expect(() => parseBrandExport('kein json')).toThrow(/JSON/)
+  })
+
+  it('liest Exporte aus der Zeit vor der Umbenennung', () => {
+    const legacy = { ...buildBrandExport(input), format: 'markenkompass-brand' }
+    expect(parseBrandExport(JSON.stringify(legacy)).source.name).toBe('Test')
   })
 
   it('entfernt fremde Datei- und Asset-Verweise', () => {

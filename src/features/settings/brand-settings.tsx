@@ -505,7 +505,7 @@ function DataTab() {
       })
       downloadText(
         JSON.stringify(file, null, 2),
-        `${brand.slug}-markenkompass-${new Date().toISOString().slice(0, 10)}.json`,
+        `${brand.slug}-brandbench-${new Date().toISOString().slice(0, 10)}.json`,
         'application/json',
       )
     } catch (e) {
