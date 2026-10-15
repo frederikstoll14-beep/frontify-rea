@@ -2,17 +2,18 @@ import { Link } from 'react-router'
 import { APP_NAME } from '@/lib/app'
 import { cn } from '@/lib/utils'
 
-/** Bildmarke: drei Ebenen (Markenkern, Gestaltung, Kanäle) liegen auf der Werkbank. */
+/** Bildmarke: eine Werkbank, deren Tischplatte eine Farbpalette ist. */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 64 64" className={cn('size-8', className)} aria-hidden>
       <rect width="64" height="64" rx="14" className="fill-ink" />
-      <path d="M14 27 L32 21 L50 27 L32 33 Z" className="fill-bg" opacity="0.45" />
-      <path d="M14 20.5 L32 14.5 L50 20.5 L32 26.5 Z" className="fill-bg" opacity="0.75" />
-      <path d="M14 14 L32 8 L50 14 L32 20 Z" className="fill-accent" />
-      <rect x="8" y="38" width="48" height="5" rx="1.5" className="fill-bg" />
-      <rect x="12" y="43" width="4.5" height="11" rx="1" className="fill-bg" />
-      <rect x="47.5" y="43" width="4.5" height="11" rx="1" className="fill-bg" />
+      <rect x="9" y="17" width="10.25" height="10" rx="1.5" className="fill-bg" />
+      <rect x="20.75" y="17" width="10.25" height="10" rx="1.5" className="fill-accent" />
+      <rect x="32.5" y="17" width="10.25" height="10" rx="1.5" fill="#FFC72C" />
+      <rect x="44.25" y="17" width="10.25" height="10" rx="1.5" fill="#3B6FD8" />
+      <rect x="12" y="27" width="5" height="22" rx="1" className="fill-bg" />
+      <rect x="47" y="27" width="5" height="22" rx="1" className="fill-bg" />
+      <rect x="12" y="39" width="40" height="3.5" rx="1" className="fill-bg" opacity="0.55" />
     </svg>
   )
 }
