@@ -5,6 +5,8 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // NEXT_PUBLIC_* zusätzlich, damit die Supabase-Integration von Vercel ohne Umbenennen funktioniert
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

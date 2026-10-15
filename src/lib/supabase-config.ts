@@ -15,11 +15,16 @@ function clean(value: string | undefined): string {
 /**
  * Liest und normalisiert die Supabase-Umgebungsvariablen.
  * Toleriert häufige Eingabefehler (fehlendes https://, Schrägstrich oder /rest/v1 am Ende,
- * Anführungszeichen) und akzeptiert den neuen Namen VITE_SUPABASE_PUBLISHABLE_KEY.
+ * Anführungszeichen) und akzeptiert den neuen Namen VITE_SUPABASE_PUBLISHABLE_KEY sowie die
+ * NEXT_PUBLIC_*-Namen, die die Supabase-Integration von Vercel anlegt.
  */
 export function readSupabaseConfig(env: Record<string, string | undefined>): SupabaseConfig {
-  let url = clean(env.VITE_SUPABASE_URL)
-  const key = clean(env.VITE_SUPABASE_ANON_KEY) || clean(env.VITE_SUPABASE_PUBLISHABLE_KEY)
+  let url = clean(env.VITE_SUPABASE_URL) || clean(env.NEXT_PUBLIC_SUPABASE_URL)
+  const key =
+    clean(env.VITE_SUPABASE_ANON_KEY) ||
+    clean(env.VITE_SUPABASE_PUBLISHABLE_KEY) ||
+    clean(env.NEXT_PUBLIC_SUPABASE_ANON_KEY) ||
+    clean(env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
 
   if (!url && !key) {
     return { url: null, key: null, problem: 'VITE_SUPABASE_URL und VITE_SUPABASE_ANON_KEY fehlen.' }
