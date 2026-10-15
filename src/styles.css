@@ -1,0 +1,247 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/fraunces';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Semantische Tokens der App-Oberfläche.
+ * Marken-Portale überschreiben --brand-* über <BrandTheme>.
+ */
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #efede7;
+  --ink: #15171f;
+  --ink-2: #3c3f4a;
+  --muted: #6b6e78;
+  --border: #e3e0d8;
+  --border-strong: #cfcbc0;
+  --accent: #d9481f;
+  --accent-ink: #ffffff;
+  --accent-soft: #fbe7df;
+  --ring: #d9481f;
+  --success: #23855a;
+  --success-soft: #dff2e8;
+  --warning: #b7791f;
+  --warning-soft: #fbf0d9;
+  --danger: #c93a3a;
+  --danger-soft: #fbe3e3;
+  --info: #2f62c9;
+  --info-soft: #e1eafb;
+  --overlay: rgb(21 23 31 / 0.45);
+  --shadow: 0 1px 2px rgb(21 23 31 / 0.06), 0 8px 24px -12px rgb(21 23 31 / 0.18);
+
+  --brand-primary: #15171f;
+  --brand-primary-ink: #ffffff;
+  --brand-accent: #d9481f;
+  --brand-accent-text: #d9481f;
+  --brand-heading-font: 'Fraunces Variable', Georgia, serif;
+  --brand-body-font: 'Inter Variable', system-ui, sans-serif;
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #111217;
+  --surface: #191b22;
+  --surface-2: #22252e;
+  --ink: #f1efe9;
+  --ink-2: #cfccc4;
+  --muted: #9a9ca5;
+  --border: #2c2f39;
+  --border-strong: #3c404c;
+  --accent: #f26a43;
+  --accent-ink: #15171f;
+  --accent-soft: #3a2119;
+  --ring: #f26a43;
+  --success: #4cc38a;
+  --success-soft: #16302a;
+  --warning: #e0a742;
+  --warning-soft: #33290f;
+  --danger: #f07070;
+  --danger-soft: #3a1c1c;
+  --info: #7aa2f7;
+  --info-soft: #1a2540;
+  --overlay: rgb(0 0 0 / 0.6);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-brand-heading: var(--brand-heading-font);
+  --font-brand-body: var(--brand-body-font);
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-overlay: var(--overlay);
+  --color-brand: var(--brand-primary);
+  --color-brand-ink: var(--brand-primary-ink);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-text: var(--brand-accent-text);
+
+  --shadow-card: var(--shadow);
+  --radius-xl: 14px;
+}
+
+/* Lesbare Akzentfarbe für Text: helle Akzente (z. B. Gelb) weichen auf Primärfarbe aus */
+.brand-scope {
+  --brand-accent-text: var(--brand-accent-text-light);
+}
+.dark .brand-scope {
+  --brand-accent-text: var(--brand-accent-text-dark);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--accent-soft);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* Rich-Text (TipTap-HTML) in Guidelines */
+.prose-brand {
+  font-family: var(--brand-body-font);
+  color: var(--ink-2);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+.prose-brand > * + * {
+  margin-top: 0.85em;
+}
+.prose-brand h2,
+.prose-brand h3,
+.prose-brand h4 {
+  font-family: var(--brand-heading-font);
+  color: var(--ink);
+  line-height: 1.25;
+  margin-top: 1.4em;
+}
+.prose-brand h2 {
+  font-size: 1.6rem;
+}
+.prose-brand h3 {
+  font-size: 1.25rem;
+}
+.prose-brand h4 {
+  font-size: 1.05rem;
+}
+.prose-brand strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+.prose-brand a {
+  color: var(--brand-accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-brand ul {
+  list-style: disc;
+  padding-left: 1.4em;
+}
+.prose-brand ol {
+  list-style: decimal;
+  padding-left: 1.4em;
+}
+.prose-brand li + li {
+  margin-top: 0.3em;
+}
+.prose-brand blockquote {
+  border-left: 3px solid var(--brand-accent);
+  padding-left: 1em;
+  color: var(--ink);
+  font-style: italic;
+}
+.prose-brand code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--surface-2);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+.prose-brand hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+.prose-brand p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--muted);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.prose-brand .ProseMirror {
+  outline: none;
+  min-height: 1.7em;
+}
+
+.checker {
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #e8e6e0 25%, transparent 25%), linear-gradient(-45deg, #e8e6e0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e8e6e0 75%), linear-gradient(-45deg, transparent 75%, #e8e6e0 75%);
+  background-size: 16px 16px;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0;
+}
+
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+  body {
+    background: #fff;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-break {
+    break-before: page;
+  }
+  .avoid-break {
+    break-inside: avoid;
+  }
+}
