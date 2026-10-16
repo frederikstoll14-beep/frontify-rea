@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/api/auth'
 import { AppShell } from '@/components/layout/app-shell'
+import { useProductTour } from '@/features/onboarding/product-tour'
 import { Button } from '@/components/ui/button'
 import { useConfirm } from '@/components/ui/confirm'
 import { Field, Input } from '@/components/ui/input'
@@ -19,6 +20,7 @@ export function AccountPage() {
   const [busy, setBusy] = useState<'name' | 'password' | 'delete' | null>(null)
   const confirm = useConfirm()
   const navigate = useNavigate()
+  const { openTour } = useProductTour()
 
   useEffect(() => setName(profile?.full_name ?? ''), [profile?.full_name])
 
@@ -80,6 +82,16 @@ export function AccountPage() {
             }}
           >
             Passwort ändern
+          </Button>
+        </Card>
+        <Card className="space-y-3 p-5">
+          <h2 className="font-semibold text-ink">Produkttour</h2>
+          <p className="text-sm text-muted">
+            Ein kurzer Rundgang durch Workspaces, Marken, Markenhandbuch, Markenbasis, Bibliotheken und das
+            Teilen. Du kannst ihn jederzeit wiederholen.
+          </p>
+          <Button variant="outline" onClick={openTour}>
+            Tour starten
           </Button>
         </Card>
         <Card className="space-y-3 border-danger/40 p-5">

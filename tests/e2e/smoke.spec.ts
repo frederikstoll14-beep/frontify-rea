@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { createWorkspaceAndBrand, signUp, uniqueEmail } from './helpers'
+import { createWorkspaceAndBrand, dismissTour, signUp, uniqueEmail } from './helpers'
 
 test('Dozentin legt Kurs und Marke an, Studentin tritt per Link bei, Gäste sehen das Portal', async ({
   browser,
@@ -8,6 +8,17 @@ test('Dozentin legt Kurs und Marke an, Studentin tritt per Link bei, Gäste sehe
   const lecturer = await browser.newPage()
   await signUp(lecturer, 'Prof. Lea Beispiel', uniqueEmail('dozentin'))
   await expect(lecturer.getByRole('heading', { name: /Hallo, Lea/ })).toBeVisible()
+
+  // Produkttour lässt sich jederzeit über das Konto-Menü erneut öffnen
+  await lecturer.getByRole('button', { name: 'Konto-Menü' }).click()
+  await lecturer.getByRole('menuitem', { name: 'Produkttour' }).click()
+  const tour = lecturer.getByRole('dialog', { name: /Willkommen bei/ })
+  await expect(tour).toBeVisible()
+  await tour.getByRole('button', { name: 'Weiter' }).click()
+  await expect(lecturer.getByRole('dialog', { name: 'Workspaces' })).toBeVisible()
+  await lecturer.keyboard.press('Escape')
+  await expect(lecturer.getByRole('dialog')).toHaveCount(0)
+
   const brandUrl = await createWorkspaceAndBrand(lecturer, 'Brand Identity WS 26/27', 'SV Teststadt 1904')
   const brandPath = new URL(brandUrl).pathname
 
@@ -60,6 +71,7 @@ test('Dozentin legt Kurs und Marke an, Studentin tritt per Link bei, Gäste sehe
   await student.getByRole('button', { name: 'Konto erstellen' }).click()
   await expect(student).toHaveURL(/\/w\//, { timeout: 15_000 })
   await expect(student.getByText('SV Teststadt 1904')).toBeVisible()
+  await dismissTour(student)
 
   // Als Workspace-Mitglied: ansehen und kommentieren, aber nicht bearbeiten
   await student.goto(`${brandPath}/g/markenhandbuch`)

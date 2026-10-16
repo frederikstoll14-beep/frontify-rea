@@ -1,9 +1,10 @@
-import { LayoutGrid, LogIn, LogOut, Moon, Sun, UserRound } from 'lucide-react'
+import { LayoutGrid, LogIn, LogOut, Moon, Sparkles, Sun, UserRound } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { displayName, useAuth } from '@/api/auth'
 import { Button } from '@/components/ui/button'
 import { MenuContent, MenuItem, MenuLabel, MenuRoot, MenuSeparator, MenuTrigger } from '@/components/ui/menu'
 import { Avatar } from '@/components/ui/misc'
+import { useProductTour } from '@/features/onboarding/product-tour'
 import { supabase } from '@/lib/supabase'
 import { useTheme } from './theme'
 
@@ -12,6 +13,7 @@ export function UserMenu() {
   const navigate = useNavigate()
   const location = useLocation()
   const { theme, toggle } = useTheme()
+  const { openTour } = useProductTour()
 
   if (!user) {
     return (
@@ -41,6 +43,9 @@ export function UserMenu() {
         </MenuItem>
         <MenuItem icon={<UserRound />} onSelect={() => navigate('/konto')}>
           Konto
+        </MenuItem>
+        <MenuItem icon={<Sparkles />} onSelect={openTour}>
+          Produkttour
         </MenuItem>
         <MenuItem icon={theme === 'dark' ? <Sun /> : <Moon />} onSelect={toggle}>
           {theme === 'dark' ? 'Helles Design' : 'Dunkles Design'}
