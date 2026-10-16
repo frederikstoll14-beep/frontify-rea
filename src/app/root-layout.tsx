@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
+import { TourProvider } from '@/features/onboarding/product-tour'
 import { APP_TITLE } from '@/lib/app'
 
 export function RootLayout() {
@@ -9,5 +10,9 @@ export function RootLayout() {
       document.title = APP_TITLE
     if (!location.hash) window.scrollTo(0, 0)
   }, [location.pathname, location.hash])
-  return <Outlet />
+  return (
+    <TourProvider>
+      <Outlet />
+    </TourProvider>
+  )
 }

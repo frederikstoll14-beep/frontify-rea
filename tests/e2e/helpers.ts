@@ -10,6 +10,15 @@ export async function signUp(page: Page, name: string, email: string, redirect =
   await page.getByLabel('E-Mail').fill(email)
   await page.getByLabel('Passwort').fill('test-passwort-123')
   await page.getByRole('button', { name: 'Konto erstellen' }).click()
+  await dismissTour(page)
+}
+
+/** Die Produkttour öffnet sich beim ersten Login und wird hier übersprungen. */
+export async function dismissTour(page: Page) {
+  const tour = page.getByRole('dialog', { name: /Willkommen bei/ })
+  await expect(tour).toBeVisible({ timeout: 15_000 })
+  await tour.getByRole('button', { name: 'Überspringen' }).click()
+  await expect(tour).toHaveCount(0)
 }
 
 export async function createWorkspaceAndBrand(
