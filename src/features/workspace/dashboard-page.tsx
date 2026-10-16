@@ -1,4 +1,4 @@
-import { ArrowRight, GraduationCap, Plus, Sparkles, Users } from 'lucide-react'
+import { ArrowRight, LayoutGrid, Plus, Sparkles, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
@@ -49,7 +49,7 @@ export function CreateWorkspaceDialog({
       open={open}
       onOpenChange={onOpenChange}
       title="Neuer Workspace"
-      description="Ein Workspace bündelt mehrere Marken und ihre Mitglieder – z. B. einen Kurs, eine Agentur oder einen Verein mit Abteilungen."
+      description="Ein Workspace bündelt mehrere Marken und ihre Mitglieder – z. B. ein Team, eine Agentur, einen Verein oder ein Projekt."
       footer={
         <>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
@@ -73,7 +73,7 @@ export function CreateWorkspaceDialog({
             autoFocus
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="z. B. Brand Identity · WS 2026/27"
+            placeholder="z. B. Marketing-Team oder Agentur Nordlicht"
             maxLength={120}
           />
         </Field>
@@ -116,11 +116,11 @@ export function DashboardPage() {
         <>
           <div className="mt-10 grid gap-4 md:grid-cols-2">
             <Card className="p-6">
-              <GraduationCap className="mb-4 size-8 text-accent" />
+              <LayoutGrid className="mb-4 size-8 text-accent" />
               <h2 className="text-lg font-semibold text-ink">Workspace anlegen</h2>
               <p className="mt-1 mb-5 text-sm text-muted">
-                Für Dozierende oder Teams: Lege einen Workspace an, z. B. für deinen Kurs. Darin entstehen die
-                Marken.
+                Für dein Team, deine Agentur, deinen Verein oder ein Projekt. Im Workspace legt ihr eure
+                Marken an und arbeitet gemeinsam daran.
               </p>
               <Button onClick={() => setCreateOpen(true)}>
                 <Plus /> Workspace anlegen
