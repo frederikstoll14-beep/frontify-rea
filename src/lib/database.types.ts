@@ -455,6 +455,18 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"mcp_grants": {
+                  Row: {
+                    "brand_ids": string[],"client_id": string,"client_name": string,"created_at": string,"last_used_at": string | null,"read_only": boolean,"updated_at": string,"user_id": string,"workspace_ids": string[]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "brand_ids"?: string[],"client_id": string,"client_name"?: string,"created_at"?: string,"last_used_at"?: string | null,"read_only"?: boolean,"updated_at"?: string,"user_id": string,"workspace_ids"?: string[]
+                  }
+                  Update: {
+                    "brand_ids"?: string[],"client_id"?: string,"client_name"?: string,"created_at"?: string,"last_used_at"?: string | null,"read_only"?: boolean,"updated_at"?: string,"user_id"?: string,"workspace_ids"?: string[]
+                  }
+                  Relationships: []
                 },"libraries": {
                   Row: {
                     "brand_id": string,"created_at": string,"description": string,"id": string,"kind": Database["public"]['Enums']["library_kind"],"name": string,"slug": string,"sort": number
@@ -675,6 +687,31 @@ isOneToOne: false
 "leave_workspace":
 { Args: { "p_workspace": string }; Returns: undefined
                            },
+"mcp_allows_brand":
+{ Args: { "p_brand": string }; Returns: boolean
+                           },
+"mcp_allows_workspace":
+{ Args: { "p_workspace": string }; Returns: boolean
+                           },
+"mcp_read_only":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"mcp_scope":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"oauth_client_id":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"save_mcp_grant":
+{ Args: { "p_brands": string[],"p_client_id": string,"p_client_name": string,"p_read_only"?: boolean,"p_workspaces": string[] }; Returns: {
+              "brand_ids": string[],"client_id": string,"client_name": string,"created_at": string,"last_used_at": string | null,"read_only": boolean,"updated_at": string,"user_id": string,"workspace_ids": string[]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "mcp_grants"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "search_brand":
 { Args: { "p_brand": string,"p_query": string }; Returns: {
               "guideline_slug": string,"hex": string,"id": string,"kind": string,"library_slug": string,"page_slug": string,"snippet": string,"thumb_path": string,"title": string

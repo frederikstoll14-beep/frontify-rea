@@ -9,6 +9,7 @@ describe('Produkttour', () => {
     expect(isTourRoute('/login')).toBe(false)
     expect(isTourRoute('/einladung/abc')).toBe(false)
     expect(isTourRoute('/passwort-neu')).toBe(false)
+    expect(isTourRoute('/oauth/consent')).toBe(false)
     expect(isTourRoute('/b/marke/drucken/handbuch')).toBe(false)
   })
 

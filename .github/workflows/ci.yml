@@ -27,6 +27,10 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm test
+      - name: MCP-Bündel (api/mcp.js) ist aktuell
+        run: |
+          npm run build:mcp
+          git diff --exit-code -- api/mcp.js || (echo "api/mcp.js ist veraltet: bitte 'npm run build:mcp' ausführen und committen." && exit 1)
       - run: npm run build
         env:
           VITE_SUPABASE_URL: https://example.supabase.co
@@ -59,6 +63,8 @@ jobs:
           echo "SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
       - name: Rechte-Tests (RLS, Storage, Einladungen)
         run: npm run test:db
+      - name: MCP-Konnektor (OAuth, alle Tools, Rechte)
+        run: npm run test:mcp
       - name: Playwright-Browser installieren
         run: npx playwright install --with-deps chromium
       - name: End-to-End-Tests

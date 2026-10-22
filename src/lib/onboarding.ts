@@ -5,12 +5,13 @@
 export const TOUR_VERSION = 1
 export const TOUR_META_KEY = 'tour_seen_version'
 
-/** Seiten, auf denen die Tour nicht von selbst aufgeht (Anmeldung, Einladung, Druckansicht). */
+/** Seiten, auf denen die Tour nicht von selbst aufgeht (Anmeldung, Einladung, App-Zustimmung, Druckansicht). */
 const QUIET_ROUTES = [
   /^\/login/,
   /^\/registrieren/,
   /^\/passwort-/,
   /^\/einladung\//,
+  /^\/oauth\//,
   /^\/b\/[^/]+\/drucken\//,
 ]
 

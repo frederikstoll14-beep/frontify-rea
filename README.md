@@ -39,6 +39,10 @@ Das Portal ist für beliebig viele Personen zugänglich, mit Rollen und Rechten.
   - Rollen (Admin, Bearbeiten, Ansehen).
   - Einladungen per E-Mail oder Gruppenlink.
   - Öffentlicher Freigabelink mit Ablaufdatum.
+- **KI-Assistenten (MCP-Konnektor)**
+  - Claude arbeitet direkt in Brandbench: Marken und Workspaces anlegen, Handbuch schreiben, Farben und Schriften pflegen, Dateien hoch- und herunterladen, Mitglieder einladen.
+  - Du wählst beim Verbinden, welche Workspaces und Marken die App sehen darf (Mehrfachauswahl, optional „Nur lesen“). Die Datenbank erzwingt die Auswahl.
+  - Anleitung: [docs/MCP.md](docs/MCP.md)
 - **Export**
   - Ganze Marke als JSON, alle Dateien als ZIP.
   - Handbuch als PDF über die Druckansicht.
