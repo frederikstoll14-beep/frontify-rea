@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/misc'
 import { ForgotPasswordPage, LoginPage, RequireAuth, ResetPasswordPage } from '@/features/auth/auth-pages'
 import { BrandLayout } from '@/features/brand/brand-layout'
+import { OAuthConsentPage } from '@/features/connections/oauth-consent-page'
 import { PortalHome } from '@/features/brand/portal-home'
 import { GuidelineIndex, GuidelineLayout } from '@/features/guidelines/guideline-layout'
 import { AccountPage } from '@/features/workspace/account-page'
@@ -51,6 +52,7 @@ export const router = createBrowserRouter([
           { path: '/', element: <DashboardPage /> },
           { path: '/w/:workspaceSlug', element: <WorkspacePage /> },
           { path: '/konto', element: <AccountPage /> },
+          { path: '/oauth/consent', element: <OAuthConsentPage /> },
         ],
       },
       {

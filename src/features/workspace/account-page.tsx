@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/api/auth'
 import { AppShell } from '@/components/layout/app-shell'
+import { ConnectedAppsCard } from '@/features/connections/connected-apps'
 import { useProductTour } from '@/features/onboarding/product-tour'
 import { Button } from '@/components/ui/button'
 import { useConfirm } from '@/components/ui/confirm'
@@ -84,6 +85,7 @@ export function AccountPage() {
             Passwort ändern
           </Button>
         </Card>
+        <ConnectedAppsCard />
         <Card className="space-y-3 p-5">
           <h2 className="font-semibold text-ink">Produkttour</h2>
           <p className="text-sm text-muted">
