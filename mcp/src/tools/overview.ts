@@ -121,25 +121,43 @@ export const overviewTools = [
     title: 'Marke im Überblick',
     description:
       'Zeigt eine Marke komplett im Überblick: Einstellungen, Theme, Startseite, Handbücher mit Seitenzahl, Bibliotheken mit Dateizahl, Farbpaletten, Schriften, Textstile. Gut als Einstieg, bevor man etwas ändert.',
-    input: { brand: z.string().optional().describe('Marke (Name, Kurz-URL oder ID); optional, wenn nur eine freigegeben ist') },
+    input: {
+      brand: z
+        .string()
+        .optional()
+        .describe('Marke (Name, Kurz-URL oder ID); optional, wenn nur eine freigegeben ist'),
+    },
     kind: 'read',
     async run({ brand: ref }, ctx) {
       const scope = await ctx.brand(ref)
       const [brandRow, libraries, guidelines, palettes, fonts, styles] = await Promise.all([
         ctx.sb.from('brands').select('*').eq('id', scope.id).single(),
-        ctx.sb.from('libraries').select('id, name, slug, kind, description, assets(count)').eq('brand_id', scope.id).order('sort'),
+        ctx.sb
+          .from('libraries')
+          .select('id, name, slug, kind, description, assets(count)')
+          .eq('brand_id', scope.id)
+          .order('sort'),
         ctx.sb
           .from('guidelines')
           .select('id, title, slug, description, is_published, guideline_pages(count)')
           .eq('brand_id', scope.id)
           .order('sort'),
-        ctx.sb.from('color_palettes').select('id, name, colors(count)').eq('brand_id', scope.id).order('sort'),
-        ctx.sb.from('fonts').select('id, family, source, role, weights').eq('brand_id', scope.id).order('sort'),
+        ctx.sb
+          .from('color_palettes')
+          .select('id, name, colors(count)')
+          .eq('brand_id', scope.id)
+          .order('sort'),
+        ctx.sb
+          .from('fonts')
+          .select('id, family, source, role, weights')
+          .eq('brand_id', scope.id)
+          .order('sort'),
         ctx.sb.from('text_styles').select('id, name, token').eq('brand_id', scope.id).order('sort'),
       ])
       if (brandRow.error) throw brandRow.error
       const b = brandRow.data
-      const count = (value: unknown): number => (Array.isArray(value) ? ((value[0] as { count?: number })?.count ?? 0) : 0)
+      const count = (value: unknown): number =>
+        Array.isArray(value) ? ((value[0] as { count?: number })?.count ?? 0) : 0
       return {
         summary: `${b.name} (${scope.workspace_name}) · deine Rolle: ${scope.role}`,
         data: {
@@ -197,11 +215,7 @@ export const overviewTools = [
     async run({ brand: ref, query }, ctx) {
       const brand = await ctx.brand(ref)
       const hits = rows(await ctx.sb.rpc('search_brand', { p_brand: brand.id, p_query: query.trim() }))
-      const thumbs = await signedUrls(
-        ctx,
-        hits.map((h) => h.thumb_path).filter(Boolean),
-        900,
-      )
+      const thumbs = await signedUrls(ctx, hits.map((h) => h.thumb_path).filter(Boolean), 900)
       return {
         summary: `${hits.length} Treffer für „${query}“ in ${brand.name}.`,
         data: hits.map((h) => ({

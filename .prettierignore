@@ -4,3 +4,4 @@ src/lib/database.types.ts
 supabase
 docs
 package-lock.json
+api/mcp.js

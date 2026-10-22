@@ -6,7 +6,14 @@ import { ORG_TYPES, type BrandTemplateData } from '@/lib/templates/types'
 import { slugify } from '@/lib/utils'
 import { affected, defined, requireChange, row, rows } from '../db'
 import { ToolError } from '../errors'
-import { assertBrandPath, optionalFileSourceShape, resolveFile, storeFile, discardStored, signedUrl } from '../files'
+import {
+  assertBrandPath,
+  optionalFileSourceShape,
+  resolveFile,
+  storeFile,
+  discardStored,
+  signedUrl,
+} from '../files'
 import { publishExport, removeBrandFiles } from '../storage-ops'
 import { defineTool } from '../tool'
 
@@ -27,7 +34,10 @@ const themeShape = z
 const homeShape = z
   .object({
     welcome: z.string().optional().describe('Begrüßungstext der Startseite'),
-    quickLinks: z.array(z.object({ label: z.string(), url: z.string() })).max(12).optional(),
+    quickLinks: z
+      .array(z.object({ label: z.string(), url: z.string() }))
+      .max(12)
+      .optional(),
     showColors: z.boolean().optional(),
     showLibraries: z.boolean().optional(),
   })
@@ -38,14 +48,17 @@ const HEX = /^#[0-9a-f]{6}$/i
 function checkTheme(theme: z.infer<typeof themeShape> | undefined): void {
   for (const key of ['primary', 'accent'] as const) {
     const value = theme?.[key]
-    if (value !== undefined && !HEX.test(value)) throw new ToolError(`theme.${key} muss ein HEX-Wert wie #0B3C7A sein.`)
+    if (value !== undefined && !HEX.test(value))
+      throw new ToolError(`theme.${key} muss ein HEX-Wert wie #0B3C7A sein.`)
   }
 }
 
 function checkQuickLinks(home: z.infer<typeof homeShape> | undefined): void {
   for (const link of home?.quickLinks ?? []) {
     if (!/^(https?:\/\/|mailto:|\/)/i.test(link.url)) {
-      throw new ToolError(`Schnellzugriff „${link.label}“: Die Adresse muss mit http(s)://, mailto: oder / beginnen.`)
+      throw new ToolError(
+        `Schnellzugriff „${link.label}“: Die Adresse muss mit http(s)://, mailto: oder / beginnen.`,
+      )
     }
   }
 }
@@ -85,7 +98,10 @@ export const brandTools = [
     description:
       'Legt eine neue Marke in einem freigegebenen Workspace an, optional mit Vorlage (siehe list_templates). Du wirst Admin der Marke. Ohne Vorlage entsteht ein leeres Handbuch mit Standard-Bibliotheken.',
     input: {
-      workspace: z.string().optional().describe('Workspace (Name, Kurz-URL oder ID); optional, wenn nur einer freigegeben ist'),
+      workspace: z
+        .string()
+        .optional()
+        .describe('Workspace (Name, Kurz-URL oder ID); optional, wenn nur einer freigegeben ist'),
       name: z.string().min(1).max(120),
       org_type: z.enum(ORG_KEYS).optional().describe('Art der Organisation (Standard: organisation)'),
       tagline: z.string().max(200).optional().describe('Claim / Tagline'),
@@ -97,7 +113,10 @@ export const brandTools = [
       const ws = await ctx.workspace(ref)
       const chosen = getTemplate(template ?? 'leer')
       if (!chosen) {
-        throw new ToolError(`Vorlage „${template}“ gibt es nicht.`, `Möglich: ${TEMPLATES.map((t) => t.id).join(', ')}.`)
+        throw new ToolError(
+          `Vorlage „${template}“ gibt es nicht.`,
+          `Möglich: ${TEMPLATES.map((t) => t.id).join(', ')}.`,
+        )
       }
       const brand = row(
         await ctx.sb.rpc('create_brand', {
@@ -111,7 +130,13 @@ export const brandTools = [
       ctx.invalidateScope()
       return {
         summary: `Marke „${brand.name}“ in „${ws.name}“ angelegt (Vorlage: ${chosen.name}).`,
-        data: { id: brand.id, name: brand.name, slug: brand.slug, workspace: ws.name, url: ctx.link(`/b/${brand.slug}`) },
+        data: {
+          id: brand.id,
+          name: brand.name,
+          slug: brand.slug,
+          workspace: ws.name,
+          url: ctx.link(`/b/${brand.slug}`),
+        },
       }
     },
   }),
@@ -124,7 +149,12 @@ export const brandTools = [
     input: {
       brand: z.string().optional(),
       name: z.string().min(1).max(120).optional(),
-      slug: z.string().min(1).max(80).optional().describe('Kurz-URL; wird zu Kleinbuchstaben/Bindestrichen normalisiert'),
+      slug: z
+        .string()
+        .min(1)
+        .max(80)
+        .optional()
+        .describe('Kurz-URL; wird zu Kleinbuchstaben/Bindestrichen normalisiert'),
       tagline: z.string().max(200).optional(),
       description: z.string().max(4000).optional(),
       org_type: z.enum(ORG_KEYS).optional(),
@@ -156,11 +186,18 @@ export const brandTools = [
       }
       requireChange(patch)
       const [updated] = affected(
-        await ctx.sb.from('brands').update(patch as never).eq('id', brand.id).select('id, name, slug, tagline, org_type, visibility, theme, home'),
+        await ctx.sb
+          .from('brands')
+          .update(patch as never)
+          .eq('id', brand.id)
+          .select('id, name, slug, tagline, org_type, visibility, theme, home'),
         'Marke',
       )
       ctx.invalidateScope()
-      return { summary: `Marke „${updated.name}“ gespeichert.`, data: { ...updated, url: ctx.link(`/b/${updated.slug}`) } }
+      return {
+        summary: `Marke „${updated.name}“ gespeichert.`,
+        data: { ...updated, url: ctx.link(`/b/${updated.slug}`) },
+      }
     },
   }),
 
@@ -172,9 +209,16 @@ export const brandTools = [
     input: {
       brand: z.string().optional(),
       is_public: z.boolean().optional().describe('true = öffentlich, false = nicht öffentlich'),
-      public_until: z.string().nullable().optional().describe('Ablaufdatum (ISO, z. B. 2026-12-31) oder null für unbegrenzt'),
+      public_until: z
+        .string()
+        .nullable()
+        .optional()
+        .describe('Ablaufdatum (ISO, z. B. 2026-12-31) oder null für unbegrenzt'),
       public_downloads: z.boolean().optional().describe('Dürfen öffentliche Besucher Dateien herunterladen?'),
-      confirm_public: z.boolean().optional().describe('Muss true sein, wenn is_public auf true gestellt wird'),
+      confirm_public: z
+        .boolean()
+        .optional()
+        .describe('Muss true sein, wenn is_public auf true gestellt wird'),
     },
     kind: 'write',
     idempotent: true,
@@ -247,7 +291,11 @@ export const brandTools = [
     async run({ brand: ref, template }, ctx) {
       const brand = await ctx.editableBrand(ref)
       const chosen = getTemplate(template)
-      if (!chosen) throw new ToolError(`Vorlage „${template}“ gibt es nicht.`, `Möglich: ${TEMPLATES.map((t) => t.id).join(', ')}.`)
+      if (!chosen)
+        throw new ToolError(
+          `Vorlage „${template}“ gibt es nicht.`,
+          `Möglich: ${TEMPLATES.map((t) => t.id).join(', ')}.`,
+        )
       const { error } = await ctx.sb.rpc('apply_brand_template', {
         p_brand: brand.id,
         p_template: JSON.parse(JSON.stringify({ ...chosen.data, theme: undefined, home: undefined })),
@@ -277,14 +325,33 @@ export const brandTools = [
       const b = row(brandRow)
       const guidelineRows = rows(guidelines)
       const pages = guidelineRows.length
-        ? rows(await ctx.sb.from('guideline_pages').select('*').in('guideline_id', guidelineRows.map((g) => g.id)))
+        ? rows(
+            await ctx.sb
+              .from('guideline_pages')
+              .select('*')
+              .in(
+                'guideline_id',
+                guidelineRows.map((g) => g.id),
+              ),
+          )
         : []
       const blocks = pages.length
-        ? rows(await ctx.sb.from('blocks').select('page_id, type, width, sort, content').in('page_id', pages.map((p) => p.id)))
+        ? rows(
+            await ctx.sb
+              .from('blocks')
+              .select('page_id, type, width, sort, content')
+              .in(
+                'page_id',
+                pages.map((p) => p.id),
+              ),
+          )
         : []
       const file = buildBrandExport({
         brand: { id: b.id, name: b.name, slug: b.slug, theme: asObject(b.theme), home: asObject(b.home) },
-        palettes: rows(palettes).map((p) => ({ ...p, colors: [...p.colors].sort((x, y) => x.sort - y.sort) })),
+        palettes: rows(palettes).map((p) => ({
+          ...p,
+          colors: [...p.colors].sort((x, y) => x.sort - y.sort),
+        })),
         fonts: rows(fonts),
         textStyles: rows(styles).map((s) => ({
           ...s,
@@ -307,7 +374,10 @@ export const brandTools = [
         fonts: rows(fonts).length,
       }
       if (json.length <= 120_000) {
-        return { summary: `Export von „${scope.name}“ (${Math.round(json.length / 1024)} KB).`, data: { file_name: fileName, stats, export: file } }
+        return {
+          summary: `Export von „${scope.name}“ (${Math.round(json.length / 1024)} KB).`,
+          data: { file_name: fileName, stats, export: file },
+        }
       }
       const published = await publishExport(ctx, scope, fileName, Buffer.from(json), 'application/json')
       if (published) {
@@ -331,7 +401,10 @@ export const brandTools = [
     input: {
       brand: z.string().optional().describe('Zielmarke'),
       export: z.record(z.string(), z.unknown()).describe('Das Export-Objekt (format "brandbench-brand")'),
-      include_theme: z.boolean().optional().describe('Theme und Startseite des Exports übernehmen (Standard: nein)'),
+      include_theme: z
+        .boolean()
+        .optional()
+        .describe('Theme und Startseite des Exports übernehmen (Standard: nein)'),
     },
     kind: 'write',
     async run({ brand: ref, export: file, include_theme }, ctx) {
@@ -358,7 +431,10 @@ export const brandTools = [
         }
       }
       const payload = include_theme ? data : { ...data, theme: undefined, home: undefined }
-      const { error } = await ctx.sb.rpc('apply_brand_template', { p_brand: brand.id, p_template: JSON.parse(JSON.stringify(payload)) })
+      const { error } = await ctx.sb.rpc('apply_brand_template', {
+        p_brand: brand.id,
+        p_template: JSON.parse(JSON.stringify(payload)),
+      })
       if (error) throw error
       return { summary: `Export „${parsed.source.name}“ in „${brand.name}“ importiert.` }
     },
@@ -387,17 +463,32 @@ export const brandTools = [
       if (remove) {
         path = null
       } else if (asset_id) {
-        const asset = row(await ctx.sb.from('assets').select('file_path, brand_id').eq('id', asset_id).eq('brand_id', brand.id).single())
+        const asset = row(
+          await ctx.sb
+            .from('assets')
+            .select('file_path, brand_id')
+            .eq('id', asset_id)
+            .eq('brand_id', brand.id)
+            .single(),
+        )
         path = asset.file_path
       } else {
-        if (!args.file_name) throw new ToolError('Bitte asset_id oder eine Datei (file_name plus text/content_base64/url) angeben.')
+        if (!args.file_name)
+          throw new ToolError(
+            'Bitte asset_id oder eine Datei (file_name plus text/content_base64/url) angeben.',
+          )
         const file = await resolveFile(ctx, brand, { ...args, file_name: args.file_name })
-        if (!file.mime.startsWith('image/')) throw new ToolError('Logo und Titelbild müssen Bilder sein (SVG, PNG, JPG, WebP).')
+        if (!file.mime.startsWith('image/'))
+          throw new ToolError('Logo und Titelbild müssen Bilder sein (SVG, PNG, JPG, WebP).')
         stored = await storeFile(ctx, brand, file, 'brand')
         path = stored.path
       }
       if (path) assertBrandPath(path, brand.id)
-      const result = await ctx.sb.from('brands').update({ [column]: path } as never).eq('id', brand.id).select('id')
+      const result = await ctx.sb
+        .from('brands')
+        .update({ [column]: path } as never)
+        .eq('id', brand.id)
+        .select('id')
       if (result.error || (result.data ?? []).length === 0) {
         if (stored) await discardStored(ctx, stored)
         if (result.error) throw result.error
@@ -405,7 +496,9 @@ export const brandTools = [
       }
       const url = path ? await signedUrl(ctx, path) : null
       return {
-        summary: remove ? `${kind === 'logo' ? 'Logo' : 'Titelbild'} von „${brand.name}“ entfernt.` : `${kind === 'logo' ? 'Logo' : 'Titelbild'} von „${brand.name}“ gesetzt.`,
+        summary: remove
+          ? `${kind === 'logo' ? 'Logo' : 'Titelbild'} von „${brand.name}“ entfernt.`
+          : `${kind === 'logo' ? 'Logo' : 'Titelbild'} von „${brand.name}“ gesetzt.`,
         data: { path, preview_url: url },
       }
     },

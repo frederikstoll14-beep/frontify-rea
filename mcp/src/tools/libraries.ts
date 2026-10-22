@@ -9,6 +9,7 @@ import {
   discardStored,
   downloadBytes,
   fileSourceShape,
+  fileSourceShapeShort,
   removePaths,
   resolveFile,
   signedUrl,
@@ -97,7 +98,10 @@ async function loadAssets(ctx: Ctx, ids: string[]): Promise<Array<{ asset: Asset
 
 async function assertDownloadable(brand: ScopeBrand, asset: AssetRow): Promise<void> {
   if (!asset.downloadable) {
-    throw new ToolError(`„${asset.title}“ ist nicht zum Download freigegeben.`, 'Ein Admin kann das in den Dateieinstellungen (update_asset: downloadable) ändern.')
+    throw new ToolError(
+      `„${asset.title}“ ist nicht zum Download freigegeben.`,
+      'Ein Admin kann das in den Dateieinstellungen (update_asset: downloadable) ändern.',
+    )
   }
   void brand
 }
@@ -113,7 +117,11 @@ function mimeResult(bytes: Buffer, mime: string, title: string) {
   return [
     {
       type: 'resource' as const,
-      resource: { uri: `brandbench://file/${encodeURIComponent(title)}`, mimeType: mime, blob: bytes.toString('base64') },
+      resource: {
+        uri: `brandbench://file/${encodeURIComponent(title)}`,
+        mimeType: mime,
+        blob: bytes.toString('base64'),
+      },
     },
   ]
 }
@@ -129,12 +137,19 @@ export const libraryTools = [
   defineTool({
     name: 'list_libraries',
     title: 'Bibliotheken',
-    description: 'Listet die Bibliotheken einer Marke (Logos, Bilder, Dokumente, Icons, Vorlagen, Audio/Video) mit Anzahl der Dateien.',
+    description:
+      'Listet die Bibliotheken einer Marke (Logos, Bilder, Dokumente, Icons, Vorlagen, Audio/Video) mit Anzahl der Dateien.',
     input: { brand: z.string().optional() },
     kind: 'read',
     async run({ brand: ref }, ctx) {
       const brand = await ctx.brand(ref)
-      const data = rows(await ctx.sb.from('libraries').select('id, name, slug, kind, description, assets(count)').eq('brand_id', brand.id).order('sort'))
+      const data = rows(
+        await ctx.sb
+          .from('libraries')
+          .select('id, name, slug, kind, description, assets(count)')
+          .eq('brand_id', brand.id)
+          .order('sort'),
+      )
       return {
         summary: `${data.length} Bibliothek(en) in „${brand.name}“.`,
         data: data.map((l) => ({
@@ -153,7 +168,8 @@ export const libraryTools = [
   defineTool({
     name: 'create_library',
     title: 'Bibliothek anlegen',
-    description: 'Legt eine Bibliothek an. kind: media (Bilder & Medien), logos, icons, documents, templates, audio_video.',
+    description:
+      'Legt eine Bibliothek an. kind: media (Bilder & Medien), logos, icons, documents, templates, audio_video.',
     input: {
       brand: z.string().optional(),
       name: z.string().min(1).max(120),
@@ -171,7 +187,10 @@ export const libraryTools = [
             brand_id: brand.id,
             name: name.trim(),
             kind,
-            slug: uniqueSlug(slugify(name), existing.map((l) => l.slug)),
+            slug: uniqueSlug(
+              slugify(name),
+              existing.map((l) => l.slug),
+            ),
             description: description ?? '',
             sort: await nextSort(ctx, 'libraries', brand.id),
           })
@@ -200,7 +219,10 @@ export const libraryTools = [
       const library = await resolveLibrary(ctx, brand, lRef)
       const patch = defined({ name: name?.trim(), description, kind })
       requireChange(patch)
-      const [updated] = affected(await ctx.sb.from('libraries').update(patch).eq('id', library.id).select('id, name, slug, kind'), 'Bibliothek')
+      const [updated] = affected(
+        await ctx.sb.from('libraries').update(patch).eq('id', library.id).select('id, name, slug, kind'),
+        'Bibliothek',
+      )
       return { summary: `Bibliothek „${updated.name}“ gespeichert.`, data: updated }
     },
   }),
@@ -208,18 +230,33 @@ export const libraryTools = [
   defineTool({
     name: 'delete_library',
     title: 'Bibliothek löschen',
-    description: 'Löscht eine Bibliothek mit allen Dateien und Sammlungen darin. Unwiderruflich. confirm_name = exakter Name der Bibliothek.',
+    description:
+      'Löscht eine Bibliothek mit allen Dateien und Sammlungen darin. Unwiderruflich. confirm_name = exakter Name der Bibliothek.',
     input: { brand: z.string().optional(), library: z.string(), confirm_name: z.string() },
     kind: 'destructive',
     async run({ brand: ref, library: lRef, confirm_name }, ctx) {
       const brand = await ctx.editableBrand(ref)
       const library = await resolveLibrary(ctx, brand, lRef)
-      if (confirm_name.trim() !== library.name) throw new ToolError(`Zur Bestätigung muss confirm_name genau „${library.name}“ lauten.`)
-      const assets = rows(await ctx.sb.from('assets').select('id, file_path, thumb_path').eq('library_id', library.id))
+      if (confirm_name.trim() !== library.name)
+        throw new ToolError(`Zur Bestätigung muss confirm_name genau „${library.name}“ lauten.`)
+      const assets = rows(
+        await ctx.sb.from('assets').select('id, file_path, thumb_path').eq('library_id', library.id),
+      )
       const versions = assets.length
-        ? rows(await ctx.sb.from('asset_versions').select('file_path, thumb_path').in('asset_id', assets.map((a) => a.id)))
+        ? rows(
+            await ctx.sb
+              .from('asset_versions')
+              .select('file_path, thumb_path')
+              .in(
+                'asset_id',
+                assets.map((a) => a.id),
+              ),
+          )
         : []
-      await removePaths(ctx, [...assets.flatMap((a) => [a.file_path, a.thumb_path]), ...versions.flatMap((v) => [v.file_path, v.thumb_path])])
+      await removePaths(ctx, [
+        ...assets.flatMap((a) => [a.file_path, a.thumb_path]),
+        ...versions.flatMap((v) => [v.file_path, v.thumb_path]),
+      ])
       affected(await ctx.sb.from('libraries').delete().eq('id', library.id).select('id'), 'Bibliothek')
       return { summary: `Bibliothek „${library.name}“ mit ${assets.length} Datei(en) gelöscht.` }
     },
@@ -242,7 +279,10 @@ export const libraryTools = [
       offset: z.number().int().min(0).optional(),
     },
     kind: 'read',
-    async run({ brand: ref, library: lRef, collection, query, tag, mime_prefix, thumbnails, limit, offset }, ctx) {
+    async run(
+      { brand: ref, library: lRef, collection, query, tag, mime_prefix, thumbnails, limit, offset },
+      ctx,
+    ) {
       const brand = await ctx.brand(ref)
       const p = page(limit, offset)
       let q = ctx.sb.from('assets').select('*', { count: 'exact' }).eq('brand_id', brand.id)
@@ -252,7 +292,12 @@ export const libraryTools = [
         q = q.eq('library_id', libraryId)
       }
       if (collection) {
-        const cols = rows(await ctx.sb.from('collections').select('id, name, library_id, collection_assets(asset_id)').eq('brand_id', brand.id))
+        const cols = rows(
+          await ctx.sb
+            .from('collections')
+            .select('id, name, library_id, collection_assets(asset_id)')
+            .eq('brand_id', brand.id),
+        )
         const scoped = libraryId ? cols.filter((c) => c.library_id === libraryId) : cols
         const found = matchByRef(scoped, collection, [(c) => c.name], 'Sammlung')
         const ids = found.collection_assets.map((x) => x.asset_id)
@@ -262,12 +307,16 @@ export const libraryTools = [
       if (mime_prefix) q = q.ilike('mime_type', `${mime_prefix.replace(/[%_]/g, '')}%`)
       if (query?.trim()) {
         const term = query.trim().replace(/[%_,()]/g, ' ')
-        q = q.or(`title.ilike.%${term}%,description.ilike.%${term}%,file_name.ilike.%${term}%,tags.cs.{${term.replace(/[{}"]/g, '')}}`)
+        q = q.or(
+          `title.ilike.%${term}%,description.ilike.%${term}%,file_name.ilike.%${term}%,tags.cs.{${term.replace(/[{}"]/g, '')}}`,
+        )
       }
       const { data, error, count } = await q.order('created_at', { ascending: false }).range(p.from, p.to)
       if (error) throw error
       const list = (data ?? []) as AssetRow[]
-      const thumbs = thumbnails ? await signedUrls(ctx, list.map((a) => a.thumb_path ?? a.file_path).filter(Boolean), 1800) : new Map<string, string>()
+      const thumbs = thumbnails
+        ? await signedUrls(ctx, list.map((a) => a.thumb_path ?? a.file_path).filter(Boolean), 1800)
+        : new Map<string, string>()
       return {
         summary: `${list.length} von ${count ?? list.length} Datei(en) in „${brand.name}“${offset ? ` (ab ${offset})` : ''}.`,
         data: list.map((a) => ({
@@ -319,7 +368,10 @@ export const libraryTools = [
       'Lädt eine Datei in eine Bibliothek hoch (mit Vorschaubild für Bilder). Quelle genau eine von: text (SVG/CSS/JSON/Markdown als Klartext), content_base64 (kleine Dateien bis ca. 3 MB), url (öffentliche https-Adresse, bis 50 MB) oder upload_path (nach create_upload_url, für große Dateien). Titel, Beschreibung, Tags, Urheberrecht und Lizenz lassen sich gleich mitgeben.',
     input: {
       brand: z.string().optional(),
-      library: z.string().optional().describe('Zielbibliothek (Name, Kurz-URL oder ID); optional, wenn es nur eine gibt'),
+      library: z
+        .string()
+        .optional()
+        .describe('Zielbibliothek (Name, Kurz-URL oder ID); optional, wenn es nur eine gibt'),
       ...fileSourceShape,
       title: z.string().max(200).optional().describe('Standard: aus dem Dateinamen'),
       description: z.string().max(2000).optional(),
@@ -333,7 +385,8 @@ export const libraryTools = [
     async run(args, ctx) {
       const brand = await ctx.editableBrand(args.brand)
       const library = await resolveLibrary(ctx, brand, args.library)
-      if (args.expires_at && Number.isNaN(Date.parse(args.expires_at))) throw new ToolError('expires_at muss ein Datum wie 2027-12-31 sein.')
+      if (args.expires_at && Number.isNaN(Date.parse(args.expires_at)))
+        throw new ToolError('expires_at muss ein Datum wie 2027-12-31 sein.')
       const file = await resolveFile(ctx, brand, args)
       const stored = await storeFile(ctx, brand, file, 'assets')
       try {
@@ -364,7 +417,10 @@ export const libraryTools = [
         )
         return {
           summary: `„${created.title}“ in „${library.name}“ hochgeladen (${(stored.size / 1024).toFixed(0)} KB).`,
-          data: { ...assetSummary(created as AssetRow), web_url: ctx.link(`/b/${brand.slug}/bibliothek/${library.slug}`) },
+          data: {
+            ...assetSummary(created as AssetRow),
+            web_url: ctx.link(`/b/${brand.slug}/bibliothek/${library.slug}`),
+          },
         }
       } catch (error) {
         await discardStored(ctx, stored)
@@ -389,7 +445,10 @@ export const libraryTools = [
       const name = safeFileName(file_name)
       const path = buildStoragePath(brand.id, 'assets', name)
       const { data, error } = await ctx.storage.createSignedUploadUrl(path)
-      if (error || !data) throw new ToolError(`Upload-Adresse konnte nicht erzeugt werden: ${error?.message ?? 'unbekannter Fehler'}`)
+      if (error || !data)
+        throw new ToolError(
+          `Upload-Adresse konnte nicht erzeugt werden: ${error?.message ?? 'unbekannter Fehler'}`,
+        )
       return {
         summary: `Upload-Adresse für „${name}“ bereit (2 Stunden gültig, einmalig).`,
         data: {
@@ -427,11 +486,14 @@ export const libraryTools = [
     async run(a, ctx) {
       const { asset, brand } = await loadAsset(ctx, a.asset_id)
       await ctx.requireEdit(brand)
-      if (a.expires_at && Number.isNaN(Date.parse(a.expires_at))) throw new ToolError('expires_at muss ein Datum wie 2027-12-31 sein.')
+      if (a.expires_at && Number.isNaN(Date.parse(a.expires_at)))
+        throw new ToolError('expires_at muss ein Datum wie 2027-12-31 sein.')
       let tags = a.tags
       if (!tags && (a.add_tags || a.remove_tags)) {
         const remove = new Set((a.remove_tags ?? []).map((t) => t.toLowerCase()))
-        tags = [...new Set([...asset.tags, ...(a.add_tags ?? [])])].filter((t) => !remove.has(t.toLowerCase()))
+        tags = [...new Set([...asset.tags, ...(a.add_tags ?? [])])].filter(
+          (t) => !remove.has(t.toLowerCase()),
+        )
       }
       const patch: Record<string, unknown> = defined({
         title: a.title?.trim(),
@@ -444,7 +506,14 @@ export const libraryTools = [
       })
       if (a.library) patch.library_id = (await resolveLibrary(ctx, brand, a.library)).id
       requireChange(patch)
-      const [updated] = affected(await ctx.sb.from('assets').update(patch as never).eq('id', asset.id).select('*'), 'Datei')
+      const [updated] = affected(
+        await ctx.sb
+          .from('assets')
+          .update(patch as never)
+          .eq('id', asset.id)
+          .select('*'),
+        'Datei',
+      )
       return { summary: `„${updated.title}“ gespeichert.`, data: assetSummary(updated as AssetRow) }
     },
   }),
@@ -452,12 +521,16 @@ export const libraryTools = [
   defineTool({
     name: 'bulk_update_assets',
     title: 'Mehrere Dateien gleichzeitig ändern',
-    description: 'Setzt für mehrere Dateien Tags (ergänzen/entfernen), verschiebt sie in eine Bibliothek und/oder ändert die Download-Freigabe. Bis zu 100 Dateien.',
+    description:
+      'Setzt für mehrere Dateien Tags (ergänzen/entfernen), verschiebt sie in eine Bibliothek und/oder ändert die Download-Freigabe. Bis zu 100 Dateien.',
     input: {
       asset_ids: z.array(z.string()).min(1).max(100),
       add_tags: tagList.optional(),
       remove_tags: tagList.optional(),
-      library: z.string().optional().describe('Zielbibliothek (alle Dateien müssen zur selben Marke gehören)'),
+      library: z
+        .string()
+        .optional()
+        .describe('Zielbibliothek (alle Dateien müssen zur selben Marke gehören)'),
       downloadable: z.boolean().optional(),
     },
     kind: 'write',
@@ -465,18 +538,29 @@ export const libraryTools = [
     async run({ asset_ids, add_tags, remove_tags, library, downloadable }, ctx) {
       const loaded = await loadAssets(ctx, asset_ids)
       const brands = new Set(loaded.map((l) => l.brand.id))
-      if (library && brands.size > 1) throw new ToolError('Zum Verschieben müssen alle Dateien zur selben Marke gehören.')
-      for (const brand of new Map(loaded.map((l) => [l.brand.id, l.brand])).values()) await ctx.requireEdit(brand)
+      if (library && brands.size > 1)
+        throw new ToolError('Zum Verschieben müssen alle Dateien zur selben Marke gehören.')
+      for (const brand of new Map(loaded.map((l) => [l.brand.id, l.brand])).values())
+        await ctx.requireEdit(brand)
       const libraryId = library ? (await resolveLibrary(ctx, loaded[0].brand, library)).id : undefined
       const remove = new Set((remove_tags ?? []).map((t) => t.toLowerCase()))
       let done = 0
       for (const { asset } of loaded) {
         const patch: Record<string, unknown> = defined({ downloadable, library_id: libraryId })
         if (add_tags || remove_tags) {
-          patch.tags = [...new Set([...asset.tags, ...(add_tags ?? [])])].filter((t) => !remove.has(t.toLowerCase()))
+          patch.tags = [...new Set([...asset.tags, ...(add_tags ?? [])])].filter(
+            (t) => !remove.has(t.toLowerCase()),
+          )
         }
         requireChange(patch)
-        affected(await ctx.sb.from('assets').update(patch as never).eq('id', asset.id).select('id'), 'Datei')
+        affected(
+          await ctx.sb
+            .from('assets')
+            .update(patch as never)
+            .eq('id', asset.id)
+            .select('id'),
+          'Datei',
+        )
         done++
       }
       return { summary: `${done} Datei(en) geändert.` }
@@ -491,7 +575,7 @@ export const libraryTools = [
     input: {
       asset_id: z.string(),
       note: z.string().max(500).optional().describe('Was hat sich geändert?'),
-      ...fileSourceShape,
+      ...fileSourceShapeShort,
     },
     kind: 'write',
     async run(args, ctx) {
@@ -537,7 +621,10 @@ export const libraryTools = [
             .select('*'),
           'Datei',
         )
-        return { summary: `„${updated.title}“ ist jetzt Version ${updated.version}.`, data: assetSummary(updated as AssetRow) }
+        return {
+          summary: `„${updated.title}“ ist jetzt Version ${updated.version}.`,
+          data: assetSummary(updated as AssetRow),
+        }
       } catch (error) {
         await discardStored(ctx, stored)
         throw error
@@ -554,9 +641,16 @@ export const libraryTools = [
     async run({ asset_id }, ctx) {
       const { asset } = await loadAsset(ctx, asset_id)
       const data = rows(
-        await ctx.sb.from('asset_versions').select('*, author:profiles(full_name, email)').eq('asset_id', asset.id).order('version', { ascending: false }),
+        await ctx.sb
+          .from('asset_versions')
+          .select('*, author:profiles(full_name, email)')
+          .eq('asset_id', asset.id)
+          .order('version', { ascending: false }),
       )
-      const urls = await signedUrls(ctx, data.map((v) => v.file_path))
+      const urls = await signedUrls(
+        ctx,
+        data.map((v) => v.file_path),
+      )
       return {
         summary: `Aktuell Version ${asset.version}; ${data.length} frühere Version(en).`,
         data: data.map((v) => ({
@@ -576,13 +670,21 @@ export const libraryTools = [
   defineTool({
     name: 'restore_asset_version',
     title: 'Dateiversion wiederherstellen',
-    description: 'Macht eine frühere Version wieder zur aktuellen Datei (als neue Version; nichts geht verloren).',
+    description:
+      'Macht eine frühere Version wieder zur aktuellen Datei (als neue Version; nichts geht verloren).',
     input: { asset_id: z.string(), version_id: z.string() },
     kind: 'write',
     async run({ asset_id, version_id }, ctx) {
       const { asset, brand } = await loadAsset(ctx, asset_id)
       await ctx.requireEdit(brand)
-      const version = row(await ctx.sb.from('asset_versions').select('*').eq('id', version_id).eq('asset_id', asset.id).single())
+      const version = row(
+        await ctx.sb
+          .from('asset_versions')
+          .select('*')
+          .eq('id', version_id)
+          .eq('asset_id', asset.id)
+          .single(),
+      )
       row(
         await ctx.sb
           .from('asset_versions')
@@ -620,23 +722,33 @@ export const libraryTools = [
           .select('*'),
         'Datei',
       )
-      return { summary: `Version ${version.version} wiederhergestellt – jetzt Version ${updated.version}.`, data: assetSummary(updated as AssetRow) }
+      return {
+        summary: `Version ${version.version} wiederhergestellt – jetzt Version ${updated.version}.`,
+        data: assetSummary(updated as AssetRow),
+      }
     },
   }),
 
   defineTool({
     name: 'delete_assets',
     title: 'Dateien löschen',
-    description: 'Löscht eine oder mehrere Dateien samt Vorschaubildern und früheren Versionen. Unwiderruflich. Verweise in Handbuch-Bausteinen bleiben als leere Bilder zurück.',
+    description:
+      'Löscht eine oder mehrere Dateien samt Vorschaubildern und früheren Versionen. Unwiderruflich. Verweise in Handbuch-Bausteinen bleiben als leere Bilder zurück.',
     input: { asset_ids: z.array(z.string()).min(1).max(100) },
     kind: 'destructive',
     async run({ asset_ids }, ctx) {
       const loaded = await loadAssets(ctx, asset_ids)
-      for (const brand of new Map(loaded.map((l) => [l.brand.id, l.brand])).values()) await ctx.requireEdit(brand)
+      for (const brand of new Map(loaded.map((l) => [l.brand.id, l.brand])).values())
+        await ctx.requireEdit(brand)
       const ids = loaded.map((l) => l.asset.id)
-      const versions = rows(await ctx.sb.from('asset_versions').select('file_path, thumb_path').in('asset_id', ids))
+      const versions = rows(
+        await ctx.sb.from('asset_versions').select('file_path, thumb_path').in('asset_id', ids),
+      )
       const deleted = affected(await ctx.sb.from('assets').delete().in('id', ids).select('id'), 'Datei')
-      await removePaths(ctx, [...loaded.flatMap((l) => [l.asset.file_path, l.asset.thumb_path]), ...versions.flatMap((v) => [v.file_path, v.thumb_path])])
+      await removePaths(ctx, [
+        ...loaded.flatMap((l) => [l.asset.file_path, l.asset.thumb_path]),
+        ...versions.flatMap((v) => [v.file_path, v.thumb_path]),
+      ])
       return { summary: `${deleted.length} Datei(en) gelöscht.` }
     },
   }),
@@ -648,7 +760,10 @@ export const libraryTools = [
       'Liefert eine Datei: immer mit Download-Link (1 Stunde gültig); kleine Bilder/Texte zusätzlich direkt im Gespräch (inline=true, Standard bei kleinen Dateien). Bilder und SVGs lassen sich umwandeln: format (png, jpg, webp), width in px, background (HEX, für JPG/transparent). Der Link ist ein normaler HTTPS-Download.',
     input: {
       asset_id: z.string(),
-      inline: z.boolean().optional().describe('Inhalt direkt mitliefern (Bilder ≤ 1,5 MB, Texte ≤ 200 KB, sonst nur Link)'),
+      inline: z
+        .boolean()
+        .optional()
+        .describe('Inhalt direkt mitliefern (Bilder ≤ 1,5 MB, Texte ≤ 200 KB, sonst nur Link)'),
       format: z.enum(['png', 'jpg', 'webp']).optional().describe('Bild in dieses Format umwandeln'),
       width: z.number().int().min(16).max(8000).optional().describe('Zielbreite in Pixel (nur mit format)'),
       background: z.string().optional().describe('Hintergrundfarbe als HEX beim Umwandeln, z. B. #FFFFFF'),
@@ -658,35 +773,71 @@ export const libraryTools = [
       const { asset, brand } = await loadAsset(ctx, asset_id)
       await assertDownloadable(brand, asset)
       const wantsConversion = Boolean(format)
-      if (wantsConversion && !isImage(asset.mime_type)) throw new ToolError('Nur Bilder und SVGs lassen sich umwandeln.')
+      if (wantsConversion && !isImage(asset.mime_type))
+        throw new ToolError('Nur Bilder und SVGs lassen sich umwandeln.')
       if (!wantsConversion && width) throw new ToolError('width funktioniert nur zusammen mit format.')
-      if (background && !/^#[0-9a-f]{6}$/i.test(background)) throw new ToolError('background muss ein HEX-Wert wie #FFFFFF sein.')
+      if (background && !/^#[0-9a-f]{6}$/i.test(background))
+        throw new ToolError('background muss ein HEX-Wert wie #FFFFFF sein.')
 
       const original = await signedUrl(ctx, asset.file_path, 3600, asset.file_name)
       if (!wantsConversion) {
-        const small = isImage(asset.mime_type) ? asset.size_bytes <= INLINE_IMAGE_MAX : isTextMime(asset.mime_type) ? asset.size_bytes <= INLINE_TEXT_MAX : false
+        const small = isImage(asset.mime_type)
+          ? asset.size_bytes <= INLINE_IMAGE_MAX
+          : isTextMime(asset.mime_type)
+            ? asset.size_bytes <= INLINE_TEXT_MAX
+            : false
         const wantInline = inline ?? small
         const info = { ...assetSummary(asset), download_url: original, expires_in_minutes: 60 }
-        if (!wantInline) return { summary: `„${asset.title}“: Download-Link (60 Minuten gültig).`, data: info }
-        if (asset.size_bytes > (isImage(asset.mime_type) ? INLINE_IMAGE_MAX : isTextMime(asset.mime_type) ? INLINE_TEXT_MAX : INLINE_BINARY_MAX)) {
-          return { summary: `„${asset.title}“ ist zu groß für die direkte Anzeige – hier der Download-Link.`, data: info }
+        if (!wantInline)
+          return { summary: `„${asset.title}“: Download-Link (60 Minuten gültig).`, data: info }
+        if (
+          asset.size_bytes >
+          (isImage(asset.mime_type)
+            ? INLINE_IMAGE_MAX
+            : isTextMime(asset.mime_type)
+              ? INLINE_TEXT_MAX
+              : INLINE_BINARY_MAX)
+        ) {
+          return {
+            summary: `„${asset.title}“ ist zu groß für die direkte Anzeige – hier der Download-Link.`,
+            data: info,
+          }
         }
         const bytes = await downloadBytes(ctx, asset.file_path)
         // SVG und andere Formate, die Claude nicht als Bild anzeigen kann, kommen als Text bzw. Datei
-        return { summary: `„${asset.title}“ (${asset.file_name}).`, data: info, extra: mimeResult(bytes, asset.mime_type, asset.file_name) }
+        return {
+          summary: `„${asset.title}“ (${asset.file_name}).`,
+          data: info,
+          extra: mimeResult(bytes, asset.mime_type, asset.file_name),
+        }
       }
 
-      if (!(await loadSharp())) throw new ToolError('Umwandeln ist auf diesem Server nicht verfügbar (sharp fehlt).')
+      if (!(await loadSharp()))
+        throw new ToolError('Umwandeln ist auf diesem Server nicht verfügbar (sharp fehlt).')
       const source = await downloadBytes(ctx, asset.file_path)
-      const converted = await convertImage(source, asset.mime_type, format as ConvertTarget, width ?? null, background ?? null)
+      const converted = await convertImage(
+        source,
+        asset.mime_type,
+        format as ConvertTarget,
+        width ?? null,
+        background ?? null,
+      )
       if (!converted) throw new ToolError('Umwandeln ist auf diesem Server nicht verfügbar.')
       const fileName = `${slugify(asset.title)}${width ? `-${width}px` : ''}.${format}`
       const mime = CONVERT_MIME[format as ConvertTarget]
       const published = await publishExport(ctx, brand, fileName, converted, mime)
-      const data = { file_name: fileName, mime_type: mime, size_bytes: converted.length, download_url: published?.url ?? null, expires_in_minutes: published ? 60 : null }
+      const data = {
+        file_name: fileName,
+        mime_type: mime,
+        size_bytes: converted.length,
+        download_url: published?.url ?? null,
+        expires_in_minutes: published ? 60 : null,
+      }
       const showInline = (inline ?? true) && converted.length <= INLINE_IMAGE_MAX
       if (!published && !showInline) {
-        throw new ToolError('Das Ergebnis ist zu groß für die direkte Antwort, und ohne Bearbeitungsrechte kann kein Download-Link bereitgestellt werden.')
+        throw new ToolError(
+          'Das Ergebnis ist zu groß für die direkte Antwort, und ohne Bearbeitungsrechte kann kein Download-Link bereitgestellt werden.',
+        )
       }
       return {
         summary: `„${asset.title}“ als ${format?.toUpperCase()}${width ? ` (${width}px breit)` : ''}.`,
@@ -724,7 +875,12 @@ export const libraryTools = [
         const lib = await resolveLibrary(ctx, brand, library)
         let q = ctx.sb.from('assets').select('*').eq('library_id', lib.id)
         if (collection) {
-          const cols = rows(await ctx.sb.from('collections').select('id, name, collection_assets(asset_id)').eq('library_id', lib.id))
+          const cols = rows(
+            await ctx.sb
+              .from('collections')
+              .select('id, name, collection_assets(asset_id)')
+              .eq('library_id', lib.id),
+          )
           const found = matchByRef(cols, collection, [(c) => c.name], 'Sammlung')
           const ids = found.collection_assets.map((x) => x.asset_id)
           q = q.in('id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000'])
@@ -735,7 +891,10 @@ export const libraryTools = [
       const skipped = assets.length - allowed.length
       if (allowed.length === 0) throw new ToolError('Keine der Dateien ist zum Download freigegeben.')
       const total = allowed.reduce((sum, a) => sum + Number(a.size_bytes), 0)
-      if (total > ZIP_MAX_TOTAL) throw new ToolError(`Zusammen ${(total / 1024 / 1024).toFixed(0)} MB – das ist mehr als die Obergrenze von 150 MB. Bitte aufteilen.`)
+      if (total > ZIP_MAX_TOTAL)
+        throw new ToolError(
+          `Zusammen ${(total / 1024 / 1024).toFixed(0)} MB – das ist mehr als die Obergrenze von 150 MB. Bitte aufteilen.`,
+        )
 
       const zip = new JSZip()
       const used = new Set<string>()
@@ -746,13 +905,22 @@ export const libraryTools = [
         used.add(name)
         zip.file(name, await downloadBytes(ctx, asset.file_path))
       }
-      const bytes = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', compressionOptions: { level: 6 } })
+      const bytes = await zip.generateAsync({
+        type: 'nodebuffer',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 },
+      })
       const fileName = `${slugify(zip_name || `${brand.slug}-dateien`)}.zip`
       const published = await publishExport(ctx, brand, fileName, bytes, 'application/zip')
       if (published) {
         return {
           summary: `ZIP mit ${allowed.length} Datei(en) (${(bytes.length / 1024 / 1024).toFixed(1)} MB) – Link 60 Minuten gültig${skipped ? `; ${skipped} Datei(en) ohne Download-Freigabe übersprungen` : ''}.`,
-          data: { file_name: fileName, files: allowed.length, size_bytes: bytes.length, download_url: published.url },
+          data: {
+            file_name: fileName,
+            files: allowed.length,
+            size_bytes: bytes.length,
+            download_url: published.url,
+          },
         }
       }
       if (bytes.length <= INLINE_BINARY_MAX) {
@@ -762,24 +930,37 @@ export const libraryTools = [
           extra: mimeResult(bytes, 'application/zip', fileName),
         }
       }
-      throw new ToolError('Das ZIP ist zu groß für die direkte Antwort, und ohne Bearbeitungsrechte kann kein Download-Link bereitgestellt werden. Lade einzelne Dateien mit download_asset.')
+      throw new ToolError(
+        'Das ZIP ist zu groß für die direkte Antwort, und ohne Bearbeitungsrechte kann kein Download-Link bereitgestellt werden. Lade einzelne Dateien mit download_asset.',
+      )
     },
   }),
 
   defineTool({
     name: 'list_collections',
     title: 'Sammlungen',
-    description: 'Listet die Sammlungen (kuratierte Gruppen von Dateien) einer Bibliothek oder der ganzen Marke.',
+    description:
+      'Listet die Sammlungen (kuratierte Gruppen von Dateien) einer Bibliothek oder der ganzen Marke.',
     input: { brand: z.string().optional(), library: z.string().optional() },
     kind: 'read',
     async run({ brand: ref, library: lRef }, ctx) {
       const brand = await ctx.brand(ref)
-      let q = ctx.sb.from('collections').select('id, name, description, library_id, collection_assets(asset_id)').eq('brand_id', brand.id).order('sort')
+      let q = ctx.sb
+        .from('collections')
+        .select('id, name, description, library_id, collection_assets(asset_id)')
+        .eq('brand_id', brand.id)
+        .order('sort')
       if (lRef) q = q.eq('library_id', (await resolveLibrary(ctx, brand, lRef)).id)
       const data = rows(await q)
       return {
         summary: `${data.length} Sammlung(en).`,
-        data: data.map((c) => ({ id: c.id, name: c.name, description: c.description, library_id: c.library_id, asset_ids: c.collection_assets.map((x) => x.asset_id) })),
+        data: data.map((c) => ({
+          id: c.id,
+          name: c.name,
+          description: c.description,
+          library_id: c.library_id,
+          asset_ids: c.collection_assets.map((x) => x.asset_id),
+        })),
       }
     },
   }),
@@ -802,20 +983,35 @@ export const libraryTools = [
       const created = row(
         await ctx.sb
           .from('collections')
-          .insert({ library_id: library.id, brand_id: brand.id, name: name.trim(), description: description ?? '', sort: await nextSort(ctx, 'collections', brand.id) })
+          .insert({
+            library_id: library.id,
+            brand_id: brand.id,
+            name: name.trim(),
+            description: description ?? '',
+            sort: await nextSort(ctx, 'collections', brand.id),
+          })
           .select('id, name')
           .single(),
       )
       if (asset_ids?.length) {
-        const { error } = await ctx.sb
-          .from('collection_assets')
-          .upsert(asset_ids.map((asset_id, sort) => ({ collection_id: created.id, asset_id, brand_id: brand.id, sort })), { onConflict: 'collection_id,asset_id', ignoreDuplicates: true })
+        const { error } = await ctx.sb.from('collection_assets').upsert(
+          asset_ids.map((asset_id, sort) => ({
+            collection_id: created.id,
+            asset_id,
+            brand_id: brand.id,
+            sort,
+          })),
+          { onConflict: 'collection_id,asset_id', ignoreDuplicates: true },
+        )
         if (error) {
           await ctx.sb.from('collections').delete().eq('id', created.id)
           throw error
         }
       }
-      return { summary: `Sammlung „${created.name}“ in „${library.name}“ angelegt${asset_ids?.length ? ` (${asset_ids.length} Dateien)` : ''}.`, data: created }
+      return {
+        summary: `Sammlung „${created.name}“ in „${library.name}“ angelegt${asset_ids?.length ? ` (${asset_ids.length} Dateien)` : ''}.`,
+        data: created,
+      }
     },
   }),
 
@@ -838,18 +1034,28 @@ export const libraryTools = [
       const cols = rows(await ctx.sb.from('collections').select('id, name').eq('brand_id', brand.id))
       const found = matchByRef(cols, collection, [(c) => c.name], 'Sammlung')
       const patch = defined({ name: name?.trim(), description })
-      if (Object.keys(patch).length > 0) affected(await ctx.sb.from('collections').update(patch).eq('id', found.id).select('id'), 'Sammlung')
+      if (Object.keys(patch).length > 0)
+        affected(await ctx.sb.from('collections').update(patch).eq('id', found.id).select('id'), 'Sammlung')
       if (add_asset_ids?.length) {
-        const { error } = await ctx.sb
-          .from('collection_assets')
-          .upsert(add_asset_ids.map((asset_id) => ({ collection_id: found.id, asset_id, brand_id: brand.id })), { onConflict: 'collection_id,asset_id', ignoreDuplicates: true })
+        const { error } = await ctx.sb.from('collection_assets').upsert(
+          add_asset_ids.map((asset_id) => ({ collection_id: found.id, asset_id, brand_id: brand.id })),
+          { onConflict: 'collection_id,asset_id', ignoreDuplicates: true },
+        )
         if (error) throw error
       }
       if (remove_asset_ids?.length) {
-        const { error } = await ctx.sb.from('collection_assets').delete().eq('collection_id', found.id).in('asset_id', remove_asset_ids)
+        const { error } = await ctx.sb
+          .from('collection_assets')
+          .delete()
+          .eq('collection_id', found.id)
+          .in('asset_id', remove_asset_ids)
         if (error) throw error
       }
-      requireChange({ ...patch, a: add_asset_ids?.length ? 1 : undefined, r: remove_asset_ids?.length ? 1 : undefined })
+      requireChange({
+        ...patch,
+        a: add_asset_ids?.length ? 1 : undefined,
+        r: remove_asset_ids?.length ? 1 : undefined,
+      })
       return { summary: `Sammlung „${name ?? found.name}“ gespeichert.` }
     },
   }),
@@ -869,4 +1075,3 @@ export const libraryTools = [
     },
   }),
 ]
-

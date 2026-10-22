@@ -7,6 +7,7 @@ export default tseslint.config(
   {
     ignores: [
       'dist',
+      'api/mcp.js',
       'node_modules',
       'src/lib/database.types.ts',
       'playwright-report',

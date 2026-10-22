@@ -15,7 +15,10 @@ const width = z.enum(WIDTHS)
 const blockInput = z.object({
   type: blockType,
   width: width.optional(),
-  content: z.record(z.string(), z.unknown()).optional().describe('Inhalt je nach Typ – siehe get_block_schema'),
+  content: z
+    .record(z.string(), z.unknown())
+    .optional()
+    .describe('Inhalt je nach Typ – siehe get_block_schema'),
 })
 
 type BlockRow = { id: string; type: string; width: string; sort: number; content: unknown }
@@ -80,7 +83,9 @@ async function loadBlock(ctx: Ctx, blockId: string) {
 }
 
 async function snapshotPage(ctx: Ctx, page: GuidelinePage, label: string): Promise<void> {
-  const blocks = rows(await ctx.sb.from('blocks').select('type, width, sort, content').eq('page_id', page.id).order('sort'))
+  const blocks = rows(
+    await ctx.sb.from('blocks').select('type, width, sort, content').eq('page_id', page.id).order('sort'),
+  )
   row(
     await ctx.sb
       .from('page_revisions')
@@ -139,7 +144,10 @@ export const guidelineTools = [
             await ctx.sb
               .from('guideline_pages')
               .select('id, guideline_id, parent_id, kind, title, slug, is_published, sort, blocks(count)')
-              .in('guideline_id', list.map((g) => g.id))
+              .in(
+                'guideline_id',
+                list.map((g) => g.id),
+              )
               .order('sort'),
           )
         : []
@@ -176,7 +184,8 @@ export const guidelineTools = [
   defineTool({
     name: 'create_guideline',
     title: 'Handbuch anlegen',
-    description: 'Legt ein neues Handbuch (Guideline) in einer Marke an, mit einer ersten Seite „Einführung“.',
+    description:
+      'Legt ein neues Handbuch (Guideline) in einer Marke an, mit einer ersten Seite „Einführung“.',
     input: {
       brand: z.string().optional(),
       title: z.string().min(1).max(160),
@@ -193,7 +202,10 @@ export const guidelineTools = [
           .insert({
             brand_id: brand.id,
             title: title.trim(),
-            slug: uniqueSlug(slugify(title), existing.map((g) => g.slug)),
+            slug: uniqueSlug(
+              slugify(title),
+              existing.map((g) => g.slug),
+            ),
             description: description ?? '',
             icon: icon ?? 'book-open',
             sort: existing.length > 0 ? Math.max(...existing.map((g) => g.sort)) + 1 : 0,
@@ -204,13 +216,24 @@ export const guidelineTools = [
       const first = row(
         await ctx.sb
           .from('guideline_pages')
-          .insert({ guideline_id: guideline.id, brand_id: brand.id, kind: 'page', title: 'Einführung', slug: 'einfuehrung' })
+          .insert({
+            guideline_id: guideline.id,
+            brand_id: brand.id,
+            kind: 'page',
+            title: 'Einführung',
+            slug: 'einfuehrung',
+          })
           .select('id, slug')
           .single(),
       )
       return {
         summary: `Handbuch „${guideline.title}“ in „${brand.name}“ angelegt.`,
-        data: { id: guideline.id, slug: guideline.slug, first_page: first, url: ctx.link(`/b/${brand.slug}/g/${guideline.slug}`) },
+        data: {
+          id: guideline.id,
+          slug: guideline.slug,
+          first_page: first,
+          url: ctx.link(`/b/${brand.slug}/g/${guideline.slug}`),
+        },
       }
     },
   }),
@@ -218,7 +241,8 @@ export const guidelineTools = [
   defineTool({
     name: 'update_guideline',
     title: 'Handbuch bearbeiten',
-    description: 'Ändert Titel, Beschreibung, Icon, Kurz-URL oder Veröffentlichung eines Handbuchs. Unveröffentlichte Handbücher sehen nur Bearbeitende.',
+    description:
+      'Ändert Titel, Beschreibung, Icon, Kurz-URL oder Veröffentlichung eines Handbuchs. Unveröffentlichte Handbücher sehen nur Bearbeitende.',
     input: {
       brand: z.string().optional(),
       guideline: z.string().optional(),
@@ -233,17 +257,30 @@ export const guidelineTools = [
     async run({ brand: ref, guideline: gRef, title, description, icon, slug, is_published }, ctx) {
       const brand = await ctx.editableBrand(ref)
       const guideline = await resolveGuideline(ctx, brand, gRef)
-      const patch = defined({ title: title?.trim(), description, icon, slug: slug ? slugify(slug) : undefined, is_published })
+      const patch = defined({
+        title: title?.trim(),
+        description,
+        icon,
+        slug: slug ? slugify(slug) : undefined,
+        is_published,
+      })
       requireChange(patch)
-      const [updated] = affected(await ctx.sb.from('guidelines').update(patch).eq('id', guideline.id).select(), 'Handbuch')
-      return { summary: `Handbuch „${updated.title}“ gespeichert.`, data: { id: updated.id, title: updated.title, slug: updated.slug, published: updated.is_published } }
+      const [updated] = affected(
+        await ctx.sb.from('guidelines').update(patch).eq('id', guideline.id).select(),
+        'Handbuch',
+      )
+      return {
+        summary: `Handbuch „${updated.title}“ gespeichert.`,
+        data: { id: updated.id, title: updated.title, slug: updated.slug, published: updated.is_published },
+      }
     },
   }),
 
   defineTool({
     name: 'delete_guideline',
     title: 'Handbuch löschen',
-    description: 'Löscht ein Handbuch mit allen Kapiteln, Seiten, Bausteinen und Versionen. Unwiderruflich. confirm_title muss den exakten Titel enthalten.',
+    description:
+      'Löscht ein Handbuch mit allen Kapiteln, Seiten, Bausteinen und Versionen. Unwiderruflich. confirm_title muss den exakten Titel enthalten.',
     input: { brand: z.string().optional(), guideline: z.string(), confirm_title: z.string() },
     kind: 'destructive',
     async run({ brand: ref, guideline: gRef, confirm_title }, ctx) {
@@ -267,7 +304,10 @@ export const guidelineTools = [
       guideline: z.string().optional(),
       page: z.string().describe('Seiten-ID, Titel oder Kurz-URL'),
       detail: z.enum(['outline', 'full']).optional().describe('Standard: full'),
-      image_urls: z.boolean().optional().describe('Signierte Bild-URLs (1 Stunde gültig) zu Bildern der Bausteine ergänzen'),
+      image_urls: z
+        .boolean()
+        .optional()
+        .describe('Signierte Bild-URLs (1 Stunde gültig) zu Bildern der Bausteine ergänzen'),
     },
     kind: 'read',
     async run({ brand: bRef, guideline: gRef, page: pRef, detail, image_urls }, ctx) {
@@ -287,7 +327,16 @@ export const guidelineTools = [
       if (detail === 'outline') {
         return {
           summary: `Seite „${page.title}“ mit ${blocks.length} Baustein(en).`,
-          data: { ...header, blocks: blocks.map((b, i) => ({ id: b.id, position: i, type: b.type, width: b.width, outline: outline(b) })) },
+          data: {
+            ...header,
+            blocks: blocks.map((b, i) => ({
+              id: b.id,
+              position: i,
+              type: b.type,
+              width: b.width,
+              outline: outline(b),
+            })),
+          },
         }
       }
       let urls = new Map<string, string>()
@@ -319,7 +368,14 @@ export const guidelineTools = [
         summary: `Seite „${page.title}“ mit ${blocks.length} Baustein(en).`,
         data: {
           ...header,
-          blocks: blocks.map((b, i) => ({ id: b.id, position: i, type: b.type, width: b.width, outline: outline(b), content: image_urls ? withUrls(b.content) : b.content })),
+          blocks: blocks.map((b, i) => ({
+            id: b.id,
+            position: i,
+            type: b.type,
+            width: b.width,
+            outline: outline(b),
+            content: image_urls ? withUrls(b.content) : b.content,
+          })),
         },
       }
     },
@@ -335,7 +391,10 @@ export const guidelineTools = [
       guideline: z.string().optional(),
       title: z.string().min(1).max(160),
       kind: z.enum(['page', 'chapter']).default('page'),
-      chapter: z.string().optional().describe('Kapitel (Titel, Kurz-URL oder ID), in das die Seite einsortiert wird'),
+      chapter: z
+        .string()
+        .optional()
+        .describe('Kapitel (Titel, Kurz-URL oder ID), in das die Seite einsortiert wird'),
       intro: z.string().max(2000).optional().describe('Kurzer Einleitungstext unter dem Titel'),
       is_published: z.boolean().optional(),
       blocks: z.array(blockInput).max(60).optional(),
@@ -350,7 +409,12 @@ export const guidelineTools = [
       }
       let parentId: string | null = null
       if (chapter) {
-        const parent = matchByRef(pages.filter((p) => p.kind === 'chapter'), chapter, [(p) => p.title, (p) => p.slug], 'Kapitel')
+        const parent = matchByRef(
+          pages.filter((p) => p.kind === 'chapter'),
+          chapter,
+          [(p) => p.title, (p) => p.slug],
+          'Kapitel',
+        )
         parentId = parent.id
       }
       const siblings = pages.filter((p) => p.parent_id === parentId)
@@ -363,7 +427,10 @@ export const guidelineTools = [
             parent_id: parentId,
             kind,
             title: title.trim(),
-            slug: uniqueSlug(slugify(title), pages.map((p) => p.slug)),
+            slug: uniqueSlug(
+              slugify(title),
+              pages.map((p) => p.slug),
+            ),
             intro: intro ?? '',
             sort: siblings.length > 0 ? Math.max(...siblings.map((p) => p.sort)) + 1 : 0,
             ...(is_published === undefined ? {} : { is_published }),
@@ -380,7 +447,13 @@ export const guidelineTools = [
       }
       return {
         summary: `${kind === 'chapter' ? 'Kapitel' : 'Seite'} „${created.title}“ angelegt${inserted.length ? ` mit ${inserted.length} Baustein(en)` : ''}.`,
-        data: { id: created.id, slug: created.slug, kind, blocks: inserted, url: pageUrl(ctx, brand, guideline.slug, created.slug) },
+        data: {
+          id: created.id,
+          slug: created.slug,
+          kind,
+          blocks: inserted,
+          url: pageUrl(ctx, brand, guideline.slug, created.slug),
+        },
       }
     },
   }),
@@ -388,7 +461,8 @@ export const guidelineTools = [
   defineTool({
     name: 'update_page',
     title: 'Seite bearbeiten',
-    description: 'Ändert Titel, Einleitung, Kurz-URL oder Veröffentlichung einer Seite oder eines Kapitels. Bausteine ändern: update_block, add_block.',
+    description:
+      'Ändert Titel, Einleitung, Kurz-URL oder Veröffentlichung einer Seite oder eines Kapitels. Bausteine ändern: update_block, add_block.',
     input: {
       brand: z.string().optional(),
       guideline: z.string().optional(),
@@ -403,10 +477,21 @@ export const guidelineTools = [
     async run({ brand: bRef, guideline: gRef, page: pRef, title, intro, slug, is_published }, ctx) {
       const target = await resolvePage(ctx, { brand: bRef, guideline: gRef, page: pRef })
       await ctx.requireEdit(target.brand)
-      const patch = defined({ title: title?.trim(), intro, slug: slug ? slugify(slug) : undefined, is_published })
+      const patch = defined({
+        title: title?.trim(),
+        intro,
+        slug: slug ? slugify(slug) : undefined,
+        is_published,
+      })
       requireChange(patch)
-      const [updated] = affected(await ctx.sb.from('guideline_pages').update(patch).eq('id', target.page.id).select(), 'Seite')
-      return { summary: `„${updated.title}“ gespeichert.`, data: { id: updated.id, title: updated.title, slug: updated.slug, published: updated.is_published } }
+      const [updated] = affected(
+        await ctx.sb.from('guideline_pages').update(patch).eq('id', target.page.id).select(),
+        'Seite',
+      )
+      return {
+        summary: `„${updated.title}“ gespeichert.`,
+        data: { id: updated.id, title: updated.title, slug: updated.slug, published: updated.is_published },
+      }
     },
   }),
 
@@ -419,22 +504,41 @@ export const guidelineTools = [
       brand: z.string().optional(),
       guideline: z.string().optional(),
       page: z.string().describe('Seiten-ID, Titel oder Kurz-URL'),
-      chapter: z.string().optional().describe('Zielkapitel (Titel, Kurz-URL, ID) oder "none" für die oberste Ebene'),
-      position: z.number().int().min(0).optional().describe('Position unter den Geschwistern, 0 = ganz oben (Standard: ans Ende)'),
+      chapter: z
+        .string()
+        .optional()
+        .describe('Zielkapitel (Titel, Kurz-URL, ID) oder "none" für die oberste Ebene'),
+      position: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe('Position unter den Geschwistern, 0 = ganz oben (Standard: ans Ende)'),
     },
     kind: 'write',
     idempotent: true,
     async run({ brand: bRef, guideline: gRef, page: pRef, chapter, position }, ctx) {
       const target = await resolvePage(ctx, { brand: bRef, guideline: gRef, page: pRef })
       await ctx.requireEdit(target.brand)
-      const all = rows(await ctx.sb.from('guideline_pages').select('*').eq('guideline_id', target.guideline.id).order('sort'))
+      const all = rows(
+        await ctx.sb
+          .from('guideline_pages')
+          .select('*')
+          .eq('guideline_id', target.guideline.id)
+          .order('sort'),
+      )
       let parentId: string | null = target.page.parent_id
       if (chapter !== undefined) {
         if (target.page.kind === 'chapter') throw new ToolError('Kapitel können nicht verschachtelt werden.')
         parentId =
           chapter === 'none'
             ? null
-            : matchByRef(all.filter((p) => p.kind === 'chapter'), chapter, [(p) => p.title, (p) => p.slug], 'Kapitel').id
+            : matchByRef(
+                all.filter((p) => p.kind === 'chapter'),
+                chapter,
+                [(p) => p.title, (p) => p.slug],
+                'Kapitel',
+              ).id
       }
       const siblings = all.filter((p) => p.parent_id === parentId && p.id !== target.page.id)
       const index = Math.min(position ?? siblings.length, siblings.length)
@@ -453,7 +557,8 @@ export const guidelineTools = [
   defineTool({
     name: 'delete_page',
     title: 'Seite oder Kapitel löschen',
-    description: 'Löscht eine Seite samt Bausteinen und Versionen. Ein Kapitel wird mit allen Seiten darin gelöscht. Unwiderruflich.',
+    description:
+      'Löscht eine Seite samt Bausteinen und Versionen. Ein Kapitel wird mit allen Seiten darin gelöscht. Unwiderruflich.',
     input: {
       brand: z.string().optional(),
       guideline: z.string().optional(),
@@ -464,7 +569,9 @@ export const guidelineTools = [
       const target = await resolvePage(ctx, { brand: bRef, guideline: gRef, page: pRef })
       await ctx.requireEdit(target.brand)
       affected(await ctx.sb.from('guideline_pages').delete().eq('id', target.page.id).select('id'), 'Seite')
-      return { summary: `${target.page.kind === 'chapter' ? 'Kapitel' : 'Seite'} „${target.page.title}“ gelöscht.` }
+      return {
+        summary: `${target.page.kind === 'chapter' ? 'Kapitel' : 'Seite'} „${target.page.title}“ gelöscht.`,
+      }
     },
   }),
 
@@ -502,29 +609,53 @@ export const guidelineTools = [
       type: blockType,
       content: z.record(z.string(), z.unknown()).optional(),
       width: width.optional().describe('Breite im Raster (Standard full)'),
-      position: z.number().int().min(0).optional().describe('Position auf der Seite, 0 = ganz oben (Standard: ans Ende)'),
+      position: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe('Position auf der Seite, 0 = ganz oben (Standard: ans Ende)'),
     },
     kind: 'write',
     async run({ brand: bRef, guideline: gRef, page: pRef, type, content, width: w, position }, ctx) {
       const target = await resolvePage(ctx, { brand: bRef, guideline: gRef, page: pRef }, { kind: 'page' })
       await ctx.requireEdit(target.brand)
       if (target.page.kind !== 'page') throw new ToolError('Kapitel haben keine Bausteine – nimm eine Seite.')
-      const existing = rows(await ctx.sb.from('blocks').select('id, sort').eq('page_id', target.page.id).order('sort'))
+      const existing = rows(
+        await ctx.sb.from('blocks').select('id, sort').eq('page_id', target.page.id).order('sort'),
+      )
       const index = Math.min(position ?? existing.length, existing.length)
       const normalized = await normalizeBlockContent(ctx, target.brand.id, type, content)
       // Platz schaffen: nachfolgende Bausteine um eins nach hinten
       for (const b of existing.slice(index).reverse()) {
-        affected(await ctx.sb.from('blocks').update({ sort: b.sort + 1 }).eq('id', b.id).select('id'), 'Baustein')
+        affected(
+          await ctx.sb
+            .from('blocks')
+            .update({ sort: b.sort + 1 })
+            .eq('id', b.id)
+            .select('id'),
+          'Baustein',
+        )
       }
       const sort = index < existing.length ? existing[index].sort : (existing.at(-1)?.sort ?? -1) + 1
       const created = row(
         await ctx.sb
           .from('blocks')
-          .insert({ page_id: target.page.id, brand_id: target.brand.id, type, width: w ?? 'full', sort, content: normalized as never })
+          .insert({
+            page_id: target.page.id,
+            brand_id: target.brand.id,
+            type,
+            width: w ?? 'full',
+            sort,
+            content: normalized as never,
+          })
           .select('id, type, sort')
           .single(),
       )
-      return { summary: `Baustein „${BLOCK_META[type].label}“ auf „${target.page.title}“ eingefügt (Position ${index}).`, data: created }
+      return {
+        summary: `Baustein „${BLOCK_META[type].label}“ auf „${target.page.title}“ eingefügt (Position ${index}).`,
+        data: created,
+      }
     },
   }),
 
@@ -549,11 +680,26 @@ export const guidelineTools = [
       if (content) {
         const base = merge === false ? {} : ((block.content ?? {}) as Record<string, unknown>)
         const combined = { ...base, ...content }
-        patch.content = (await normalizeBlockContent(ctx, brand.id, block.type as BlockType, combined)) as never
+        patch.content = (await normalizeBlockContent(
+          ctx,
+          brand.id,
+          block.type as BlockType,
+          combined,
+        )) as never
       }
       requireChange(patch)
-      const [updated] = affected(await ctx.sb.from('blocks').update(patch as never).eq('id', block.id).select('id, type, width'), 'Baustein')
-      return { summary: `Baustein „${BLOCK_META[updated.type as BlockType]?.label ?? updated.type}“ gespeichert.`, data: updated }
+      const [updated] = affected(
+        await ctx.sb
+          .from('blocks')
+          .update(patch as never)
+          .eq('id', block.id)
+          .select('id, type, width'),
+        'Baustein',
+      )
+      return {
+        summary: `Baustein „${BLOCK_META[updated.type as BlockType]?.label ?? updated.type}“ gespeichert.`,
+        data: updated,
+      }
     },
   }),
 
@@ -567,7 +713,9 @@ export const guidelineTools = [
     async run({ block_id, position }, ctx) {
       const { block, brand } = await loadBlock(ctx, block_id)
       await ctx.requireEdit(brand)
-      const all = rows(await ctx.sb.from('blocks').select('id, sort').eq('page_id', block.page_id).order('sort'))
+      const all = rows(
+        await ctx.sb.from('blocks').select('id, sort').eq('page_id', block.page_id).order('sort'),
+      )
       const others = all.filter((b) => b.id !== block.id)
       const index = Math.min(position, others.length)
       const ordered = [...others.slice(0, index), { id: block.id, sort: block.sort }, ...others.slice(index)]
@@ -584,7 +732,8 @@ export const guidelineTools = [
   defineTool({
     name: 'delete_block',
     title: 'Baustein löschen',
-    description: 'Löscht einen Baustein von einer Seite. Tipp: Vorher create_page_revision aufrufen, wenn der Stand wiederherstellbar bleiben soll.',
+    description:
+      'Löscht einen Baustein von einer Seite. Tipp: Vorher create_page_revision aufrufen, wenn der Stand wiederherstellbar bleiben soll.',
     input: { block_id: z.string() },
     kind: 'destructive',
     async run({ block_id }, ctx) {
@@ -629,7 +778,9 @@ export const guidelineTools = [
         const { error } = await ctx.sb.from('blocks').insert(prepared)
         if (error) throw error
       }
-      return { summary: `„${target.page.title}“ enthält jetzt ${prepared.length} Baustein(e). Der alte Stand ist als Version gesichert.` }
+      return {
+        summary: `„${target.page.title}“ enthält jetzt ${prepared.length} Baustein(e). Der alte Stand ist als Version gesichert.`,
+      }
     },
   }),
 
@@ -656,7 +807,9 @@ export const guidelineTools = [
           label: r.label,
           at: r.created_at,
           by: r.author ? r.author.full_name || r.author.email : null,
-          blocks: Array.isArray((r.snapshot as { blocks?: unknown[] })?.blocks) ? (r.snapshot as { blocks: unknown[] }).blocks.length : 0,
+          blocks: Array.isArray((r.snapshot as { blocks?: unknown[] })?.blocks)
+            ? (r.snapshot as { blocks: unknown[] }).blocks.length
+            : 0,
         })),
       }
     },
@@ -665,8 +818,14 @@ export const guidelineTools = [
   defineTool({
     name: 'create_page_revision',
     title: 'Seitenversion sichern',
-    description: 'Sichert den aktuellen Stand einer Seite als benannte Version (z. B. „Abgabe“ oder „vor Überarbeitung“).',
-    input: { brand: z.string().optional(), guideline: z.string().optional(), page: z.string(), label: z.string().max(200).optional() },
+    description:
+      'Sichert den aktuellen Stand einer Seite als benannte Version (z. B. „Abgabe“ oder „vor Überarbeitung“).',
+    input: {
+      brand: z.string().optional(),
+      guideline: z.string().optional(),
+      page: z.string(),
+      label: z.string().max(200).optional(),
+    },
     kind: 'write',
     async run({ brand: bRef, guideline: gRef, page: pRef, label }, ctx) {
       const target = await resolvePage(ctx, { brand: bRef, guideline: gRef, page: pRef })
@@ -679,14 +838,31 @@ export const guidelineTools = [
   defineTool({
     name: 'restore_page_revision',
     title: 'Seitenversion wiederherstellen',
-    description: 'Stellt eine gespeicherte Version einer Seite wieder her. Der aktuelle Stand wird vorher automatisch gesichert.',
-    input: { brand: z.string().optional(), guideline: z.string().optional(), page: z.string(), revision_id: z.string() },
+    description:
+      'Stellt eine gespeicherte Version einer Seite wieder her. Der aktuelle Stand wird vorher automatisch gesichert.',
+    input: {
+      brand: z.string().optional(),
+      guideline: z.string().optional(),
+      page: z.string(),
+      revision_id: z.string(),
+    },
     kind: 'write',
     async run({ brand: bRef, guideline: gRef, page: pRef, revision_id }, ctx) {
       const target = await resolvePage(ctx, { brand: bRef, guideline: gRef, page: pRef })
       await ctx.requireEdit(target.brand)
-      const revision = row(await ctx.sb.from('page_revisions').select('*').eq('id', revision_id).eq('page_id', target.page.id).single())
-      const snapshot = revision.snapshot as { title?: string; intro?: string; blocks?: Array<{ type: string; width: string; sort: number; content: unknown }> }
+      const revision = row(
+        await ctx.sb
+          .from('page_revisions')
+          .select('*')
+          .eq('id', revision_id)
+          .eq('page_id', target.page.id)
+          .single(),
+      )
+      const snapshot = revision.snapshot as {
+        title?: string
+        intro?: string
+        blocks?: Array<{ type: string; width: string; sort: number; content: unknown }>
+      }
       await snapshotPage(ctx, target.page, 'Automatische Sicherung vor Wiederherstellung')
       const { error: delError } = await ctx.sb.from('blocks').delete().eq('page_id', target.page.id)
       if (delError) throw delError
@@ -712,7 +888,9 @@ export const guidelineTools = [
           .select('id'),
         'Seite',
       )
-      return { summary: `Version „${revision.label || revision.created_at}“ von „${target.page.title}“ wiederhergestellt.` }
+      return {
+        summary: `Version „${revision.label || revision.created_at}“ von „${target.page.title}“ wiederhergestellt.`,
+      }
     },
   }),
 ]

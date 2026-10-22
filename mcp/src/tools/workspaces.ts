@@ -19,7 +19,9 @@ export const workspaceTools = [
     kind: 'write',
     async run({ name, description }, ctx) {
       await ctx.assertWriteAllowed()
-      const ws = row(await ctx.sb.rpc('create_workspace', { p_name: name.trim(), p_description: description ?? '' }))
+      const ws = row(
+        await ctx.sb.rpc('create_workspace', { p_name: name.trim(), p_description: description ?? '' }),
+      )
       ctx.invalidateScope()
       return {
         summary: `Workspace „${ws.name}“ angelegt.`,
@@ -119,7 +121,12 @@ export const workspaceTools = [
       const ws = await ctx.adminWorkspace(ref)
       const member = await findWorkspaceMember(ctx, ws.id, user)
       affected(
-        await ctx.sb.from('workspace_members').update({ role }).eq('workspace_id', ws.id).eq('user_id', member.user_id).select('user_id'),
+        await ctx.sb
+          .from('workspace_members')
+          .update({ role })
+          .eq('workspace_id', ws.id)
+          .eq('user_id', member.user_id)
+          .select('user_id'),
         'Mitglied',
       )
       return { summary: `${member.email ?? member.user_id} ist jetzt ${role} in „${ws.name}“.` }
@@ -129,14 +136,20 @@ export const workspaceTools = [
   defineTool({
     name: 'remove_workspace_member',
     title: 'Mitglied aus Workspace entfernen',
-    description: 'Entfernt eine Person aus einem Workspace (Rolle Owner oder Admin). Der letzte Owner kann nicht entfernt werden.',
+    description:
+      'Entfernt eine Person aus einem Workspace (Rolle Owner oder Admin). Der letzte Owner kann nicht entfernt werden.',
     input: { workspace: z.string().optional(), user: z.string().describe('E-Mail-Adresse oder user_id') },
     kind: 'destructive',
     async run({ workspace: ref, user }, ctx) {
       const ws = await ctx.adminWorkspace(ref)
       const member = await findWorkspaceMember(ctx, ws.id, user)
       affected(
-        await ctx.sb.from('workspace_members').delete().eq('workspace_id', ws.id).eq('user_id', member.user_id).select('user_id'),
+        await ctx.sb
+          .from('workspace_members')
+          .delete()
+          .eq('workspace_id', ws.id)
+          .eq('user_id', member.user_id)
+          .select('user_id'),
         'Mitglied',
       )
       return { summary: `${member.email ?? member.user_id} wurde aus „${ws.name}“ entfernt.` }
@@ -156,9 +169,11 @@ export async function findWorkspaceMember(
       .eq('workspace_id', workspaceId),
   )
   const needle = ref.trim().toLowerCase()
-  const found = members.find(
-    (m) => m.user_id === ref || m.profile?.email?.toLowerCase() === needle,
-  )
-  if (!found) throw new ToolError(`Mitglied „${ref}“ nicht gefunden.`, 'Nimm die E-Mail-Adresse aus list_workspace_members.')
+  const found = members.find((m) => m.user_id === ref || m.profile?.email?.toLowerCase() === needle)
+  if (!found)
+    throw new ToolError(
+      `Mitglied „${ref}“ nicht gefunden.`,
+      'Nimm die E-Mail-Adresse aus list_workspace_members.',
+    )
   return { user_id: found.user_id, email: found.profile?.email ?? null }
 }

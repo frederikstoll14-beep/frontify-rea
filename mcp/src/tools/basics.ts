@@ -1,9 +1,19 @@
 import { z } from 'zod'
-import { contrastRatio, formatCmyk, formatHsl, formatRgb, hexToRgb, normalizeHex, rgbToCmyk, rgbToHsl, wcagLevel } from '@/lib/color'
+import {
+  contrastRatio,
+  formatCmyk,
+  formatHsl,
+  formatRgb,
+  hexToRgb,
+  normalizeHex,
+  rgbToCmyk,
+  rgbToHsl,
+  wcagLevel,
+} from '@/lib/color'
 import { TOKEN_FORMATS, buildTokenFile, type TokenFormat } from '@/lib/tokens'
 import { affected, defined, requireChange, row, rows } from '../db'
 import { ToolError } from '../errors'
-import { discardStored, fileSourceShape, resolveFile, storeFile } from '../files'
+import { discardStored, fileSourceShapeShort, resolveFile, storeFile } from '../files'
 import { isFontFileName } from '../fonts'
 import { publishExport } from '../storage-ops'
 import { defineTool } from '../tool'
@@ -19,7 +29,9 @@ function hexOrThrow(value: string): string {
 
 function tokenOrThrow(value: string): string {
   if (value !== '' && !TOKEN.test(value)) {
-    throw new ToolError(`Token „${value}“ ist ungültig: nur Kleinbuchstaben, Ziffern und einzelne Bindestriche (z. B. brand-blue).`)
+    throw new ToolError(
+      `Token „${value}“ ist ungültig: nur Kleinbuchstaben, Ziffern und einzelne Bindestriche (z. B. brand-blue).`,
+    )
   }
   return value
 }
@@ -39,10 +51,14 @@ function colorInfo(hex: string) {
 
 async function resolvePalette(ctx: Ctx, brand: ScopeBrand, ref?: string) {
   const list = rows(await ctx.sb.from('color_palettes').select('*').eq('brand_id', brand.id).order('sort'))
-  if (list.length === 0) throw new ToolError(`„${brand.name}“ hat noch keine Farbpalette.`, 'Lege eine mit create_palette an.')
+  if (list.length === 0)
+    throw new ToolError(`„${brand.name}“ hat noch keine Farbpalette.`, 'Lege eine mit create_palette an.')
   if (!ref) {
     if (list.length === 1) return list[0]
-    throw new ToolError('Bitte die Palette angeben (Name oder ID).', `Vorhanden: ${list.map((p) => p.name).join(', ')}.`)
+    throw new ToolError(
+      'Bitte die Palette angeben (Name oder ID).',
+      `Vorhanden: ${list.map((p) => p.name).join(', ')}.`,
+    )
   }
   return matchByRef(list, ref, [(p) => p.name], 'Palette')
 }
@@ -55,7 +71,10 @@ async function resolveFont(ctx: Ctx, brand: ScopeBrand, ref: string) {
 const colorFields = {
   name: z.string().min(1).max(120).optional(),
   hex: z.string().optional().describe('HEX-Wert, z. B. #0B3C7A (auch ohne # oder dreistellig)'),
-  token: z.string().optional().describe('Design-Token-Name, z. B. brand-blue (Kleinbuchstaben, Bindestriche)'),
+  token: z
+    .string()
+    .optional()
+    .describe('Design-Token-Name, z. B. brand-blue (Kleinbuchstaben, Bindestriche)'),
   cmyk: z.string().max(60).optional().describe('z. B. "100 80 0 20"'),
   pantone: z.string().max(60).optional(),
   hks: z.string().max(60).optional(),
@@ -75,7 +94,9 @@ export const basicsTools = [
     kind: 'read',
     async run({ brand: ref }, ctx) {
       const brand = await ctx.brand(ref)
-      const palettes = rows(await ctx.sb.from('color_palettes').select('*, colors(*)').eq('brand_id', brand.id).order('sort'))
+      const palettes = rows(
+        await ctx.sb.from('color_palettes').select('*, colors(*)').eq('brand_id', brand.id).order('sort'),
+      )
       const total = palettes.reduce((n, p) => n + p.colors.length, 0)
       return {
         summary: `${palettes.length} Palette(n) mit ${total} Farbe(n) in „${brand.name}“.`,
@@ -108,7 +129,11 @@ export const basicsTools = [
     name: 'create_palette',
     title: 'Farbpalette anlegen',
     description: 'Legt eine neue Farbpalette an (z. B. „Primärfarben“, „Sekundärfarben“).',
-    input: { brand: z.string().optional(), name: z.string().min(1).max(120), description: z.string().max(1000).optional() },
+    input: {
+      brand: z.string().optional(),
+      name: z.string().min(1).max(120),
+      description: z.string().max(1000).optional(),
+    },
     kind: 'write',
     async run({ brand: ref, name, description }, ctx) {
       const brand = await ctx.editableBrand(ref)
@@ -133,7 +158,12 @@ export const basicsTools = [
     name: 'update_palette',
     title: 'Farbpalette bearbeiten',
     description: 'Benennt eine Farbpalette um oder ändert ihre Beschreibung.',
-    input: { brand: z.string().optional(), palette: z.string(), name: z.string().min(1).max(120).optional(), description: z.string().max(1000).optional() },
+    input: {
+      brand: z.string().optional(),
+      palette: z.string(),
+      name: z.string().min(1).max(120).optional(),
+      description: z.string().max(1000).optional(),
+    },
     kind: 'write',
     idempotent: true,
     async run({ brand: ref, palette: pRef, name, description }, ctx) {
@@ -141,7 +171,14 @@ export const basicsTools = [
       const palette = await resolvePalette(ctx, brand, pRef)
       const patch = defined({ name: name?.trim(), description })
       requireChange(patch)
-      const [updated] = affected(await ctx.sb.from('color_palettes').update(patch).eq('id', palette.id).select('id, name, description'), 'Palette')
+      const [updated] = affected(
+        await ctx.sb
+          .from('color_palettes')
+          .update(patch)
+          .eq('id', palette.id)
+          .select('id, name, description'),
+        'Palette',
+      )
       return { summary: `Palette „${updated.name}“ gespeichert.`, data: updated }
     },
   }),
@@ -192,10 +229,18 @@ export const basicsTools = [
         if (a.palette) patch.palette_id = (await resolvePalette(ctx, brand, a.palette)).id
         requireChange(patch)
         const [updated] = affected(
-          await ctx.sb.from('colors').update(patch as never).eq('id', a.color_id).eq('brand_id', brand.id).select('id, name, hex, token'),
+          await ctx.sb
+            .from('colors')
+            .update(patch as never)
+            .eq('id', a.color_id)
+            .eq('brand_id', brand.id)
+            .select('id, name, hex, token'),
           'Farbe',
         )
-        return { summary: `Farbe „${updated.name}“ gespeichert.`, data: { ...updated, ...colorInfo(updated.hex) } }
+        return {
+          summary: `Farbe „${updated.name}“ gespeichert.`,
+          data: { ...updated, ...colorInfo(updated.hex) },
+        }
       }
       if (!values.name || !values.hex) throw new ToolError('Zum Anlegen werden name und hex benötigt.')
       const palette = await resolvePalette(ctx, brand, a.palette)
@@ -212,14 +257,18 @@ export const basicsTools = [
           .select('id, name, hex, token')
           .single(),
       )
-      return { summary: `Farbe „${created.name}“ (${created.hex}) in „${palette.name}“ angelegt.`, data: { ...created, ...colorInfo(created.hex) } }
+      return {
+        summary: `Farbe „${created.name}“ (${created.hex}) in „${palette.name}“ angelegt.`,
+        data: { ...created, ...colorInfo(created.hex) },
+      }
     },
   }),
 
   defineTool({
     name: 'move_color',
     title: 'Farbe verschieben',
-    description: 'Verschiebt eine Farbe innerhalb ihrer Palette (position, 0 = ganz vorn) oder in eine andere Palette.',
+    description:
+      'Verschiebt eine Farbe innerhalb ihrer Palette (position, 0 = ganz vorn) oder in eine andere Palette.',
     input: {
       brand: z.string().optional(),
       color_id: z.string(),
@@ -230,11 +279,19 @@ export const basicsTools = [
     idempotent: true,
     async run({ brand: ref, color_id, palette: pRef, position }, ctx) {
       const brand = await ctx.editableBrand(ref)
-      const color = row(await ctx.sb.from('colors').select('*').eq('id', color_id).eq('brand_id', brand.id).single())
+      const color = row(
+        await ctx.sb.from('colors').select('*').eq('id', color_id).eq('brand_id', brand.id).single(),
+      )
       const targetPalette = pRef ? (await resolvePalette(ctx, brand, pRef)).id : color.palette_id
-      const siblings = rows(await ctx.sb.from('colors').select('id, sort').eq('palette_id', targetPalette).order('sort')).filter((c) => c.id !== color.id)
+      const siblings = rows(
+        await ctx.sb.from('colors').select('id, sort').eq('palette_id', targetPalette).order('sort'),
+      ).filter((c) => c.id !== color.id)
       const index = Math.min(position ?? siblings.length, siblings.length)
-      const ordered = [...siblings.slice(0, index), { id: color.id, sort: color.sort }, ...siblings.slice(index)]
+      const ordered = [
+        ...siblings.slice(0, index),
+        { id: color.id, sort: color.sort },
+        ...siblings.slice(index),
+      ]
       await Promise.all(
         ordered.map(async (c, i) => {
           const patch = c.id === color.id ? { sort: i, palette_id: targetPalette } : { sort: i }
@@ -254,7 +311,10 @@ export const basicsTools = [
     kind: 'destructive',
     async run({ brand: ref, color_id }, ctx) {
       const brand = await ctx.editableBrand(ref)
-      const [gone] = affected(await ctx.sb.from('colors').delete().eq('id', color_id).eq('brand_id', brand.id).select('name'), 'Farbe')
+      const [gone] = affected(
+        await ctx.sb.from('colors').delete().eq('id', color_id).eq('brand_id', brand.id).select('name'),
+        'Farbe',
+      )
       return { summary: `Farbe „${gone.name}“ gelöscht.` }
     },
   }),
@@ -262,21 +322,34 @@ export const basicsTools = [
   defineTool({
     name: 'check_contrast',
     title: 'Farbkontrast prüfen (WCAG)',
-    description: 'Berechnet das Kontrastverhältnis zweier Farben und die WCAG-Stufe (AAA, AA, AA groß). Braucht keine Marke.',
-    input: { foreground: z.string().describe('Vordergrundfarbe als HEX'), background: z.string().describe('Hintergrundfarbe als HEX') },
+    description:
+      'Berechnet das Kontrastverhältnis zweier Farben und die WCAG-Stufe (AAA, AA, AA groß). Braucht keine Marke.',
+    input: {
+      foreground: z.string().describe('Vordergrundfarbe als HEX'),
+      background: z.string().describe('Hintergrundfarbe als HEX'),
+    },
     kind: 'read',
     async run({ foreground, background }) {
       const fg = hexOrThrow(foreground)
       const bg = hexOrThrow(background)
       const ratio = contrastRatio(fg, bg)
-      return { summary: `${fg} auf ${bg}: ${ratio.toFixed(2)}:1 – ${wcagLevel(ratio)}`, data: { foreground: fg, background: bg, ratio: Math.round(ratio * 100) / 100, wcag: wcagLevel(ratio) } }
+      return {
+        summary: `${fg} auf ${bg}: ${ratio.toFixed(2)}:1 – ${wcagLevel(ratio)}`,
+        data: {
+          foreground: fg,
+          background: bg,
+          ratio: Math.round(ratio * 100) / 100,
+          wcag: wcagLevel(ratio),
+        },
+      }
     },
   }),
 
   defineTool({
     name: 'list_typography',
     title: 'Schriften und Textstile',
-    description: 'Listet die Schriften (Google-Font, eigene Dateien, Systemschrift) und Textstile (Größe, Gewicht, Zeilenhöhe …) einer Marke.',
+    description:
+      'Listet die Schriften (Google-Font, eigene Dateien, Systemschrift) und Textstile (Größe, Gewicht, Zeilenhöhe …) einer Marke.',
     input: { brand: z.string().optional() },
     kind: 'read',
     async run({ brand: ref }, ctx) {
@@ -297,7 +370,13 @@ export const basicsTools = [
             fallback: f.fallback,
             license: f.license,
             description: f.description,
-            files: Array.isArray(f.files) ? (f.files as Array<{ name?: string; weight?: number; style?: string }>).map((x) => ({ name: x.name, weight: x.weight, style: x.style })) : [],
+            files: Array.isArray(f.files)
+              ? (f.files as Array<{ name?: string; weight?: number; style?: string }>).map((x) => ({
+                  name: x.name,
+                  weight: x.weight,
+                  style: x.style,
+                }))
+              : [],
           })),
           text_styles: rows(styles),
         },
@@ -315,7 +394,11 @@ export const basicsTools = [
       font_id: z.string().optional(),
       family: z.string().min(1).max(120).optional(),
       source: z.enum(['google', 'upload', 'system']).optional(),
-      role: z.string().max(60).optional().describe('z. B. Headline, Fließtext – wird auch als Token-Name genutzt'),
+      role: z
+        .string()
+        .max(60)
+        .optional()
+        .describe('z. B. Headline, Fließtext – wird auch als Token-Name genutzt'),
       weights: z.array(z.number().int().min(100).max(900)).max(9).optional(),
       fallback: z.string().max(120).optional().describe('Ersatzschrift-Familie, z. B. sans-serif oder serif'),
       license: z.string().max(500).optional(),
@@ -325,10 +408,26 @@ export const basicsTools = [
     idempotent: true,
     async run({ brand: ref, font_id, family, source, role, weights, fallback, license, description }, ctx) {
       const brand = await ctx.editableBrand(ref)
-      const values = defined({ family: family?.trim(), source, role, weights, fallback, license, description })
+      const values = defined({
+        family: family?.trim(),
+        source,
+        role,
+        weights,
+        fallback,
+        license,
+        description,
+      })
       if (font_id) {
         requireChange(values)
-        const [updated] = affected(await ctx.sb.from('fonts').update(values).eq('id', font_id).eq('brand_id', brand.id).select('id, family, source, weights'), 'Schrift')
+        const [updated] = affected(
+          await ctx.sb
+            .from('fonts')
+            .update(values)
+            .eq('id', font_id)
+            .eq('brand_id', brand.id)
+            .select('id, family, source, weights'),
+          'Schrift',
+        )
         return { summary: `Schrift „${updated.family}“ gespeichert.`, data: updated }
       }
       if (!values.family) throw new ToolError('Zum Anlegen wird family benötigt.')
@@ -358,7 +457,7 @@ export const basicsTools = [
       font: z.string().describe('Schrift (Familienname oder ID)'),
       weight: z.number().int().min(100).max(900).default(400),
       style: z.enum(['normal', 'italic']).default('normal'),
-      ...fileSourceShape,
+      ...fileSourceShapeShort,
     },
     kind: 'write',
     async run(args, ctx) {
@@ -368,7 +467,13 @@ export const basicsTools = [
       const file = await resolveFile(ctx, brand, args)
       const stored = await storeFile(ctx, brand, { ...file, mime: file.mime }, 'fonts')
       const files = Array.isArray(font.files) ? (font.files as unknown[]) : []
-      const entry = { path: stored.path, name: stored.fileName, format: stored.ext, weight: args.weight, style: args.style }
+      const entry = {
+        path: stored.path,
+        name: stored.fileName,
+        format: stored.ext,
+        weight: args.weight,
+        style: args.style,
+      }
       const weights = [...new Set([...font.weights, args.weight])].sort((a, b) => a - b)
       const result = await ctx.sb
         .from('fonts')
@@ -380,7 +485,10 @@ export const basicsTools = [
         if (result.error) throw result.error
         throw new ToolError('Schrift nicht gefunden – oder dir fehlt dafür die Berechtigung.')
       }
-      return { summary: `Schriftdatei „${stored.fileName}“ (${args.weight}${args.style === 'italic' ? ' kursiv' : ''}) zu „${font.family}“ hinzugefügt.`, data: entry }
+      return {
+        summary: `Schriftdatei „${stored.fileName}“ (${args.weight}${args.style === 'italic' ? ' kursiv' : ''}) zu „${font.family}“ hinzugefügt.`,
+        data: entry,
+      }
     },
   }),
 
@@ -393,7 +501,9 @@ export const basicsTools = [
     async run({ brand: ref, font: fRef }, ctx) {
       const brand = await ctx.editableBrand(ref)
       const font = await resolveFont(ctx, brand, fRef)
-      const paths = (Array.isArray(font.files) ? (font.files as Array<{ path?: string }>) : []).map((f) => f.path).filter((p): p is string => Boolean(p))
+      const paths = (Array.isArray(font.files) ? (font.files as Array<{ path?: string }>) : [])
+        .map((f) => f.path)
+        .filter((p): p is string => Boolean(p))
       if (paths.length > 0) await ctx.storage.remove(paths)
       affected(await ctx.sb.from('fonts').delete().eq('id', font.id).select('id'), 'Schrift')
       return { summary: `Schrift „${font.family}“ gelöscht.` }
@@ -439,10 +549,19 @@ export const basicsTools = [
       })
       if (a.style_id) {
         requireChange(values)
-        const [updated] = affected(await ctx.sb.from('text_styles').update(values).eq('id', a.style_id).eq('brand_id', brand.id).select('id, name'), 'Textstil')
+        const [updated] = affected(
+          await ctx.sb
+            .from('text_styles')
+            .update(values)
+            .eq('id', a.style_id)
+            .eq('brand_id', brand.id)
+            .select('id, name'),
+          'Textstil',
+        )
         return { summary: `Textstil „${updated.name}“ gespeichert.`, data: updated }
       }
-      if (!values.name || !values.font_family) throw new ToolError('Zum Anlegen werden name und font_family benötigt.')
+      if (!values.name || !values.font_family)
+        throw new ToolError('Zum Anlegen werden name und font_family benötigt.')
       const siblings = rows(await ctx.sb.from('text_styles').select('sort').eq('brand_id', brand.id))
       const created = row(
         await ctx.sb
@@ -467,7 +586,10 @@ export const basicsTools = [
     kind: 'destructive',
     async run({ brand: ref, style_id }, ctx) {
       const brand = await ctx.editableBrand(ref)
-      const [gone] = affected(await ctx.sb.from('text_styles').delete().eq('id', style_id).eq('brand_id', brand.id).select('name'), 'Textstil')
+      const [gone] = affected(
+        await ctx.sb.from('text_styles').delete().eq('id', style_id).eq('brand_id', brand.id).select('name'),
+        'Textstil',
+      )
       return { summary: `Textstil „${gone.name}“ gelöscht.` }
     },
   }),
@@ -488,7 +610,10 @@ export const basicsTools = [
       ])
       const blob = buildTokenFile(format as TokenFormat, {
         brandName: brand.name,
-        palettes: rows(palettes).map((p) => ({ name: p.name, colors: [...p.colors].sort((a, b) => a.sort - b.sort) })),
+        palettes: rows(palettes).map((p) => ({
+          name: p.name,
+          colors: [...p.colors].sort((a, b) => a.sort - b.sort),
+        })),
         textStyles: rows(styles).map((s) => ({
           ...s,
           font_size: Number(s.font_size),
@@ -499,12 +624,18 @@ export const basicsTools = [
       })
       const meta = TOKEN_FORMATS[format as TokenFormat]
       if (format !== 'ase') {
-        return { summary: `${meta.label} für „${brand.name}“ (${meta.file}).`, data: { file_name: meta.file, content: await blob.text() } }
+        return {
+          summary: `${meta.label} für „${brand.name}“ (${meta.file}).`,
+          data: { file_name: meta.file, content: await blob.text() },
+        }
       }
       const bytes = Buffer.from(await blob.arrayBuffer())
       const published = await publishExport(ctx, brand, meta.file, bytes, meta.mime)
       if (published) {
-        return { summary: `Adobe-Farbfelder für „${brand.name}“ – Download-Link 60 Minuten gültig.`, data: { file_name: meta.file, download_url: published.url } }
+        return {
+          summary: `Adobe-Farbfelder für „${brand.name}“ – Download-Link 60 Minuten gültig.`,
+          data: { file_name: meta.file, download_url: published.url },
+        }
       }
       return {
         summary: `Adobe-Farbfelder für „${brand.name}“ (${bytes.length} Bytes, base64).`,
@@ -513,4 +644,3 @@ export const basicsTools = [
     },
   }),
 ]
-

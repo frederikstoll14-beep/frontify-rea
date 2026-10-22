@@ -7,8 +7,13 @@ import { markdownToHtml, sanitizeRichHtml } from './richtext'
 
 const str = (fallback = '') => z.string().default(fallback)
 const bool = (fallback: boolean) => z.boolean().default(fallback)
-const id = () => z.string().min(1).default(() => crypto.randomUUID())
-const int = (min: number, max: number, fallback: number) => z.number().int().min(min).max(max).default(fallback)
+const id = () =>
+  z
+    .string()
+    .min(1)
+    .default(() => crypto.randomUUID())
+const int = (min: number, max: number, fallback: number) =>
+  z.number().int().min(min).max(max).default(fallback)
 
 const background = z.enum(['light', 'dark', 'brand', 'checker'])
 
@@ -137,7 +142,9 @@ export const BLOCK_SCHEMAS = {
     .strict(),
   video: z.object({ url: str(), file: imageRef, caption: str() }).strict(),
   audio: z.object({ file: imageRef, title: str(), caption: str() }).strict(),
-  embed: z.object({ url: str(), height: z.number().int().min(120).max(2000).default(480), caption: str() }).strict(),
+  embed: z
+    .object({ url: str(), height: z.number().int().min(120).max(2000).default(480), caption: str() })
+    .strict(),
   assets: z
     .object({
       title: str('Downloads'),
@@ -171,7 +178,8 @@ export const BLOCK_NOTES: Partial<Record<BlockType, string>> = {
   callout: 'Statt html darf "markdown" angegeben werden.',
   note: 'Statt html darf "markdown" angegeben werden. Nur im Bearbeitungsmodus sichtbar.',
   accordion: 'Items: { title, markdown | html }.',
-  image: 'image: { "assetId": "<Asset-ID>" } oder nur die Asset-ID als Text – Pfad, Maße und Typ werden ergänzt.',
+  image:
+    'image: { "assetId": "<Asset-ID>" } oder nur die Asset-ID als Text – Pfad, Maße und Typ werden ergänzt.',
   gallery: 'items[].image: { "assetId": "<Asset-ID>" } oder die Asset-ID als Text.',
   logos: 'items[]: { assetId, label, description, background } – das Bild wird aus dem Asset ergänzt.',
   cards: 'items[].image: { "assetId": "<Asset-ID>" } oder die Asset-ID als Text.',
@@ -181,7 +189,8 @@ export const BLOCK_NOTES: Partial<Record<BlockType, string>> = {
   assets: 'assetIds: IDs von Assets dieser Marke.',
   colors: 'paletteIds leer = alle Paletten der Marke.',
   typography: 'fontIds/styleIds leer = alle.',
-  embed: 'url: Figma, Canva, Miro, Google Slides/Docs, Spotify, SoundCloud, YouTube, Vimeo oder andere https-Adresse.',
+  embed:
+    'url: Figma, Canva, Miro, Google Slides/Docs, Spotify, SoundCloud, YouTube, Vimeo oder andere https-Adresse.',
 }
 
 export function describeBlockType(type: BlockType): {
@@ -364,7 +373,10 @@ export async function normalizeBlockContent(
     for (const row of data ?? []) assets.set(row.id.toLowerCase(), row)
     const missing = assetIds.filter((value) => !assets.has(value.toLowerCase()))
     if (missing.length > 0) {
-      throw new ToolError(`Asset nicht in dieser Marke gefunden: ${missing.slice(0, 3).join(', ')}.`, 'IDs bekommst du mit list_assets.')
+      throw new ToolError(
+        `Asset nicht in dieser Marke gefunden: ${missing.slice(0, 3).join(', ')}.`,
+        'IDs bekommst du mit list_assets.',
+      )
     }
   }
   const filled = fillAssetRefs(content, assets)

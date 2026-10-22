@@ -31,7 +31,10 @@ npm run format        # Prettier
 npm run typecheck     # TypeScript
 npm test              # Unit-Tests (Farben, Tokens, Vorlagen, Export, Embeds, Links)
 npm run test:db       # Rechte-Tests gegen lokales Supabase (RLS, Storage, Einladungen)
-npm run test:e2e      # Playwright: Mehrnutzer-Ablauf + Mobil-Check
+npm run test:mcp      # MCP-Konnektor: OAuth-Ablauf, alle Werkzeuge, Rechte (gegen lokales Supabase)
+npm run test:e2e      # Playwright: Mehrnutzer-Ablauf + Mobil-Check + Zustimmungsseite des Konnektors
+npm run build:mcp     # api/mcp.js (Vercel-Funktion) aus mcp/ neu bündeln und committen
+npm run mcp:dev       # MCP-Server lokal auf http://127.0.0.1:8787/mcp
 npm run build         # Produktions-Build
 npm run db:types      # TypeScript-Typen aus dem lokalen Schema neu erzeugen
 ```
@@ -41,8 +44,11 @@ Die GitHub-Action `.github/workflows/ci.yml` führt alle Schritte aus. Dazu star
 ## Projektstruktur
 
 ```
+mcp/src/                   MCP-Server für KI-Assistenten (siehe docs/MCP.md)
+api/mcp.js                 Daraus gebündelte Vercel-Funktion (generiert, wird eingecheckt)
 supabase/
   migrations/…schema.sql   Komplettes Datenbankschema inkl. RLS, Storage, RPCs
+  migrations/…mcp_connector.sql   Auswahl für verbundene Apps und ihre Durchsetzung
   config.toml              Lokale Supabase-Konfiguration
 src/
   api/                     Datenzugriff (TanStack-Query-Hooks, Supabase-Aufrufe)
@@ -59,6 +65,7 @@ src/
     library/               Bibliotheken, Asset-Details, Tags, Sammlungen
     settings/              Marken-Einstellungen, Teilen, Export/Import
     members/               Mitglieder & Einladungen
+    connections/           Zustimmungsseite (/oauth/consent) und „Verbundene Apps“ im Konto
     activity/, print/      Verlauf & Feedback, Druck/PDF
   lib/
     blocks/types.ts        Inhalts-Schemas der Bausteine
@@ -100,6 +107,7 @@ workspaces ─┬─ workspace_members (owner | admin | member)
 - `brand_id` in Kind-Tabellen setzt immer ein Trigger aus dem Elternobjekt. Was der Client mitschickt, wird ignoriert, so ist kein Schreiben in fremde Marken möglich.
 - Dateien liegen im privaten Bucket `brand-files/<brand_id>/…`. Die Storage-Policies prüfen dieselben Rechte. Ausgeliefert wird per Signed URL (1 h).
 - Workspaces, Marken und Einladungen werden nur über `security definer`-Funktionen mit expliziten Prüfungen angelegt bzw. eingelöst.
+- Verbundene Apps (OAuth-Token mit Claim `client_id`) sehen nur die Workspaces und Marken ihrer Auswahl (`mcp_grants`). Die Prüfung steckt in `workspace_role_of`, `brand_role_of` und `shares_workspace_with`; alle Regeln bauen darauf auf. Konto löschen, Workspace verlassen und Einladungen einlösen sind für Apps gesperrt.
 - Rich Text wird beim Anzeigen mit DOMPurify bereinigt. Externe Links sind auf `http(s)`/`mailto` beschränkt, Einbettungen laufen in sandboxed iframes.
 
 ## Neuen Baustein hinzufügen

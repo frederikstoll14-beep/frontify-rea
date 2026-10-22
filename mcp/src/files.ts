@@ -14,12 +14,19 @@ export const fileSourceShape = {
   text: z
     .string()
     .optional()
-    .describe('Dateiinhalt als Text (ideal für SVG, CSS, JSON, Markdown). Genau eine Quelle angeben: text, content_base64, url oder upload_path.'),
+    .describe(
+      'Dateiinhalt als Text (ideal für SVG, CSS, JSON, Markdown). Genau eine Quelle angeben: text, content_base64, url oder upload_path.',
+    ),
   content_base64: z
     .string()
     .optional()
-    .describe('Dateiinhalt base64-kodiert, nur für kleine Dateien (bis ca. 3 MB). Größere Dateien: url oder create_upload_url.'),
-  url: z.string().optional().describe('Öffentliche https-Adresse, von der die Datei geladen wird (bis 50 MB).'),
+    .describe(
+      'Dateiinhalt base64-kodiert, nur für kleine Dateien (bis ca. 3 MB). Größere Dateien: url oder create_upload_url.',
+    ),
+  url: z
+    .string()
+    .optional()
+    .describe('Öffentliche https-Adresse, von der die Datei geladen wird (bis 50 MB).'),
   upload_path: z
     .string()
     .optional()
@@ -27,8 +34,21 @@ export const fileSourceShape = {
   mime_type: z.string().optional().describe('Dateityp, falls er sich nicht aus der Endung ergibt.'),
 }
 
+/** Kurzfassung der Quellen-Felder für Tools, die nur eine Datei entgegennehmen (spart Platz in der Tool-Liste). */
+export const fileSourceShapeShort = {
+  file_name: z.string().min(1).max(200).describe('Dateiname mit Endung'),
+  text: z.string().optional().describe('Quelle (genau eine): Dateiinhalt als Text, z. B. SVG'),
+  content_base64: z.string().optional().describe('Quelle: base64, bis ca. 3 MB'),
+  url: z.string().optional().describe('Quelle: öffentliche https-Adresse'),
+  upload_path: z.string().optional().describe('Quelle: Pfad aus create_upload_url'),
+  mime_type: z.string().optional(),
+}
+
 /** Wie fileSourceShape, aber der Dateiname ist optional (für Tools, die alternativ eine vorhandene Datei verwenden). */
-export const optionalFileSourceShape = { ...fileSourceShape, file_name: fileSourceShape.file_name.optional() }
+export const optionalFileSourceShape = {
+  ...fileSourceShapeShort,
+  file_name: fileSourceShapeShort.file_name.optional(),
+}
 
 export interface FileSourceInput {
   file_name: string
@@ -61,8 +81,14 @@ export function assertBrandPath(path: string, brandId: string): void {
   }
 }
 
-export async function resolveFile(ctx: Ctx, brand: ScopeBrand, input: FileSourceInput): Promise<ResolvedFile> {
-  const sources = [input.text, input.content_base64, input.url, input.upload_path].filter((v) => v !== undefined)
+export async function resolveFile(
+  ctx: Ctx,
+  brand: ScopeBrand,
+  input: FileSourceInput,
+): Promise<ResolvedFile> {
+  const sources = [input.text, input.content_base64, input.url, input.upload_path].filter(
+    (v) => v !== undefined,
+  )
   if (sources.length !== 1) {
     throw new ToolError('Bitte genau eine Quelle angeben: text, content_base64, url oder upload_path.')
   }
@@ -84,7 +110,9 @@ export async function resolveFile(ctx: Ctx, brand: ScopeBrand, input: FileSource
       bytes: null,
       existingPath: input.upload_path,
       fileName,
-      mime: input.mime_type || (contentType && contentType !== 'application/octet-stream' ? contentType : byExtension),
+      mime:
+        input.mime_type ||
+        (contentType && contentType !== 'application/octet-stream' ? contentType : byExtension),
       size,
     }
   }
@@ -130,7 +158,12 @@ export interface StoredFile {
 }
 
 /** Legt die Datei im Marken-Ordner ab (inkl. Vorschaubild) und liefert die Daten für die Datenbank. */
-export async function storeFile(ctx: Ctx, brand: ScopeBrand, file: ResolvedFile, folder: string): Promise<StoredFile> {
+export async function storeFile(
+  ctx: Ctx,
+  brand: ScopeBrand,
+  file: ResolvedFile,
+  folder: string,
+): Promise<StoredFile> {
   let bytes = file.bytes
   let path = file.existingPath
   if (bytes) {
@@ -153,7 +186,10 @@ export async function storeFile(ctx: Ctx, brand: ScopeBrand, file: ResolvedFile,
     const thumb = await createThumbnail(bytes, file.mime, dims)
     if (thumb) {
       const candidate = buildStoragePath(brand.id, 'thumbs', 'thumb.webp')
-      const { error } = await ctx.storage.upload(candidate, thumb, { contentType: 'image/webp', upsert: false })
+      const { error } = await ctx.storage.upload(candidate, thumb, {
+        contentType: 'image/webp',
+        upsert: false,
+      })
       if (!error) thumbPath = candidate
     }
   }
@@ -182,7 +218,12 @@ export async function removePaths(ctx: Ctx, paths: Array<string | null | undefin
   }
 }
 
-export async function signedUrl(ctx: Ctx, path: string, seconds = 3600, download?: string | boolean): Promise<string | null> {
+export async function signedUrl(
+  ctx: Ctx,
+  path: string,
+  seconds = 3600,
+  download?: string | boolean,
+): Promise<string | null> {
   const { data } = await ctx.storage.createSignedUrl(path, seconds, download ? { download } : undefined)
   return data?.signedUrl ?? null
 }

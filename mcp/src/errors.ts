@@ -29,10 +29,12 @@ export function describeError(error: unknown): string {
     const e = error as SupabaseLikeError
     if (e.code === PGRST_NOT_FOUND) return 'Nicht gefunden – oder dir fehlt dafür die Berechtigung.'
     if (e.code === '23505') return `Das gibt es schon (${e.details ?? e.message ?? 'Eintrag doppelt'}).`
-    if (e.code === '23503') return 'Das hängt noch mit anderen Einträgen zusammen oder verweist auf etwas, das es nicht gibt.'
+    if (e.code === '23503')
+      return 'Das hängt noch mit anderen Einträgen zusammen oder verweist auf etwas, das es nicht gibt.'
     if (e.code === '23514') return `Ungültiger Wert: ${e.details ?? e.message ?? ''}`.trim()
     if (e.code === '22P02') return 'Ungültige ID oder ungültiger Wert.'
-    if (e.code === '42501') return 'Dafür fehlen dir die Rechte (oder die Verbindung ist auf „nur lesen“ beschränkt).'
+    if (e.code === '42501')
+      return 'Dafür fehlen dir die Rechte (oder die Verbindung ist auf „nur lesen“ beschränkt).'
     if (e.code === 'P0001' && e.message) return e.message
   }
   return errorMessage(error)

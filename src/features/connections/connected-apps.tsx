@@ -56,123 +56,127 @@ export function ConnectedAppsCard() {
   const unavailable = Boolean(apps.error) && (grants.data ?? []).length === 0
 
   return (
-    <Card className="space-y-4 p-5">
-      <div className="flex items-start gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
-          <Plug className="size-5" aria-hidden />
-        </span>
-        <div>
-          <h2 className="font-semibold text-ink">Verbundene Apps</h2>
-          <p className="mt-0.5 text-sm text-muted">
-            KI-Assistenten wie Claude können mit deinen Marken arbeiten. Du bestimmst, welche Workspaces und
-            Marken sie sehen.
+    <section aria-labelledby="connected-apps-title">
+      <Card className="space-y-4 p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+            <Plug className="size-5" aria-hidden />
+          </span>
+          <div>
+            <h2 id="connected-apps-title" className="font-semibold text-ink">
+              Verbundene Apps
+            </h2>
+            <p className="mt-0.5 text-sm text-muted">
+              KI-Assistenten wie Claude können mit deinen Marken arbeiten. Du bestimmst, welche Workspaces und
+              Marken sie sehen.
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-surface-2/60 p-3 text-sm">
+          <p className="font-medium text-ink">Neue App verbinden</p>
+          <p className="mt-1 text-muted">
+            In Claude unter <em>Einstellungen → Konnektoren → Benutzerdefinierten Konnektor hinzufügen</em>{' '}
+            diese Adresse eintragen:
           </p>
+          <div className="mt-2 flex gap-2">
+            <Input
+              readOnly
+              value={mcpUrl()}
+              onFocus={(e) => e.currentTarget.select()}
+              aria-label="MCP-Adresse"
+            />
+            <Button
+              variant="outline"
+              onClick={() => {
+                void navigator.clipboard.writeText(mcpUrl()).then(
+                  () => toast.success('Adresse kopiert'),
+                  () => toast.error('Kopieren nicht möglich – bitte von Hand markieren'),
+                )
+              }}
+            >
+              Kopieren
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="rounded-xl bg-surface-2/60 p-3 text-sm">
-        <p className="font-medium text-ink">Neue App verbinden</p>
-        <p className="mt-1 text-muted">
-          In Claude unter <em>Einstellungen → Konnektoren → Benutzerdefinierten Konnektor hinzufügen</em>{' '}
-          diese Adresse eintragen:
-        </p>
-        <div className="mt-2 flex gap-2">
-          <Input
-            readOnly
-            value={mcpUrl()}
-            onFocus={(e) => e.currentTarget.select()}
-            aria-label="MCP-Adresse"
+        {loading && <PageSpinner label="Lädt …" />}
+        {!loading && unavailable && (
+          <p className="text-sm text-muted">
+            Die Verbindung für Apps ist in diesem Projekt noch nicht eingeschaltet. Eine Anleitung steht in
+            docs/MCP.md.
+          </p>
+        )}
+        {!loading && !unavailable && rows.length === 0 && (
+          <p className="text-sm text-muted">Noch keine App verbunden.</p>
+        )}
+
+        <ul className="space-y-3">
+          {rows.map(({ clientId, app, grant }) => {
+            const name = app?.name || grant?.client_name || 'Unbenannte App'
+            return (
+              <li key={clientId} className="rounded-xl border border-border p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 font-medium text-ink">
+                      <Bot className="size-4 text-muted" aria-hidden /> {name}
+                      {grant?.read_only && <Badge tone="info">Nur lesen</Badge>}
+                      {!grant && <Badge tone="warning">Keine Auswahl</Badge>}
+                    </p>
+                    <p className="mt-1 text-xs text-muted">
+                      {grant
+                        ? `${grant.workspace_ids.length} Workspace${grant.workspace_ids.length === 1 ? '' : 's'}, ${grant.brand_ids.length} einzelne Marke${grant.brand_ids.length === 1 ? '' : 'n'}`
+                        : 'Die App sieht nichts, bis du eine Auswahl triffst.'}
+                      {grant?.last_used_at
+                        ? ` · zuletzt genutzt ${timeAgo(grant.last_used_at)}`
+                        : app?.grantedAt
+                          ? ` · verbunden ${timeAgo(app.grantedAt)}`
+                          : ''}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => setEditing({ clientId, name })}>
+                      Auswahl ändern
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-danger"
+                      loading={disconnect.isPending && disconnect.variables === clientId}
+                      onClick={async () => {
+                        const ok = await confirm({
+                          title: `„${name}“ trennen?`,
+                          description:
+                            'Die App verliert sofort den Zugriff auf alle Workspaces und Marken. Du kannst sie später neu verbinden.',
+                          confirmLabel: 'Trennen',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        disconnect.mutate(clientId, {
+                          onSuccess: () => toast.success('Verbindung getrennt'),
+                          onError: (e) => toast.error(errorMessage(e)),
+                        })
+                      }}
+                    >
+                      <Unplug /> Trennen
+                    </Button>
+                  </div>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+
+        {editing && (
+          <EditSelectionDialog
+            clientId={editing.clientId}
+            name={editing.name}
+            grant={(grants.data ?? []).find((g) => g.client_id === editing.clientId) ?? null}
+            onClose={() => setEditing(null)}
           />
-          <Button
-            variant="outline"
-            onClick={() => {
-              void navigator.clipboard.writeText(mcpUrl()).then(
-                () => toast.success('Adresse kopiert'),
-                () => toast.error('Kopieren nicht möglich – bitte von Hand markieren'),
-              )
-            }}
-          >
-            Kopieren
-          </Button>
-        </div>
-      </div>
-
-      {loading && <PageSpinner label="Lädt …" />}
-      {!loading && unavailable && (
-        <p className="text-sm text-muted">
-          Die Verbindung für Apps ist in diesem Projekt noch nicht eingeschaltet. Eine Anleitung steht in
-          docs/MCP.md.
-        </p>
-      )}
-      {!loading && !unavailable && rows.length === 0 && (
-        <p className="text-sm text-muted">Noch keine App verbunden.</p>
-      )}
-
-      <ul className="space-y-3">
-        {rows.map(({ clientId, app, grant }) => {
-          const name = app?.name || grant?.client_name || 'Unbenannte App'
-          return (
-            <li key={clientId} className="rounded-xl border border-border p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="flex items-center gap-2 font-medium text-ink">
-                    <Bot className="size-4 text-muted" aria-hidden /> {name}
-                    {grant?.read_only && <Badge tone="info">Nur lesen</Badge>}
-                    {!grant && <Badge tone="warning">Keine Auswahl</Badge>}
-                  </p>
-                  <p className="mt-1 text-xs text-muted">
-                    {grant
-                      ? `${grant.workspace_ids.length} Workspace${grant.workspace_ids.length === 1 ? '' : 's'}, ${grant.brand_ids.length} einzelne Marke${grant.brand_ids.length === 1 ? '' : 'n'}`
-                      : 'Die App sieht nichts, bis du eine Auswahl triffst.'}
-                    {grant?.last_used_at
-                      ? ` · zuletzt genutzt ${timeAgo(grant.last_used_at)}`
-                      : app?.grantedAt
-                        ? ` · verbunden ${timeAgo(app.grantedAt)}`
-                        : ''}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setEditing({ clientId, name })}>
-                    Auswahl ändern
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-danger"
-                    loading={disconnect.isPending && disconnect.variables === clientId}
-                    onClick={async () => {
-                      const ok = await confirm({
-                        title: `„${name}“ trennen?`,
-                        description:
-                          'Die App verliert sofort den Zugriff auf alle Workspaces und Marken. Du kannst sie später neu verbinden.',
-                        confirmLabel: 'Trennen',
-                        danger: true,
-                      })
-                      if (!ok) return
-                      disconnect.mutate(clientId, {
-                        onSuccess: () => toast.success('Verbindung getrennt'),
-                        onError: (e) => toast.error(errorMessage(e)),
-                      })
-                    }}
-                  >
-                    <Unplug /> Trennen
-                  </Button>
-                </div>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
-
-      {editing && (
-        <EditSelectionDialog
-          clientId={editing.clientId}
-          name={editing.name}
-          grant={(grants.data ?? []).find((g) => g.client_id === editing.clientId) ?? null}
-          onClose={() => setEditing(null)}
-        />
-      )}
-    </Card>
+        )}
+      </Card>
+    </section>
   )
 }
 

@@ -46,4 +46,65 @@ describe('MCP – Anmeldung und erste Schritte', () => {
     expect(brand.data!.name).toBe('Marke A1')
     await client.close()
   })
+
+  it('verhandelt die Protokollversion mit älteren und neueren Clients', async () => {
+    const alice = await newUser('alice')
+    const ws = await alice.client.rpc('create_workspace', { p_name: 'Protokoll' })
+    const conn = await connectApp({ user: alice.client, workspaceIds: [ws.data!.id] })
+    const post = (body: unknown, headers: Record<string, string> = {}) =>
+      fetch(server.url, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          accept: 'application/json, text/event-stream',
+          authorization: `Bearer ${conn.accessToken}`,
+          ...headers,
+        },
+        body: JSON.stringify(body),
+      })
+    for (const version of ['2025-03-26', '2025-06-18', '2025-11-25', '2099-01-01']) {
+      const res = await post({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'initialize',
+        params: { protocolVersion: version, capabilities: {}, clientInfo: { name: 'test', version: '1' } },
+      })
+      expect(res.status, version).toBe(200)
+      const body = await res.json()
+      expect(body.result.protocolVersion, version).toMatch(/^20\d\d-\d\d-\d\d$/)
+      expect(body.result.serverInfo.name).toBe('brandbench')
+      expect(body.result.instructions).toContain('Marke (brand)')
+      expect(body.result.capabilities.tools).toBeTruthy()
+      expect(body.result.capabilities.prompts).toBeTruthy()
+    }
+    // Benachrichtigungen werden ohne Inhalt bestätigt
+    const note = await post(
+      { jsonrpc: '2.0', method: 'notifications/initialized' },
+      { 'mcp-protocol-version': '2025-06-18' },
+    )
+    expect(note.status).toBe(202)
+    // Folgeanfragen mit der ausgehandelten Version und ohne Accept-Kopfzeile funktionieren
+    const list = await fetch(server.url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${conn.accessToken}`,
+        'mcp-protocol-version': '2025-06-18',
+      },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'prompts/list' }),
+    })
+    expect(list.status).toBe(200)
+    expect((await list.json()).result.prompts.length).toBeGreaterThanOrEqual(5)
+    // Zu großer Inhalt wird abgelehnt
+    const big = await fetch(server.url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        accept: 'application/json, text/event-stream',
+        authorization: `Bearer ${conn.accessToken}`,
+      },
+      body: 'x'.repeat(4_500_000),
+    })
+    expect([400, 413]).toContain(big.status)
+  })
 })

@@ -87,7 +87,11 @@ export async function fetchPublicFile(
       throw new ToolError('Es sind nur https-Adressen erlaubt.')
     }
     if (url.username || url.password) throw new ToolError('Adressen mit Zugangsdaten sind nicht erlaubt.')
-    if (isIP(url.hostname.replace(/^\[|\]$/g, '')) !== 0 && !allowPrivate && isPrivateAddress(url.hostname.replace(/^\[|\]$/g, ''))) {
+    if (
+      isIP(url.hostname.replace(/^\[|\]$/g, '')) !== 0 &&
+      !allowPrivate &&
+      isPrivateAddress(url.hostname.replace(/^\[|\]$/g, ''))
+    ) {
       throw new ToolError('Diese Adresse ist nicht erlaubt.')
     }
     const response = await request(url, options.maxBytes, allowPrivate)
@@ -140,7 +144,9 @@ function request(url: URL, maxBytes: number, allowPrivate: boolean): Promise<Raw
         res.on('data', (chunk: Buffer) => {
           total += chunk.length
           if (total > maxBytes) {
-            req.destroy(new ToolError(`Die Datei ist zu groß (maximal ${Math.round(maxBytes / 1_000_000)} MB).`))
+            req.destroy(
+              new ToolError(`Die Datei ist zu groß (maximal ${Math.round(maxBytes / 1_000_000)} MB).`),
+            )
             return
           }
           chunks.push(chunk)
@@ -149,7 +155,10 @@ function request(url: URL, maxBytes: number, allowPrivate: boolean): Promise<Raw
           resolve({
             redirect: null,
             bytes: Buffer.concat(chunks),
-            contentType: String(res.headers['content-type'] ?? '').split(';')[0].trim().toLowerCase(),
+            contentType: String(res.headers['content-type'] ?? '')
+              .split(';')[0]
+              .trim()
+              .toLowerCase(),
           }),
         )
         res.on('error', reject)
@@ -157,7 +166,11 @@ function request(url: URL, maxBytes: number, allowPrivate: boolean): Promise<Raw
     )
     req.on('timeout', () => req.destroy(new ToolError('Der Abruf der Datei hat zu lange gedauert.')))
     req.on('error', (error) =>
-      reject(error instanceof ToolError ? error : new ToolError(`Die Datei konnte nicht abgerufen werden (${error.message}).`)),
+      reject(
+        error instanceof ToolError
+          ? error
+          : new ToolError(`Die Datei konnte nicht abgerufen werden (${error.message}).`),
+      ),
     )
     req.end()
   })

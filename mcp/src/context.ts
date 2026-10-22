@@ -63,10 +63,16 @@ export function matchByRef<T extends { id: string }>(
   if (byId) return byId
   const exact = items.filter((item) => keys.some((key) => norm(key(item) ?? '') === wanted))
   if (exact.length === 1) return exact[0]
-  const candidates = exact.length > 1 ? exact : items.filter((item) => keys.some((key) => norm(key(item) ?? '').includes(wanted)))
+  const candidates =
+    exact.length > 1
+      ? exact
+      : items.filter((item) => keys.some((key) => norm(key(item) ?? '').includes(wanted)))
   if (candidates.length === 1) return candidates[0]
   if (candidates.length === 0) {
-    const options = items.slice(0, 15).map((item) => keys[0](item)).filter(Boolean)
+    const options = items
+      .slice(0, 15)
+      .map((item) => keys[0](item))
+      .filter(Boolean)
     throw new ToolError(
       `${kind} „${ref}“ nicht gefunden.`,
       options.length > 0 ? `Verfügbar: ${options.join(', ')}.` : 'Es gibt dazu nichts (oder keine Freigabe).',
@@ -74,7 +80,10 @@ export function matchByRef<T extends { id: string }>(
   }
   throw new ToolError(
     `${kind} „${ref}“ ist nicht eindeutig.`,
-    `Meinst du: ${candidates.slice(0, 8).map((c) => `${keys[0](c)} (${c.id})`).join(', ')}? Nimm am besten die ID.`,
+    `Meinst du: ${candidates
+      .slice(0, 8)
+      .map((c) => `${keys[0](c)} (${c.id})`)
+      .join(', ')}? Nimm am besten die ID.`,
   )
 }
 
@@ -133,7 +142,10 @@ export class Ctx {
     if (!ref) {
       if (scope.workspaces.length === 1) return scope.workspaces[0]
       if (scope.workspaces.length === 0) {
-        throw new ToolError('Es ist kein ganzer Workspace freigegeben.', 'Einzelne Marken sind trotzdem nutzbar (list_brands).')
+        throw new ToolError(
+          'Es ist kein ganzer Workspace freigegeben.',
+          'Einzelne Marken sind trotzdem nutzbar (list_brands).',
+        )
       }
       throw new ToolError(
         'Bitte den Workspace angeben (Name, Kurz-URL oder ID).',
@@ -189,7 +201,10 @@ export class Ctx {
   async requireEdit(brand: ScopeBrand): Promise<ScopeBrand> {
     this.assertWritable(await this.scope())
     if (brand.role !== 'admin' && brand.role !== 'editor') {
-      throw new ToolError(`In „${brand.name}“ hast du nur Leserechte.`, 'Bearbeiten dürfen Editor:innen und Admins der Marke.')
+      throw new ToolError(
+        `In „${brand.name}“ hast du nur Leserechte.`,
+        'Bearbeiten dürfen Editor:innen und Admins der Marke.',
+      )
     }
     return brand
   }
@@ -219,7 +234,9 @@ export class Ctx {
     const ws = await this.workspace(ref)
     this.assertWritable(await this.scope())
     if (ws.role !== 'owner' && ws.role !== 'admin') {
-      throw new ToolError(`Dafür braucht es die Rolle Owner oder Admin im Workspace „${ws.name}“ (du hast: ${ws.role}).`)
+      throw new ToolError(
+        `Dafür braucht es die Rolle Owner oder Admin im Workspace „${ws.name}“ (du hast: ${ws.role}).`,
+      )
     }
     return ws
   }

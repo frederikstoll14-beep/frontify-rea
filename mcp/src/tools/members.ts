@@ -7,11 +7,18 @@ const BRAND_ROLES = ['admin', 'editor', 'viewer'] as const
 
 async function findBrandMember(ctx: import('../context').Ctx, brandId: string, ref: string) {
   const members = rows(
-    await ctx.sb.from('brand_members').select('user_id, profile:profiles(email, full_name)').eq('brand_id', brandId),
+    await ctx.sb
+      .from('brand_members')
+      .select('user_id, profile:profiles(email, full_name)')
+      .eq('brand_id', brandId),
   )
   const needle = ref.trim().toLowerCase()
   const found = members.find((m) => m.user_id === ref || m.profile?.email?.toLowerCase() === needle)
-  if (!found) throw new ToolError(`Mitglied „${ref}“ nicht gefunden.`, 'Nimm die E-Mail-Adresse aus list_brand_members.')
+  if (!found)
+    throw new ToolError(
+      `Mitglied „${ref}“ nicht gefunden.`,
+      'Nimm die E-Mail-Adresse aus list_brand_members.',
+    )
   return { user_id: found.user_id, email: found.profile?.email ?? null }
 }
 
@@ -48,7 +55,8 @@ export const memberTools = [
   defineTool({
     name: 'set_brand_member_role',
     title: 'Rolle in einer Marke ändern',
-    description: 'Ändert die Rolle eines Marken-Mitglieds (admin, editor, viewer). Erfordert Admin-Rolle in der Marke.',
+    description:
+      'Ändert die Rolle eines Marken-Mitglieds (admin, editor, viewer). Erfordert Admin-Rolle in der Marke.',
     input: {
       brand: z.string().optional(),
       user: z.string().describe('E-Mail-Adresse oder user_id'),
@@ -60,7 +68,12 @@ export const memberTools = [
       const brand = await ctx.adminBrand(ref)
       const member = await findBrandMember(ctx, brand.id, user)
       affected(
-        await ctx.sb.from('brand_members').update({ role }).eq('brand_id', brand.id).eq('user_id', member.user_id).select('user_id'),
+        await ctx.sb
+          .from('brand_members')
+          .update({ role })
+          .eq('brand_id', brand.id)
+          .eq('user_id', member.user_id)
+          .select('user_id'),
         'Mitglied',
       )
       return { summary: `${member.email ?? member.user_id} ist jetzt ${role} in „${brand.name}“.` }
@@ -77,7 +90,12 @@ export const memberTools = [
       const brand = await ctx.adminBrand(ref)
       const member = await findBrandMember(ctx, brand.id, user)
       affected(
-        await ctx.sb.from('brand_members').delete().eq('brand_id', brand.id).eq('user_id', member.user_id).select('user_id'),
+        await ctx.sb
+          .from('brand_members')
+          .delete()
+          .eq('brand_id', brand.id)
+          .eq('user_id', member.user_id)
+          .select('user_id'),
         'Mitglied',
       )
       return { summary: `${member.email ?? member.user_id} wurde aus „${brand.name}“ entfernt.` }
@@ -92,13 +110,28 @@ export const memberTools = [
     input: {
       email: z.string().email().optional().describe('E-Mail der Person; weglassen für einen Gruppen-Link'),
       brand: z.string().optional().describe('Marke, wenn nur zu dieser Marke eingeladen werden soll'),
-      workspace: z.string().optional().describe('Workspace (nur ohne brand nötig, wenn mehrere freigegeben sind)'),
+      workspace: z
+        .string()
+        .optional()
+        .describe('Workspace (nur ohne brand nötig, wenn mehrere freigegeben sind)'),
       role: z
         .enum(['admin', 'editor', 'viewer', 'member'])
         .default('viewer')
         .describe('Marke: admin | editor | viewer. Workspace: admin | member'),
-      max_uses: z.number().int().min(1).max(10000).optional().describe('Gruppen-Link: wie oft einlösbar (Standard unbegrenzt)'),
-      expires_in_days: z.number().int().min(1).max(365).optional().describe('Gültigkeit in Tagen (Standard 30)'),
+      max_uses: z
+        .number()
+        .int()
+        .min(1)
+        .max(10000)
+        .optional()
+        .describe('Gruppen-Link: wie oft einlösbar (Standard unbegrenzt)'),
+      expires_in_days: z
+        .number()
+        .int()
+        .min(1)
+        .max(365)
+        .optional()
+        .describe('Gültigkeit in Tagen (Standard 30)'),
     },
     kind: 'write',
     async run({ email, brand: brandRef, workspace: wsRef, role, max_uses, expires_in_days }, ctx) {
@@ -114,7 +147,9 @@ export const memberTools = [
       } else {
         const ws = await ctx.adminWorkspace(wsRef)
         if (role !== 'admin' && role !== 'member') {
-          throw new ToolError('Für Workspaces gilt: admin oder member. (Für eine Marke zusätzlich brand angeben.)')
+          throw new ToolError(
+            'Für Workspaces gilt: admin oder member. (Für eine Marke zusätzlich brand angeben.)',
+          )
         }
         workspaceId = ws.id
         target = ws.name
@@ -156,7 +191,13 @@ export const memberTools = [
         summary: cleanEmail
           ? `Einladung für ${cleanEmail} zu „${target}“ erstellt (noch kein Konto vorhanden). Link weitergeben: ${link ?? invitation.token}`
           : `Gruppen-Link für „${target}“ erstellt: ${link ?? invitation.token}`,
-        data: { invitation_id: invitation.id, link, token: link ? undefined : invitation.token, expires_at: invitation.expires_at, max_uses: invitation.max_uses },
+        data: {
+          invitation_id: invitation.id,
+          link,
+          token: link ? undefined : invitation.token,
+          expires_at: invitation.expires_at,
+          max_uses: invitation.max_uses,
+        },
       }
     },
   }),
@@ -164,7 +205,8 @@ export const memberTools = [
   defineTool({
     name: 'list_invitations',
     title: 'Offene Einladungen',
-    description: 'Listet offene Einladungen/Gruppen-Links einer Marke (mit brand) oder eines Workspaces (ohne brand), jeweils mit Link.',
+    description:
+      'Listet offene Einladungen/Gruppen-Links einer Marke (mit brand) oder eines Workspaces (ohne brand), jeweils mit Link.',
     input: { brand: z.string().optional(), workspace: z.string().optional() },
     kind: 'read',
     async run({ brand: brandRef, workspace: wsRef }, ctx) {
@@ -203,13 +245,17 @@ export const memberTools = [
   defineTool({
     name: 'revoke_invitation',
     title: 'Einladung widerrufen',
-    description: 'Widerruft eine Einladung bzw. einen Gruppen-Link (ID aus list_invitations). Der Link funktioniert danach nicht mehr.',
+    description:
+      'Widerruft eine Einladung bzw. einen Gruppen-Link (ID aus list_invitations). Der Link funktioniert danach nicht mehr.',
     input: { invitation_id: z.string() },
     kind: 'destructive',
     idempotent: true,
     async run({ invitation_id }, ctx) {
       await ctx.assertWriteAllowed()
-      affected(await ctx.sb.from('invitations').update({ revoked: true }).eq('id', invitation_id).select('id'), 'Einladung')
+      affected(
+        await ctx.sb.from('invitations').update({ revoked: true }).eq('id', invitation_id).select('id'),
+        'Einladung',
+      )
       return { summary: 'Einladung widerrufen.' }
     },
   }),

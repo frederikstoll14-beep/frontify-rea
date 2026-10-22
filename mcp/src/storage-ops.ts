@@ -24,9 +24,15 @@ const EXPORT_TTL_MS = 24 * 60 * 60 * 1000
 /** Entfernt alte Export-Dateien (älter als 24 Stunden) aus dem Export-Ordner der Marke. */
 async function cleanupExports(ctx: Ctx, brandId: string): Promise<void> {
   const folder = `${brandId}/exports`
-  const { data } = await ctx.storage.list(folder, { limit: 100, sortBy: { column: 'created_at', order: 'asc' } })
+  const { data } = await ctx.storage.list(folder, {
+    limit: 100,
+    sortBy: { column: 'created_at', order: 'asc' },
+  })
   const old = (data ?? [])
-    .filter((entry) => entry.id !== null && entry.created_at && Date.now() - Date.parse(entry.created_at) > EXPORT_TTL_MS)
+    .filter(
+      (entry) =>
+        entry.id !== null && entry.created_at && Date.now() - Date.parse(entry.created_at) > EXPORT_TTL_MS,
+    )
     .map((entry) => `${folder}/${entry.name}`)
   if (old.length > 0) await ctx.storage.remove(old).catch(() => undefined)
 }

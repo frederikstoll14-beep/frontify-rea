@@ -13,7 +13,8 @@ export function rows<T>(result: Result<T[] | null>): T[] {
 
 export function row<T>(result: Result<T>): NonNullable<T> {
   if (result.error) throw result.error
-  if (result.data === null || result.data === undefined) throw new ToolError('Nicht gefunden oder keine Berechtigung.')
+  if (result.data === null || result.data === undefined)
+    throw new ToolError('Nicht gefunden oder keine Berechtigung.')
   return result.data as NonNullable<T>
 }
 

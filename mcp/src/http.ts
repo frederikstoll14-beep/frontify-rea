@@ -7,7 +7,8 @@ import { buildServer } from './server'
 const CORS_HEADERS: Record<string, string> = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, DELETE, OPTIONS',
-  'access-control-allow-headers': 'authorization, content-type, accept, mcp-session-id, mcp-protocol-version, last-event-id',
+  'access-control-allow-headers':
+    'authorization, content-type, accept, mcp-session-id, mcp-protocol-version, last-event-id',
   'access-control-expose-headers': 'www-authenticate, mcp-session-id',
   'access-control-max-age': '86400',
 }
@@ -18,7 +19,12 @@ const MAX_BODY = 4_400_000
 function json(status: number, body: unknown, headers: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS_HEADERS, ...headers },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+      ...CORS_HEADERS,
+      ...headers,
+    },
   })
 }
 
@@ -28,7 +34,9 @@ export function publicOrigin(request: Request, config: McpConfig | null): string
   const url = new URL(request.url)
   const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? url.host
   const local = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host)
-  const proto = request.headers.get('x-forwarded-proto')?.split(',')[0].trim() ?? (local ? url.protocol.replace(':', '') : 'https')
+  const proto =
+    request.headers.get('x-forwarded-proto')?.split(',')[0].trim() ??
+    (local ? url.protocol.replace(':', '') : 'https')
   return `${proto}://${host}`
 }
 
@@ -61,7 +69,10 @@ async function authorizationServerMetadata(config: McpConfig): Promise<unknown |
   if (metadataCache && Date.now() - metadataCache.at < 10 * 60_000) return metadataCache.body
   try {
     const url = `${config.supabaseUrl}/.well-known/oauth-authorization-server/auth/v1`
-    const res = await fetch(url, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
+    const res = await fetch(url, {
+      headers: { accept: 'application/json' },
+      signal: AbortSignal.timeout(8000),
+    })
     if (!res.ok) return null
     const body = await res.json()
     metadataCache = { at: Date.now(), body }
@@ -79,6 +90,13 @@ function withAcceptHeader(request: Request): Request {
   return new Request(request, { headers })
 }
 
+const ROUTE_HINTS: Record<string, string> = {
+  prm: '/.well-known/oauth-protected-resource',
+  as: '/.well-known/oauth-authorization-server',
+  oidc: '/.well-known/openid-configuration',
+  health: '/mcp/health',
+}
+
 export type FetchHandler = (request: Request) => Promise<Response>
 
 /** HTTP-Einstieg des Servers; läuft auf Vercel, lokal und in Tests identisch. */
@@ -88,13 +106,17 @@ export function createHandler(env: Record<string, string | undefined> = process.
     let path = url.pathname.replace(/\/+$/, '') || '/'
     // Auf Vercel liegt die Funktion unter /api/mcp; öffentlich ist sie unter /mcp erreichbar.
     if (path === '/api/mcp') path = '/mcp'
+    // Die Rewrites in vercel.json hängen ?route=… an. So bleibt die Zuordnung korrekt, auch wenn die
+    // Plattform der Funktion die umgeschriebene statt der ursprünglichen Adresse übergibt.
+    const hinted = ROUTE_HINTS[url.searchParams.get('route') ?? '']
+    if (hinted && (path === '/mcp' || path.startsWith('/.well-known/'))) path = hinted
     const configResult = readConfig(env)
     const config = configResult.ok ? configResult.config : null
     const origin = publicOrigin(request, config)
 
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS })
 
-    if (path === '/' || path === '/health' || path === '/api/health') {
+    if (path === '/' || path === '/health' || path === '/mcp/health') {
       return json(configResult.ok ? 200 : 503, {
         name: SERVER_NAME,
         version: SERVER_VERSION,
@@ -105,22 +127,34 @@ export function createHandler(env: Record<string, string | undefined> = process.
     }
 
     if (!config) {
-      return json(503, { error: 'server_not_configured', error_description: configResult.ok ? '' : configResult.problem })
+      return json(503, {
+        error: 'server_not_configured',
+        error_description: configResult.ok ? '' : configResult.problem,
+      })
     }
 
     if (path.startsWith('/.well-known/oauth-protected-resource')) {
       return json(200, protectedResource(origin, config), { 'cache-control': 'public, max-age=300' })
     }
-    if (path.startsWith('/.well-known/oauth-authorization-server') || path.startsWith('/.well-known/openid-configuration')) {
+    if (
+      path.startsWith('/.well-known/oauth-authorization-server') ||
+      path.startsWith('/.well-known/openid-configuration')
+    ) {
       const body = await authorizationServerMetadata(config)
-      return body ? json(200, body, { 'cache-control': 'public, max-age=300' }) : json(404, { error: 'not_found' })
+      return body
+        ? json(200, body, { 'cache-control': 'public, max-age=300' })
+        : json(404, { error: 'not_found' })
     }
 
     if (path !== '/mcp') return json(404, { error: 'not_found' })
 
     // Dieser Server hält keine Sitzungen offen: kein Server-Stream (GET) und kein Sitzungs-Ende (DELETE).
     if (request.method !== 'POST') {
-      return json(405, { error: 'method_not_allowed', error_description: 'Nur POST wird unterstützt.' }, { allow: 'POST, OPTIONS' })
+      return json(
+        405,
+        { error: 'method_not_allowed', error_description: 'Nur POST wird unterstützt.' },
+        { allow: 'POST, OPTIONS' },
+      )
     }
 
     const auth = await authenticate(config, request.headers.get('authorization'))
@@ -145,7 +179,11 @@ export function createHandler(env: Record<string, string | undefined> = process.
       const headers = new Headers(response.headers)
       for (const [key, value] of Object.entries(CORS_HEADERS)) headers.set(key, value)
       headers.set('cache-control', 'no-store')
-      return new Response(response.body, { status: response.status, statusText: response.statusText, headers })
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      })
     } catch (error) {
       console.error('mcp request failed', error instanceof Error ? error.message : 'unknown error')
       return json(500, { jsonrpc: '2.0', error: { code: -32603, message: 'Interner Fehler' }, id: null })

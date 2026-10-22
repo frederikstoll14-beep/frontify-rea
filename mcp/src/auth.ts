@@ -58,12 +58,22 @@ export async function authenticate(config: McpConfig, header: string | null): Pr
     }
     claims = data.claims as unknown as Record<string, unknown>
   } catch {
-    return { ok: false, status: 401, error: 'invalid_token', description: 'Token konnte nicht geprüft werden' }
+    return {
+      ok: false,
+      status: 401,
+      error: 'invalid_token',
+      description: 'Token konnte nicht geprüft werden',
+    }
   }
   const userId = typeof claims.sub === 'string' ? claims.sub : null
   const clientId = typeof claims.client_id === 'string' && claims.client_id ? claims.client_id : null
   if (!userId || claims.role !== 'authenticated') {
-    return { ok: false, status: 401, error: 'invalid_token', description: 'Token gehört zu keiner angemeldeten Person' }
+    return {
+      ok: false,
+      status: 401,
+      error: 'invalid_token',
+      description: 'Token gehört zu keiner angemeldeten Person',
+    }
   }
   if (!clientId) {
     return {

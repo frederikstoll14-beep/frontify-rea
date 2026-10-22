@@ -38,13 +38,21 @@ export function readDimensions(bytes: Uint8Array, mime: string): ImageDims | nul
 }
 
 /** Vorschaubild (max. 800 px, WebP) wie in der Web-App; kleine Rasterbilder brauchen keins. */
-export async function createThumbnail(bytes: Buffer, mime: string, dims: ImageDims | null): Promise<Buffer | null> {
+export async function createThumbnail(
+  bytes: Buffer,
+  mime: string,
+  dims: ImageDims | null,
+): Promise<Buffer | null> {
   if (!isImage(mime)) return null
-  if (isRaster(mime) && bytes.length < 150_000 && dims && Math.max(dims.width, dims.height) <= 800) return null
+  if (isRaster(mime) && bytes.length < 150_000 && dims && Math.max(dims.width, dims.height) <= 800)
+    return null
   const sharp = await loadSharp()
   if (!sharp) return null
   try {
-    return await sharp(bytes, { limitInputPixels: 80_000_000, ...(mime === 'image/svg+xml' ? { density: 144 } : {}) })
+    return await sharp(bytes, {
+      limitInputPixels: 80_000_000,
+      ...(mime === 'image/svg+xml' ? { density: 144 } : {}),
+    })
       .rotate()
       .resize({ width: 800, height: 800, fit: 'inside', withoutEnlargement: mime !== 'image/svg+xml' })
       .webp({ quality: 82 })
@@ -77,7 +85,8 @@ export async function convertImage(
     ...(mime === 'image/svg+xml' ? { density: width && width > 1000 ? 300 : 192 } : {}),
   }).rotate()
   if (width) pipeline = pipeline.resize({ width, withoutEnlargement: mime !== 'image/svg+xml' })
-  if (format === 'jpg') pipeline = pipeline.flatten({ background: background ?? '#FFFFFF' }).jpeg({ quality: 90 })
+  if (format === 'jpg')
+    pipeline = pipeline.flatten({ background: background ?? '#FFFFFF' }).jpeg({ quality: 90 })
   else if (background) pipeline = pipeline.flatten({ background }).toFormat(format === 'png' ? 'png' : 'webp')
   else pipeline = format === 'png' ? pipeline.png() : pipeline.webp({ quality: 90 })
   return pipeline.toBuffer()

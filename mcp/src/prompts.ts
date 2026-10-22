@@ -39,8 +39,11 @@ export function registerPrompts(server: McpServer): void {
     'audit_brand',
     {
       title: 'Marke prüfen (Audit)',
-      description: 'Prüft eine Marke auf Lücken: fehlende Inhalte, Kontraste, Tokens, abgelaufene Dateien, leere Seiten.',
-      argsSchema: { brand: z.string().optional().describe('Marke (Name); leer, wenn nur eine freigegeben ist') },
+      description:
+        'Prüft eine Marke auf Lücken: fehlende Inhalte, Kontraste, Tokens, abgelaufene Dateien, leere Seiten.',
+      argsSchema: {
+        brand: z.string().optional().describe('Marke (Name); leer, wenn nur eine freigegeben ist'),
+      },
     },
     ({ brand }) =>
       user(

@@ -15,10 +15,14 @@ export type Library = Tables<'libraries'>
 
 export async function resolveGuideline(ctx: Ctx, brand: ScopeBrand, ref?: string): Promise<Guideline> {
   const list = rows(await ctx.sb.from('guidelines').select('*').eq('brand_id', brand.id).order('sort'))
-  if (list.length === 0) throw new ToolError(`„${brand.name}“ hat noch kein Handbuch.`, 'Lege eins mit create_guideline an.')
+  if (list.length === 0)
+    throw new ToolError(`„${brand.name}“ hat noch kein Handbuch.`, 'Lege eins mit create_guideline an.')
   if (!ref) {
     if (list.length === 1) return list[0]
-    throw new ToolError('Bitte das Handbuch angeben (Titel, Kurz-URL oder ID).', `Vorhanden: ${list.map((g) => g.title).join(', ')}.`)
+    throw new ToolError(
+      'Bitte das Handbuch angeben (Titel, Kurz-URL oder ID).',
+      `Vorhanden: ${list.map((g) => g.title).join(', ')}.`,
+    )
   }
   return matchByRef(list, ref, [(g) => g.title, (g) => g.slug], 'Handbuch')
 }
@@ -46,18 +50,29 @@ export async function resolvePage(
   }
   const brand = await ctx.brand(input.brand)
   const guideline = await resolveGuideline(ctx, brand, input.guideline)
-  const pages = rows(await ctx.sb.from('guideline_pages').select('*').eq('guideline_id', guideline.id).order('sort'))
+  const pages = rows(
+    await ctx.sb.from('guideline_pages').select('*').eq('guideline_id', guideline.id).order('sort'),
+  )
   const candidates = options.kind ? pages.filter((p) => p.kind === options.kind) : pages
-  const page = matchByRef(candidates, input.page, [(p) => p.title, (p) => p.slug], options.kind === 'chapter' ? 'Kapitel' : 'Seite')
+  const page = matchByRef(
+    candidates,
+    input.page,
+    [(p) => p.title, (p) => p.slug],
+    options.kind === 'chapter' ? 'Kapitel' : 'Seite',
+  )
   return { brand, guideline, page }
 }
 
 export async function resolveLibrary(ctx: Ctx, brand: ScopeBrand, ref?: string): Promise<Library> {
   const list = rows(await ctx.sb.from('libraries').select('*').eq('brand_id', brand.id).order('sort'))
-  if (list.length === 0) throw new ToolError(`„${brand.name}“ hat noch keine Bibliothek.`, 'Lege eine mit create_library an.')
+  if (list.length === 0)
+    throw new ToolError(`„${brand.name}“ hat noch keine Bibliothek.`, 'Lege eine mit create_library an.')
   if (!ref) {
     if (list.length === 1) return list[0]
-    throw new ToolError('Bitte die Bibliothek angeben (Name, Kurz-URL oder ID).', `Vorhanden: ${list.map((l) => l.name).join(', ')}.`)
+    throw new ToolError(
+      'Bitte die Bibliothek angeben (Name, Kurz-URL oder ID).',
+      `Vorhanden: ${list.map((l) => l.name).join(', ')}.`,
+    )
   }
   return matchByRef(list, ref, [(l) => l.name, (l) => l.slug], 'Bibliothek')
 }

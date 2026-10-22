@@ -52,6 +52,8 @@ export interface ConnectOptions {
   workspaceIds?: string[]
   brandIds?: string[]
   readOnly?: boolean
+  /** Adresse des MCP-Servers als „resource“ (RFC 8707). */
+  resource?: string
   /** true = keine Auswahl speichern (Zustimmung ohne Freigabe). */
   skipGrant?: boolean
 }
@@ -76,7 +78,8 @@ export async function connectApp(options: ConnectOptions): Promise<Connection> {
       token_endpoint_auth_method: 'none',
     }),
   })
-  if (!registration.ok) throw new Error(`Registrierung fehlgeschlagen: ${registration.status} ${await registration.text()}`)
+  if (!registration.ok)
+    throw new Error(`Registrierung fehlgeschlagen: ${registration.status} ${await registration.text()}`)
   const client = await registration.json()
 
   const verifier = base64url(randomBytes(32))
@@ -90,6 +93,8 @@ export async function connectApp(options: ConnectOptions): Promise<Connection> {
     state,
     code_challenge: challenge,
     code_challenge_method: 'S256',
+    // Aktuelle MCP-Clients senden den Ressourcen-Hinweis (RFC 8707) und leeren Scope mit
+    resource: options.resource ?? 'https://brandbench.example/mcp',
   }).toString()
   const redirect = await fetch(authorize, { redirect: 'manual' })
   const location = redirect.headers.get('location')
@@ -112,7 +117,9 @@ export async function connectApp(options: ConnectOptions): Promise<Connection> {
     })
     if (saved.error) throw new Error(`save_mcp_grant: ${saved.error.message}`)
   }
-  const approved = await options.user.auth.oauth.approveAuthorization(authorizationId, { skipBrowserRedirect: true })
+  const approved = await options.user.auth.oauth.approveAuthorization(authorizationId, {
+    skipBrowserRedirect: true,
+  })
   if (approved.error || !approved.data) throw new Error(`Zustimmung: ${approved.error?.message}`)
   const back = new URL(approved.data.redirect_url)
   if (back.searchParams.get('state') !== state) throw new Error('state stimmt nicht')
@@ -127,6 +134,7 @@ export async function connectApp(options: ConnectOptions): Promise<Connection> {
       client_id: client.client_id,
       redirect_uri: redirectUri,
       code_verifier: verifier,
+      resource: options.resource ?? 'https://brandbench.example/mcp',
     }),
   })
   if (!tokenResponse.ok) throw new Error(`Token: ${tokenResponse.status} ${await tokenResponse.text()}`)
@@ -152,7 +160,11 @@ export interface ToolResponse {
   raw: CallToolResult
 }
 
-export async function call(client: Client, name: string, args: Record<string, unknown> = {}): Promise<ToolResponse> {
+export async function call(
+  client: Client,
+  name: string,
+  args: Record<string, unknown> = {},
+): Promise<ToolResponse> {
   const raw = (await client.callTool({ name, arguments: args })) as CallToolResult
   const first = raw.content.find((c) => c.type === 'text')
   const text = first && first.type === 'text' ? first.text : ''
@@ -169,7 +181,11 @@ export async function call(client: Client, name: string, args: Record<string, un
 }
 
 /** Wirft, wenn ein Tool fehlschlägt – für den Normalfall in Tests. */
-export async function ok(client: Client, name: string, args: Record<string, unknown> = {}): Promise<ToolResponse> {
+export async function ok(
+  client: Client,
+  name: string,
+  args: Record<string, unknown> = {},
+): Promise<ToolResponse> {
   const res = await call(client, name, args)
   if (res.isError) throw new Error(`${name} fehlgeschlagen: ${res.text}`)
   return res

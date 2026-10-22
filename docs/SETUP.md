@@ -98,6 +98,10 @@ Alternativen zu Vercel sind Netlify oder Cloudflare Pages. Die Datei `public/_re
 
 Wie du den Kurs damit organisierst, steht in [LEHRE.md](LEHRE.md).
 
+## 7. Optional: Claude mit Brandbench verbinden
+
+Brandbench lässt sich als Konnektor in Claude einbinden („Benutzerdefinierten Konnektor hinzufügen“). Dazu die Migration `20261022120000_mcp_connector.sql` im SQL-Editor ausführen und in Supabase unter **Authentication → OAuth Server** den OAuth-Server einschalten. Die Schritte stehen in [MCP.md](MCP.md).
+
 ---
 
 ## Häufige Probleme
@@ -114,4 +118,4 @@ Wie du den Kurs damit organisierst, steht in [LEHRE.md](LEHRE.md).
 ## Updates einspielen
 
 - Neue Versionen der App deployt Vercel automatisch bei jedem Push auf den verbundenen Branch.
-- Kommen neue Datenbank-Migrationen hinzu (`supabase/migrations/*.sql`), führst du nur die **neuen** Dateien im SQL-Editor aus.
+- Kommen neue Datenbank-Migrationen hinzu (`supabase/migrations/*.sql`), führst du nur die **neuen** Dateien im SQL-Editor aus. Für den Claude-Konnektor ist das `20261022120000_mcp_connector.sql`.
