@@ -76,3 +76,18 @@ export async function resolveLibrary(ctx: Ctx, brand: ScopeBrand, ref?: string):
   }
   return matchByRef(list, ref, [(l) => l.name, (l) => l.slug], 'Bibliothek')
 }
+
+interface MemberLike {
+  user_id: string
+  profile: { email: string | null } | null
+}
+
+/** Findet ein Mitglied über user_id oder E-Mail-Adresse (ohne Groß-/Kleinschreibung). */
+export function pickMember(members: MemberLike[], ref: string, listTool: string) {
+  const needle = ref.trim().toLowerCase()
+  const found = members.find((m) => m.user_id === ref || m.profile?.email?.toLowerCase() === needle)
+  if (!found) {
+    throw new ToolError(`Mitglied „${ref}“ nicht gefunden.`, `Nimm die E-Mail-Adresse aus ${listTool}.`)
+  }
+  return { user_id: found.user_id, email: found.profile?.email ?? null }
+}

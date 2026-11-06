@@ -27,7 +27,11 @@ export async function createWorkspaceAndBrand(
   brand: string,
   template = /^Sportverein/,
 ) {
-  await page.getByRole('button', { name: 'Workspace anlegen' }).first().click()
+  // Neue Konten haben schon den Beispiel-Workspace: der Knopf in der Kopfzeile heißt „Workspace“
+  await page
+    .getByRole('button', { name: /^Workspace( anlegen)?$/ })
+    .first()
+    .click()
   await page.getByLabel('Name').fill(workspace)
   await page.getByRole('button', { name: 'Anlegen' }).click()
   await expect(page).toHaveURL(/\/w\//)

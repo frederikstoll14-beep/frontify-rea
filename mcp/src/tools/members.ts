@@ -1,25 +1,16 @@
 import { z } from 'zod'
 import { affected, rows, row } from '../db'
 import { ToolError } from '../errors'
+import { pickMember } from '../resolve'
 import { defineTool } from '../tool'
 
 const BRAND_ROLES = ['admin', 'editor', 'viewer'] as const
 
 async function findBrandMember(ctx: import('../context').Ctx, brandId: string, ref: string) {
   const members = rows(
-    await ctx.sb
-      .from('brand_members')
-      .select('user_id, profile:profiles(email, full_name)')
-      .eq('brand_id', brandId),
+    await ctx.sb.from('brand_members').select('user_id, profile:profiles(email)').eq('brand_id', brandId),
   )
-  const needle = ref.trim().toLowerCase()
-  const found = members.find((m) => m.user_id === ref || m.profile?.email?.toLowerCase() === needle)
-  if (!found)
-    throw new ToolError(
-      `Mitglied „${ref}“ nicht gefunden.`,
-      'Nimm die E-Mail-Adresse aus list_brand_members.',
-    )
-  return { user_id: found.user_id, email: found.profile?.email ?? null }
+  return pickMember(members, ref, 'list_brand_members')
 }
 
 export const memberTools = [
@@ -116,8 +107,10 @@ export const memberTools = [
         .describe('Workspace (nur ohne brand nötig, wenn mehrere freigegeben sind)'),
       role: z
         .enum(['admin', 'editor', 'viewer', 'member'])
-        .default('viewer')
-        .describe('Marke: admin | editor | viewer. Workspace: admin | member'),
+        .optional()
+        .describe(
+          'Marke: admin | editor | viewer (Standard viewer). Workspace: admin | member (Standard member)',
+        ),
       max_uses: z
         .number()
         .int()
@@ -134,7 +127,11 @@ export const memberTools = [
         .describe('Gültigkeit in Tagen (Standard 30)'),
     },
     kind: 'write',
-    async run({ email, brand: brandRef, workspace: wsRef, role, max_uses, expires_in_days }, ctx) {
+    async run(
+      { email, brand: brandRef, workspace: wsRef, role: requestedRole, max_uses, expires_in_days },
+      ctx,
+    ) {
+      const role = requestedRole ?? (brandRef ? 'viewer' : 'member')
       let workspaceId: string
       let brandId: string | null = null
       let target: string
@@ -194,6 +191,7 @@ export const memberTools = [
         data: {
           invitation_id: invitation.id,
           link,
+          scope: brandId ? 'nur diese Marke' : 'ganzer Workspace',
           token: link ? undefined : invitation.token,
           expires_at: invitation.expires_at,
           max_uses: invitation.max_uses,

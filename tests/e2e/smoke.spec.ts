@@ -49,7 +49,7 @@ test('Dozentin legt Kurs und Marke an, Studentin tritt per Link bei, Gäste sehe
   await expect(lecturer.getByText('Vereinsrot')).toBeVisible()
 
   // Einladungslink für den Kurs (Workspace) erzeugen
-  const workspaceLink = lecturer.getByRole('menuitem', { name: /Workspace:/ })
+  const workspaceLink = lecturer.getByRole('menuitem', { name: /Workspace:.*Brand Identity/ })
   await lecturer.getByRole('button', { name: 'Weitere' }).click()
   await workspaceLink.click()
   await lecturer.getByRole('tab', { name: /Mitglieder/ }).click()

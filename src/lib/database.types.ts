@@ -521,14 +521,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"email": string,"full_name": string,"id": string
+                    "created_at": string,"demo_seeded_at": string | null,"email": string,"full_name": string,"id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"email": string,"full_name"?: string,"id": string
+                    "created_at"?: string,"demo_seeded_at"?: string | null,"email": string,"full_name"?: string,"id": string
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string,"full_name"?: string,"id"?: string
+                    "created_at"?: string,"demo_seeded_at"?: string | null,"email"?: string,"full_name"?: string,"id"?: string
                   }
                   Relationships: [
                     
