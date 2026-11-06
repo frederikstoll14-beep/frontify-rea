@@ -546,6 +546,9 @@ describe('MCP – alle Funktionen im Zusammenspiel', () => {
         .role,
     ).toBe('editor')
 
+    const wsDefault = await ok(c, 'invite_member', { workspace: wsId })
+    expect(wsDefault.data.scope).toBe('ganzer Workspace')
+    await ok(c, 'revoke_invitation', { invitation_id: wsDefault.data.invitation_id })
     const link = await ok(c, 'invite_member', { brand: brandId, role: 'viewer', max_uses: 5 })
     expect(link.data.link).toContain('/einladung/')
     const mail = await ok(c, 'invite_member', { brand: brandId, email: 'neu@test.local', role: 'viewer' })

@@ -91775,6 +91775,14 @@ async function resolveLibrary(ctx, brand, ref) {
   }
   return matchByRef(list, ref, [(l) => l.name, (l) => l.slug], "Bibliothek");
 }
+function pickMember(members2, ref, listTool) {
+  const needle = ref.trim().toLowerCase();
+  const found = members2.find((m) => m.user_id === ref || m.profile?.email?.toLowerCase() === needle);
+  if (!found) {
+    throw new ToolError(`Mitglied \u201E${ref}\u201C nicht gefunden.`, `Nimm die E-Mail-Adresse aus ${listTool}.`);
+  }
+  return { user_id: found.user_id, email: found.profile?.email ?? null };
+}
 
 // mcp/src/tools/collab.ts
 function present(c) {
@@ -95222,16 +95230,9 @@ var libraryTools = [
 var BRAND_ROLES = ["admin", "editor", "viewer"];
 async function findBrandMember(ctx, brandId, ref) {
   const members2 = rows(
-    await ctx.sb.from("brand_members").select("user_id, profile:profiles(email, full_name)").eq("brand_id", brandId)
+    await ctx.sb.from("brand_members").select("user_id, profile:profiles(email)").eq("brand_id", brandId)
   );
-  const needle = ref.trim().toLowerCase();
-  const found = members2.find((m) => m.user_id === ref || m.profile?.email?.toLowerCase() === needle);
-  if (!found)
-    throw new ToolError(
-      `Mitglied \u201E${ref}\u201C nicht gefunden.`,
-      "Nimm die E-Mail-Adresse aus list_brand_members."
-    );
-  return { user_id: found.user_id, email: found.profile?.email ?? null };
+  return pickMember(members2, ref, "list_brand_members");
 }
 var memberTools = [
   defineTool({
@@ -95302,12 +95303,15 @@ var memberTools = [
       email: external_exports.string().email().optional().describe("E-Mail der Person; weglassen f\xFCr einen Gruppen-Link"),
       brand: external_exports.string().optional().describe("Marke, wenn nur zu dieser Marke eingeladen werden soll"),
       workspace: external_exports.string().optional().describe("Workspace (nur ohne brand n\xF6tig, wenn mehrere freigegeben sind)"),
-      role: external_exports.enum(["admin", "editor", "viewer", "member"]).default("viewer").describe("Marke: admin | editor | viewer. Workspace: admin | member"),
+      role: external_exports.enum(["admin", "editor", "viewer", "member"]).optional().describe(
+        "Marke: admin | editor | viewer (Standard viewer). Workspace: admin | member (Standard member)"
+      ),
       max_uses: external_exports.number().int().min(1).max(1e4).optional().describe("Gruppen-Link: wie oft einl\xF6sbar (Standard unbegrenzt)"),
       expires_in_days: external_exports.number().int().min(1).max(365).optional().describe("G\xFCltigkeit in Tagen (Standard 30)")
     },
     kind: "write",
-    async run({ email: email3, brand: brandRef, workspace: wsRef, role, max_uses, expires_in_days }, ctx) {
+    async run({ email: email3, brand: brandRef, workspace: wsRef, role: requestedRole, max_uses, expires_in_days }, ctx) {
+      const role = requestedRole ?? (brandRef ? "viewer" : "member");
       let workspaceId;
       let brandId = null;
       let target;
@@ -95361,6 +95365,7 @@ var memberTools = [
         data: {
           invitation_id: invitation.id,
           link,
+          scope: brandId ? "nur diese Marke" : "ganzer Workspace",
           token: link ? void 0 : invitation.token,
           expires_at: invitation.expires_at,
           max_uses: invitation.max_uses
@@ -95776,16 +95781,9 @@ var workspaceTools = [
 ];
 async function findWorkspaceMember(ctx, workspaceId, ref) {
   const members2 = rows(
-    await ctx.sb.from("workspace_members").select("user_id, profile:profiles(email, full_name)").eq("workspace_id", workspaceId)
+    await ctx.sb.from("workspace_members").select("user_id, profile:profiles(email)").eq("workspace_id", workspaceId)
   );
-  const needle = ref.trim().toLowerCase();
-  const found = members2.find((m) => m.user_id === ref || m.profile?.email?.toLowerCase() === needle);
-  if (!found)
-    throw new ToolError(
-      `Mitglied \u201E${ref}\u201C nicht gefunden.`,
-      "Nimm die E-Mail-Adresse aus list_workspace_members."
-    );
-  return { user_id: found.user_id, email: found.profile?.email ?? null };
+  return pickMember(members2, ref, "list_workspace_members");
 }
 
 // mcp/src/server.ts

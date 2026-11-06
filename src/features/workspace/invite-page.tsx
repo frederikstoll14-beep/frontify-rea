@@ -8,6 +8,7 @@ import { AppShell } from '@/components/layout/app-shell'
 import { Button } from '@/components/ui/button'
 import { Card, EmptyState } from '@/components/ui/misc'
 import { PageSpinner } from '@/components/ui/spinner'
+import { forgetInvite, rememberInvite } from '@/lib/pending-invite'
 import { errorMessage } from '@/lib/utils'
 import { BRAND_ROLES, WORKSPACE_ROLES } from '@/features/members/members-panel'
 
@@ -19,17 +20,28 @@ export function InvitePage() {
   const navigate = useNavigate()
   const attempted = useRef(false)
 
+  // Den Link merken, bis die Einladung eingelöst ist (Anmeldung/Bestätigung kann woanders landen).
+  useEffect(() => {
+    if (!token || isLoading) return
+    if (preview?.is_valid) rememberInvite(token)
+    else forgetInvite()
+  }, [token, preview, isLoading])
+
   useEffect(() => {
     if (!user || !preview?.is_valid || !token || attempted.current) return
     attempted.current = true
     accept.mutate(token, {
       onSuccess: (result) => {
+        forgetInvite()
         toast.success('Einladung angenommen')
         if (result?.brand_slug) navigate(`/b/${result.brand_slug}`, { replace: true })
         else if (result?.workspace_slug) navigate(`/w/${result.workspace_slug}`, { replace: true })
         else navigate('/', { replace: true })
       },
-      onError: (e) => toast.error(errorMessage(e)),
+      onError: (e) => {
+        forgetInvite()
+        toast.error(errorMessage(e))
+      },
     })
   }, [user, preview, token, accept, navigate])
 

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { affected, defined, requireChange, rows, row } from '../db'
 import { ToolError } from '../errors'
+import { pickMember } from '../resolve'
 import { removeBrandFiles } from '../storage-ops'
 import { defineTool } from '../tool'
 
@@ -165,15 +166,8 @@ export async function findWorkspaceMember(
   const members = rows(
     await ctx.sb
       .from('workspace_members')
-      .select('user_id, profile:profiles(email, full_name)')
+      .select('user_id, profile:profiles(email)')
       .eq('workspace_id', workspaceId),
   )
-  const needle = ref.trim().toLowerCase()
-  const found = members.find((m) => m.user_id === ref || m.profile?.email?.toLowerCase() === needle)
-  if (!found)
-    throw new ToolError(
-      `Mitglied „${ref}“ nicht gefunden.`,
-      'Nimm die E-Mail-Adresse aus list_workspace_members.',
-    )
-  return { user_id: found.user_id, email: found.profile?.email ?? null }
+  return pickMember(members, ref, 'list_workspace_members')
 }

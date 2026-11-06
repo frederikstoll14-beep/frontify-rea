@@ -11,6 +11,7 @@ import { Dialog } from '@/components/ui/dialog'
 import { Field, Input, Textarea } from '@/components/ui/input'
 import { Badge, Card, SectionTitle } from '@/components/ui/misc'
 import { PageSpinner } from '@/components/ui/spinner'
+import { parseInviteToken } from '@/lib/pending-invite'
 import { errorMessage } from '@/lib/utils'
 import { WORKSPACE_ROLES } from '@/features/members/members-panel'
 import { BrandCard } from './brand-card'
@@ -85,6 +86,39 @@ export function CreateWorkspaceDialog({
   )
 }
 
+/** Einladungslink einfügen, falls das Öffnen nicht geklappt hat (z. B. nach der E-Mail-Bestätigung). */
+function InviteLinkField() {
+  const navigate = useNavigate()
+  const [value, setValue] = useState('')
+  const submit = () => {
+    const token = parseInviteToken(value)
+    if (!token) {
+      toast.error('Das sieht nicht nach einem Einladungslink aus.')
+      return
+    }
+    navigate(`/einladung/${token}`)
+  }
+  return (
+    <form
+      className="flex gap-2"
+      onSubmit={(e) => {
+        e.preventDefault()
+        submit()
+      }}
+    >
+      <Input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="https://…/einladung/…"
+        aria-label="Einladungslink"
+      />
+      <Button type="submit" variant="outline" disabled={!value.trim()}>
+        Einlösen
+      </Button>
+    </form>
+  )
+}
+
 export function DashboardPage() {
   const { user, profile } = useAuth()
   const { data: workspaces = [], isLoading } = useWorkspaces(user?.id)
@@ -129,9 +163,11 @@ export function DashboardPage() {
             <Card className="p-6">
               <Users className="mb-4 size-8 text-accent" />
               <h2 className="text-lg font-semibold text-ink">Einladung erhalten?</h2>
-              <p className="mt-1 text-sm text-muted">
-                Öffne einfach den Einladungslink, den du bekommen hast. Danach erscheint der Workspace hier.
+              <p className="mt-1 mb-4 text-sm text-muted">
+                Öffne den Einladungslink, den du bekommen hast, oder füge ihn hier ein. Danach erscheint der
+                Workspace hier.
               </p>
+              <InviteLinkField />
             </Card>
           </div>
           {sharedBrands.length > 0 && (
