@@ -59,7 +59,7 @@ test('Einladungslink lässt sich auf der leeren Startseite einfügen', async ({ 
   await page.getByLabel('Passwort').fill(PASSWORD)
   await page.getByRole('button', { name: 'Anmelden' }).click()
   await dismissTour(page)
-  await expect(page.getByRole('heading', { name: 'Einladung erhalten?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Einladung erhalten?' }).first()).toBeVisible()
 
   await page.getByLabel('Einladungslink').fill('kein link')
   await page.getByRole('button', { name: 'Einlösen' }).click()

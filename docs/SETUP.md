@@ -91,6 +91,8 @@ Alternativen zu Vercel sind Netlify oder Cloudflare Pages. Die Datei `public/_re
 
 ## 6. Erste Schritte in der App
 
+> Jedes neue Konto bekommt beim ersten Anmelden automatisch einen **Beispiel-Workspace** mit der fertig ausgefüllten Beispiel-Marke „SV Rheinblick 1921“ zum Ausprobieren. Wer alles verstanden hat, löscht ihn unter **Workspace → Einstellungen → Workspace löschen**. Er kommt nicht wieder. (Benötigt die Migration `20261106120000_demo_seed.sql`.)
+
 1. App öffnen → **Registrieren** (du wirst automatisch Owner deines ersten Workspaces).
 2. **Workspace anlegen**, z. B. „Brand Identity · WS 2026/27“.
 3. **Workspace → Mitglieder → Einladungslink für Gruppe erstellen** (Rolle „Mitglied“, gültig ein Semester) und den Link im Kurs teilen.
@@ -118,4 +120,4 @@ Brandbench lässt sich als Konnektor in Claude einbinden („Benutzerdefinierten
 ## Updates einspielen
 
 - Neue Versionen der App deployt Vercel automatisch bei jedem Push auf den verbundenen Branch.
-- Kommen neue Datenbank-Migrationen hinzu (`supabase/migrations/*.sql`), führst du nur die **neuen** Dateien im SQL-Editor aus. Für den Claude-Konnektor ist das `20261022120000_mcp_connector.sql`.
+- Kommen neue Datenbank-Migrationen hinzu (`supabase/migrations/*.sql`), führst du nur die **neuen** Dateien im SQL-Editor aus. Für den Claude-Konnektor ist das `20261022120000_mcp_connector.sql`, für den Beispiel-Workspace neuer Konten `20261106120000_demo_seed.sql`.

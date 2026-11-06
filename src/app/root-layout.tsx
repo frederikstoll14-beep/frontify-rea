@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
+import { SeedDemoWorkspace } from '@/features/onboarding/seed-demo'
 import { ResumePendingInvite } from '@/features/workspace/resume-invite'
 import { TourProvider } from '@/features/onboarding/product-tour'
 import { APP_TITLE } from '@/lib/app'
@@ -14,6 +15,7 @@ export function RootLayout() {
   return (
     <TourProvider>
       <ResumePendingInvite />
+      <SeedDemoWorkspace />
       <Outlet />
     </TourProvider>
   )

@@ -235,6 +235,15 @@ export function DashboardPage() {
               </div>
             </section>
           )}
+          <section>
+            <SectionTitle
+              title="Einladung erhalten?"
+              description="Füge den Einladungslink hier ein, falls das Öffnen nicht geklappt hat."
+            />
+            <div className="max-w-xl">
+              <InviteLinkField />
+            </div>
+          </section>
           <Card className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
             <Sparkles className="size-6 shrink-0 text-accent" />
             <p className="flex-1 text-sm text-ink-2">
